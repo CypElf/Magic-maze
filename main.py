@@ -61,19 +61,21 @@ def display_game(board, red, orange, yellow, green):
 				color = "green"
 
 			rectangle(x, y, x + case_width, y + case_height, remplissage = color)
-	mise_a_jour()
 
 class pawn:
 	"""
-	The class pawn represents a pawn with its coordonates.
-	BE CAREFUL as the x coordonate represents the position on the vertical axis and the y on the horizontal axis, as the rows of the board represents the x and the columns the y. 
+	The class pawn represents a pawn with its coordinates.
+	BE CAREFUL as the x coordinate represents the position on the vertical axis and the y on the horizontal axis, as the rows of the board represents the x and the columns the y. 
 	"""
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
+
 	def coord(self):
 		"""
-		Returns the coordonates of the pawn as a tuple (x,y)
+		Returns the coordinates of the pawn as a tuple (x,y)
+
+		Example :
 
 		>>> p = pawn(3,4)
 		>>> p.coord()
@@ -109,13 +111,15 @@ def main():
 	down_keys = ["Down", "s"]
 	right_keys = ["Right", "d"]
 
-	current_pawn = "red"
+	current_color = "red"
+
+	display_game(board, pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"])
+	mise_a_jour()
 
 	while True:
-		display_game(board, pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"])
-
 		event = donne_evenement()
 		event_type = type_evenement(event)
+		mise_a_jour()
 
 		if event_type == "Touche":
 			key = touche(event)
@@ -124,12 +128,59 @@ def main():
 				break
 
 			elif key in up_keys:
-				if pawns[current_pawn].x > 0:
-					pawns[current_pawn].x -= 1
+				current_pawn = pawns[current_color]
+				collision = False
+
+				others = pawns.copy()
+				others.pop(current_color)
+				for _, p in others.items():
+					if p.coord() == (current_pawn.x - 1, current_pawn.y):
+						collision = True
+
+				if current_pawn.x > 0 and not collision:
+					pawns[current_color].x -= 1
 
 			elif key in down_keys:
-				if pawns[current_pawn].x < len(board) - 1:
-					pawns[current_pawn].x += 1
+				current_pawn = pawns[current_color]
+				collision = False
+
+				others = pawns.copy()
+				others.pop(current_color)
+				for _, p in others.items():
+					if p.coord() == (current_pawn.x + 1, current_pawn.y):
+						collision = True
+
+				if current_pawn.x < len(board) - 1 and not collision:
+					pawns[current_color].x += 1
+			
+			elif key in left_keys:
+				current_pawn = pawns[current_color]
+				collision = False
+
+				others = pawns.copy()
+				others.pop(current_color)
+				for _, p in others.items():
+					if p.coord() == (current_pawn.x, current_pawn.y - 1):
+						collision = True
+
+				if current_pawn.y > 0 and not collision:
+					pawns[current_color].y -= 1
+			
+			elif key in right_keys:
+				current_pawn = pawns[current_color]
+				collision = False
+
+				others = pawns.copy()
+				others.pop(current_color)
+				for _, p in others.items():
+					if p.coord() == (current_pawn.x, current_pawn.y + 1):
+						collision = True
+
+				if current_pawn.y < len(board[0]) - 1 and not collision:
+					pawns[current_color].y += 1
+
+			display_game(board, pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"])
+		mise_a_jour()
 
 	ferme_fenetre()
 
