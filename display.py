@@ -1,4 +1,5 @@
 from upemtk import rectangle
+from pawn import *
 
 def display_game(red, orange, yellow, green, board, width, height):
 	"""
@@ -9,17 +10,17 @@ def display_game(red, orange, yellow, green, board, width, height):
 
 	Exemples :
 
-	>>> display_game([], pawn(0,0), pawn(0,0), pawn(0,0), pawn(0,0))
+	>>> display_game(pawn(0,0), pawn(0,0), pawn(0,0), pawn(0,0), [], 800, 800)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough rows
 
-	>>> display_game([[],[]], pawn(0,0), pawn(0,0), pawn(0,0), pawn(0,0))
+	>>> display_game(pawn(0,0), pawn(0,0), pawn(0,0), pawn(0,0), [[],[]], 800, 800)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough columns
 
-	>>> display_game([[".","."],[".","."]], pawn(0,1), pawn(1,0), pawn(0,2), pawn(1,1))
+	>>> display_game(pawn(0,1), pawn(1,0), pawn(0,2), pawn(1,1), [[".","."],[".","."]], 800, 800)
 	Traceback (most recent call last):
 		...
 	AssertionError: yellow position is out of range
