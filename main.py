@@ -77,9 +77,9 @@ class pawn:
 
 		Example :
 
-		>>> p = pawn(3,4)
+		>>> p = pawn(5,4)
 		>>> p.coord()
-		3,4
+		(5, 4)
 		"""
 		return (self.x, self.y)
 
