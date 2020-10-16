@@ -2,7 +2,6 @@ from upemtk import *
 from random import choice
 from move import *
 from display import display_game
-from pawn import *
 
 window_width = 800
 window_height = 800
@@ -28,7 +27,7 @@ def main():
 			[".", ".", ".", ".", ".", ".", ".", ".", ".", "."]
 		]
 
-	pawns = { "red": pawn(7, 4), "orange": pawn(7, 5), "yellow": pawn(8, 4), "green": pawn(8, 5) }
+	pawns = { "red": [7, 4], "orange": [7, 5], "yellow": [8, 4], "green": [8, 5] }
 
 	up_keys = ["Up", "z"]
 	left_keys = ["Left", "q"]
