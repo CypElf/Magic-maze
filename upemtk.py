@@ -10,7 +10,7 @@ from tkinter import font
 import subprocess
 import sys
 # from tkinter import _tkinter
-# from time import *
+from time import *
 # import os
 
 __all__ = ['ignore_exception', 'auto_update', 'cree_fenetre',
@@ -488,8 +488,21 @@ def attente_touche():
         ev = donne_evenement()
         type_ev = type_evenement(ev)
         if type_ev == "Touche":
-            break
+            return touche(ev)
         mise_a_jour()
+
+def attente_touche(milliseconds):
+    """
+    Attend que l'utilisateur clique sur la fenêtre pendant le temps indiqué
+    """
+    t1=time()+milliseconds/1000
+    while time()<t1:
+        ev=donne_evenement()
+        typeEv=type_evenement(ev)
+        if typeEv=="Touche":
+            return touche(ev)
+        mise_a_jour()
+    return None
 
 
 def attente_clic_ou_touche():

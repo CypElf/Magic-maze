@@ -42,15 +42,13 @@ def main():
 	display_game(pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"], board, window_width, window_height)
 
 	while True:
-		event = donne_evenement()
-		event_type = type_evenement(event)
-		mise_a_jour()
+		touche = attente_touche(200)
 
-		if event_type == "Touche" or debug_mode:
-			if event_type == "Touche":
-				key = touche(event)
-			else:
+		if touche != None or debug_mode:
+			if debug_mode and touche != debug_key:
 				key = choice([up_keys[0], left_keys[0], down_keys[0], right_keys[0]])
+			else:
+				key = touche
 
 			if key == "Escape":
 				break
