@@ -34,6 +34,7 @@ def main():
 	down_keys = ["Down", "s"]
 	right_keys = ["Right", "d"]
 	debug_key = "b"
+	escape_key = "Escape"
 
 	current_color = "red"
 	debug_mode = False
@@ -41,15 +42,15 @@ def main():
 	display_game(pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"], board, window_width, window_height)
 
 	while True:
-		touche = attente_touche(200)
+		touche = attente_touche(100)
 
 		if touche != None or debug_mode:
-			if debug_mode and touche != debug_key:
+			if debug_mode and touche != debug_key and touche != escape_key:
 				key = choice([up_keys[0], left_keys[0], down_keys[0], right_keys[0]])
 			else:
 				key = touche
 
-			if key == "Escape":
+			if key == escape_key:
 				break
 
 			if key == debug_key:
