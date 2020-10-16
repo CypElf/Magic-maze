@@ -67,6 +67,7 @@ def main():
 			elif key in right_keys:
 				move_right(current_color, pawns, board)
 
+			efface_tout()
 			display_game(pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"], board, window_width, window_height)
 
 	ferme_fenetre()
