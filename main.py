@@ -40,7 +40,6 @@ def main():
 	debug_mode = False
 
 	display_game(pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"], board, window_width, window_height)
-	mise_a_jour()
 
 	while True:
 		event = donne_evenement()
