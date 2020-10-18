@@ -22,9 +22,9 @@ Vous devez bien entendu avoir [Python](https://www.python.org/downloads/) d'inst
 
 Ont été implémentés :
 - une fonction gérant l'affichage à partir de l'état de la partie (sortie activée, temps écoulé depuis le début), du plateau de jeu et des coordonnées des joueurs.
-- 4 fonctions gérant le déplacement dans une direction (haut, bas, gauche, droite), gérant également les collisions entre les différents pions ainsi qu'entre ceux ci et les bords du plateau
-- un timer de 3 minutes arrêtant la partie s'il arrive à 0
-- un mode debug bougeant automatiquement un pion aléatoirement choisi dans une direction aléatoire
+- 4 fonctions gérant le déplacement dans une direction (haut, bas, gauche, droite), gérant également les collisions entre les différents pions ainsi qu'entre ceux ci et les bords du plateau.
+- un timer de 3 minutes arrêtant la partie s'il arrive à 0.
+- un mode debug bougeant automatiquement un pion aléatoirement choisi dans une direction aléatoire.
 
 ### Organisation du programme
 
