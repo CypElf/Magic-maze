@@ -26,11 +26,19 @@ Ont été implémentés :
 - un timer de 3 minutes arrêtant la partie s'il arrive à 0
 - un mode debug bougeant automatiquement un pion aléatoirement choisi dans une direction aléatoire
 
+### Organisation du programme
+
+Un splash screen est affiché au démarrage, affichant les commandes du jeu, puis après un clic de l'utilisateur, le jeu démarre. Il enregistre le temps actuel pour le timer de 3 minutes, puis il rentre dans une boucle infinie, dans laquelle il attend que le joueur appuie sur une des touches utilisables pour se déplacer, changer de pion, entrer en mode debug ou encore arrêter le programme. Lorsque le joueur a gagné ou que le timer est écoulé, le programme s'arrête en affichant un message approprié.
+
 ### Choix techniques
 
 - Pour représenter le plateau de jeu, une matrice a été choisie. Elle permet de représenter de façon intuitive et claire le plateau.
 - Pour représenter les pions, nous avons choisi des listes de deux éléments représentant leurs coordonnées sur le plateau. Nous avions dans un premier temps voulu utiliser des tuples pour représenter les coordonnées des pions, mais nous avons finalement changé d'avis et choisit d'utiliser des listes pour pouvoir modifier un des deux champs des coordonnées du pion en place au moment de le déplacer sur le plateau. 
 - Nous avons choisi, pour regrouper les pions, d'utiliser un dictionnaire dont les clés sont les couleurs des pions et les valeurs leurs coordonnées. Cela permet, en stockant la couleur du pion actuellement sélectionné dans une variable, d'effectuer des actions sur n'importe quel pion de la même façon. Si nous avions utilisé des listes à la place, nous aurions du choisir de représenter chacun des pions de couleur par un des indices de 0 à 3. Cela aurait été beaucoup moins clair et potentiellement source de confusions.
+
+### Problèmes rencontrés
+
+Nous avons rencontré un problème qui s'est révélé ardu à fixer, il s'agit du fait que le jeu ralentissait avec le temps, c'est à dire que déplacer les pions avait une latence de plus en plus élevée. Finalement, cela s'est révélé être du à l'oubli d'appeler la fonction `efface_tout()` de upemtk pour effacer le contenu de la fenêtre avant de ré afficher le plateau de jeu. A cause de cet oubli, chaque affichage était "superposé" aux anciens et c'est ce qui causait ce ralentissement, augmentant avec le temps, un peu plus à chaque affichage supplémentaire effectué par dessus les anciens.
 
 ## Crédits
 Cyprien Molinet et Baptiste Mlynarz

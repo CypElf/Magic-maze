@@ -1,3 +1,6 @@
+"""
+This module contains just one function, display_game, used to display the game in the window.
+"""
 from upemtk import rectangle, texte
 from time import monotonic
 

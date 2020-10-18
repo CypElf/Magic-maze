@@ -1,4 +1,11 @@
+"""
+This module handles the pawns travel across the game board.
+"""
+
 def update_on_objects(color, pawns, pawns_on_objects, board):
+    """
+    Update the pawns_on_objects dictionary provided using the new pawns coordinates.
+    """
     if board[pawns[color][0]][pawns[color][1]] == color[0:1]:
         pawns_on_objects[color] = True
     else:
@@ -6,11 +13,17 @@ def update_on_objects(color, pawns, pawns_on_objects, board):
 
 
 def update_on_exit(color, pawns, pawns_outside, exit_available, board):
+    """
+    Update the pawns_outside dictionary provided using the new pawns coordinates.
+    """
     if exit_available and board[pawns[color][0]][pawns[color][1]] == "e":
         pawns_outside[color] = True
         pawns[color] = [-1,-1]
 
 def exclude_pawn(color, pawns):
+    """
+    This function remove the pawn corresponding to the given color from the dictionary, and returns a tuple with the coordinates of the removed pawn and the dictionary without the element.
+    """
     current_pawn = pawns[color]
     others = pawns.copy()
     others.pop(color)
