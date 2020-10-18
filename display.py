@@ -1,6 +1,7 @@
 from upemtk import rectangle, texte
+from time import monotonic
 
-def display_game(red, orange, yellow, green, exit_available, board, width, height):
+def display_game(red, orange, yellow, green, exit_available, board, start_time, width, height):
 	"""
 	Display the board and the pawns on their positions.
 	
@@ -19,7 +20,7 @@ def display_game(red, orange, yellow, green, exit_available, board, width, heigh
 		...
 	AssertionError: the specified board does not have enough columns
 
-	>>> display_game([0,1], [1,0], [2,0], [1,1], [[".","."],[".","."]], 800, 800)
+	>>> display_game([0,1], [1,0], [2,-2], [1,1], [[".","."],[".","."]], 800, 800)
 	Traceback (most recent call last):
 		...
 	AssertionError: yellow position is out of range
@@ -31,12 +32,10 @@ def display_game(red, orange, yellow, green, exit_available, board, width, heigh
 	columns_count = len(board[0])
 	assert columns_count >= 2, "the specified board does not have enough columns"
 
-	assert red != orange and red != yellow and red != green and orange != yellow and orange != green and yellow != green, "pawns can not be at the same position at the same time"
-
-	assert red[0] < rows_count and red[0] >= 0 and red[1] < columns_count and red[1] >= 0, "red position is out of range"
-	assert orange[0] < rows_count and orange[0] >= 0 and orange[1] < columns_count and orange[1] >= 0, "orange position is out of range"
-	assert yellow[0] < rows_count and yellow[0] >= 0 and yellow[1] < columns_count and yellow[1] >= 0, "yellow position is out of range"
-	assert green[0] < rows_count and green[0] >= 0 and green[1] < columns_count and green[1] >= 0, "green position is out of range"
+	assert red[0] < rows_count and red[0] >= -1 and red[1] < columns_count and red[1] >= -1, "red position is out of range"
+	assert orange[0] < rows_count and orange[0] >= -1 and orange[1] < columns_count and orange[1] >= -1, "orange position is out of range"
+	assert yellow[0] < rows_count and yellow[0] >= -1 and yellow[1] < columns_count and yellow[1] >= -1, "yellow position is out of range"
+	assert green[0] < rows_count and green[0] >= -1 and green[1] < columns_count and green[1] >= -1, "green position is out of range"
 
 	case_width = width / columns_count
 	case_height = height / rows_count
@@ -82,3 +81,6 @@ def display_game(red, orange, yellow, green, exit_available, board, width, heigh
 
 			rectangle(x, y, x + case_width, y + case_height, remplissage = color)
 			texte(x + case_width / 2, y + case_height / 2, txt, ancrage = "center")
+
+	timer = monotonic()
+	texte(width, 0, int((3 * 60 + start_time + 1) - timer), ancrage = "ne")
