@@ -1,6 +1,6 @@
-from upemtk import rectangle
+from upemtk import rectangle, texte
 
-def display_game(red, orange, yellow, green, board, width, height):
+def display_game(red, orange, yellow, green, exit_available, board, width, height):
 	"""
 	Display the board and the pawns on their positions.
 	
@@ -46,15 +46,39 @@ def display_game(red, orange, yellow, green, board, width, height):
 			x = j * case_width
 			y = i * case_height
 
-			color = "white"
+			if board[i][j] == ".":
+				color = "white"
+				txt = ""
+			elif board[i][j] == "e":
+				if exit_available:
+					color = "green"
+				else:
+					color = "white"
+				txt = "EXIT"
+
+			else:
+				if board[i][j] == "r":
+					color = "red"
+				elif board[i][j] == "o":
+					color = "orange"
+				elif board[i][j] == "y":
+					color = "yellow"
+				elif board[i][j] == "g":
+					color = "green"
+				txt = "OBJ"
 
 			if [i, j] == red:
 				color = "red"
+				txt = "P1"
 			elif [i, j] == orange:
 				color = "orange"
+				txt = "P2"
 			elif [i, j] == yellow:
 				color = "yellow"
+				txt = "P3"
 			elif [i, j] == green:
 				color = "green"
+				txt = "P4"
 
 			rectangle(x, y, x + case_width, y + case_height, remplissage = color)
+			texte(x + case_width / 2, y + case_height / 2, txt, ancrage = "center")
