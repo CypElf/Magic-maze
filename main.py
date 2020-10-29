@@ -5,8 +5,9 @@ from display import display_game
 from time import monotonic
 
 def main():
-	window_width = 800
-	window_height = 800
+	# as we can only use upemtk, we can't resize images before printing them with image(). A consequence of this is that the window width and height must not change, or otherwise, the pawns images used will not fit correctly the size of a cell, which will be adapted to the new witdth and height.
+	window_width = 1000
+	window_height = 900
 	
 	cree_fenetre(window_width, window_height)
 
@@ -14,6 +15,7 @@ def main():
 	texte(window_width / 2, window_height / 2, splash_screen_texte, ancrage = "center", taille = 16)
 	mise_a_jour()
 	attente_clic()
+	efface_tout()
 
 	board = [
 			[".", "e", ".", ".", ".", ".", ".", ".", ".", "."],
@@ -30,12 +32,12 @@ def main():
 			[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
 			[".", ".", ".", ".", ".", ".", ".", ".", "y", "."],
 			[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
-			[".", "r", ".", ".", ".", ".", ".", ".", ".", "."]
+			[".", "p", ".", ".", ".", ".", ".", ".", ".", "."]
 		]
 
-	pawns = { "red": [7, 4], "orange": [7, 5], "yellow": [8, 4], "green": [8, 5] }
-	pawns_on_objects = { "red": False, "orange": False, "yellow": False, "green": False }
-	pawns_outside = { "red": False, "orange": False, "yellow": False, "green": False }
+	pawns = { "purple": [7, 4], "orange": [7, 5], "yellow": [8, 4], "green": [8, 5] }
+	pawns_on_objects = { "purple": False, "orange": False, "yellow": False, "green": False }
+	pawns_outside = { "purple": False, "orange": False, "yellow": False, "green": False }
 
 	up_keys = ["up", "z"]
 	left_keys = ["left", "q"]
@@ -45,12 +47,12 @@ def main():
 	debug_key = "b"
 	escape_key = "escape"
 
-	red_keys = ["ampersand", "1", "r"]
+	purple_keys = ["ampersand", "1", "p"]
 	orange_keys = ["eacute", "2", "o"]
 	yellow_keys = ["quotedbl", "3", "y"]
 	green_keys = ["quoteright", "4", "g"]
 
-	current_color = "red"
+	current_color = "purple"
 	debug_mode = False
 	exit_available = False
 
@@ -59,7 +61,7 @@ def main():
 	lost = False
 	won = False
 
-	display_game(pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"], exit_available, board, start_time, window_width, window_height)
+	display_game(pawns["purple"], pawns["orange"], pawns["yellow"], pawns["green"], exit_available, board, start_time, window_width, window_height)
 
 	while True:
 		touche = attente_touche(50)
@@ -89,8 +91,8 @@ def main():
 			elif key in right_keys:
 				move_right(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, board)
 
-			elif key in red_keys:
-				current_color = "red"
+			elif key in purple_keys:
+				current_color = "purple"
 
 			elif key in orange_keys:
 				current_color = "orange"
@@ -112,7 +114,7 @@ def main():
 		if lost or won:
 			break
 		
-		display_game(pawns["red"], pawns["orange"], pawns["yellow"], pawns["green"], exit_available, board, start_time, window_width, window_height)
+		display_game(pawns["purple"], pawns["orange"], pawns["yellow"], pawns["green"], exit_available, board, start_time, window_width, window_height)
 		
 	if won:
 		texte(window_width / 2, window_height / 2, "You have won!", ancrage = "center")

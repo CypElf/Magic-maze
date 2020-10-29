@@ -1,15 +1,15 @@
 """
 This module contains just one function, display_game, used to display the game in the window.
 """
-from upemtk import rectangle, texte
+from upemtk import rectangle, texte, image
 from time import monotonic
 
-def display_game(red, orange, yellow, green, exit_available, board, start_time, width, height):
+def display_game(purple, orange, yellow, green, exit_available, board, start_time, width, height):
 	"""
 	Display the board and the pawns on their positions.
 	
 	board is supposed to be a valid two dimensional list, with at least 2 rows and 2 columns.
-	red, orange, yellow, green are all supposed to be a list of two elements that describe their position inside the board.
+	purple, orange, yellow, green are all supposed to be a list of two elements that describe their position inside the board.
 
 	Exemples :
 
@@ -35,55 +35,51 @@ def display_game(red, orange, yellow, green, exit_available, board, start_time, 
 	columns_count = len(board[0])
 	assert columns_count >= 2, "the specified board does not have enough columns"
 
-	assert red[0] < rows_count and red[0] >= -1 and red[1] < columns_count and red[1] >= -1, "red position is out of range"
+	assert purple[0] < rows_count and purple[0] >= -1 and purple[1] < columns_count and purple[1] >= -1, "purple position is out of range"
 	assert orange[0] < rows_count and orange[0] >= -1 and orange[1] < columns_count and orange[1] >= -1, "orange position is out of range"
 	assert yellow[0] < rows_count and yellow[0] >= -1 and yellow[1] < columns_count and yellow[1] >= -1, "yellow position is out of range"
 	assert green[0] < rows_count and green[0] >= -1 and green[1] < columns_count and green[1] >= -1, "green position is out of range"
 
-	case_width = width / columns_count
-	case_height = height / rows_count
+	cell_width = width / columns_count
+	cell_height = height / rows_count
 
 	for i in range(rows_count):
 		for j in range(columns_count):
-			x = j * case_width
-			y = i * case_height
+			x = j * cell_width
+			y = i * cell_height
 
-			if board[i][j] == ".":
-				color = "white"
-				txt = ""
-			elif board[i][j] == "e":
-				if exit_available:
-					color = "green"
-				else:
+			if board[i][j] == "." or board[i][j] == "e":
+				if board[i][j] == ".":
 					color = "white"
-				txt = "EXIT"
+					txt = ""
+				if board[i][j] == "e":
+					if exit_available:
+						color = "green"
+					else:
+						color = "white"
+					txt = "EXIT"
+
+				rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
+				texte(x + cell_width / 2, y + cell_height / 2, txt, ancrage = "center")
 
 			else:
-				if board[i][j] == "r":
-					color = "red"
+				if board[i][j] == "p":
+					image(x, y, "res/img/objects/purple.png", ancrage = "nw")
 				elif board[i][j] == "o":
-					color = "orange"
+					image(x, y, "res/img/objects/orange.png", ancrage = "nw")
 				elif board[i][j] == "y":
-					color = "yellow"
+					image(x, y, "res/img/objects/yellow.png", ancrage = "nw")
 				elif board[i][j] == "g":
-					color = "green"
-				txt = "OBJ"
+					image(x, y, "res/img/objects/green.png", ancrage = "nw")
 
-			if [i, j] == red:
-				color = "red"
-				txt = "P1"
+			if [i, j] == purple:
+				image(x, y, "res/img/players/purple.png", ancrage = "nw")
 			elif [i, j] == orange:
-				color = "orange"
-				txt = "P2"
+				image(x, y, "res/img/players/orange.png", ancrage = "nw")
 			elif [i, j] == yellow:
-				color = "yellow"
-				txt = "P3"
+				image(x, y, "res/img/players/yellow.png", ancrage = "nw")
 			elif [i, j] == green:
-				color = "green"
-				txt = "P4"
-
-			rectangle(x, y, x + case_width, y + case_height, remplissage = color)
-			texte(x + case_width / 2, y + case_height / 2, txt, ancrage = "center")
+				image(x, y, "res/img/players/green.png", ancrage = "nw")
 
 	timer = monotonic()
 	texte(width, 0, int((3 * 60 + start_time + 1) - timer), ancrage = "ne")
