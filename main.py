@@ -30,7 +30,7 @@ def main():
 			[".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
 		]
 
-	pawns = { "purple": [7, 4], "orange": [7, 5], "yellow": [8, 4], "green": [8, 5] }
+	pawns = { "purple": [4, 7], "orange": [5, 7], "yellow": [4, 8], "green": [5, 8] }
 	pawns_on_objects = { "purple": False, "orange": False, "yellow": False, "green": False }
 	pawns_outside = { "purple": False, "orange": False, "yellow": False, "green": False }
 
