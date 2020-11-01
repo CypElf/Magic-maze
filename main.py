@@ -11,8 +11,12 @@ def main():
 	
 	cree_fenetre(window_width, window_height)
 
-	splash_screen_texte = "MAGIC MAZE\n\n\nVous avez 3 minutes pour récupérer tous les objets et vous échapper par la sortie.\n\nContrôles :\n- zqsd ou les flèches directionnelles pour se déplacer\n- royg ou 1234 pour changer de pion\n- échap pour quitter\n- b pour activer / désactiver le mode debug (jeu automatique aléatoire)\n\n\nCliquez n'importe où pour démarrer le jeu."
+	splash_screen_title = "MAGIC MAZE"
+	splash_screen_texte = "Mission:\nVous avez 3 minutes pour récupérer tous les objets et vous échapper par la sortie.\n\nContrôles :\n- ZQSD ou ↑←↓→ pour se déplacer\n- POYG ou 1234 pour choisir un pion\n- échap pour quitter\n- b pour activer / désactiver le mode debug (actions automatiques aléatoires)"
+	splash_screen_press_to_start = "Cliquez n'importe où pour démarrer le jeu."
+	texte(window_width / 2, window_height / 2 - (hauteur_texte() * len(splash_screen_texte.split("\n")) / 1.5), splash_screen_title, ancrage = "center", taille = 26)
 	texte(window_width / 2, window_height / 2, splash_screen_texte, ancrage = "center", taille = 16)
+	texte(window_width / 2, window_height / 2 + hauteur_texte() * len(splash_screen_texte.split("\n")), splash_screen_press_to_start, ancrage = "center", taille = 12)
 	mise_a_jour()
 	attente_clic()
 	efface_tout()
