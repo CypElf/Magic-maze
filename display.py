@@ -48,11 +48,14 @@ def display_game(purple, orange, yellow, green, exit_available, board, start_tim
 			x = j * cell_width
 			y = i * cell_height
 
-			if board[i][j] == "." or board[i][j] == "e":
+			if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e":
 				if board[i][j] == ".":
 					color = "white"
 					txt = ""
-				if board[i][j] == "e":
+				elif board[i][j] == "*":
+					color = "black"
+					txt = ""
+				else:
 					if exit_available:
 						color = "green"
 					else:

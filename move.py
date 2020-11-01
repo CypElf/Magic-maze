@@ -38,14 +38,15 @@ def move_up(color, pawns, pawns_on_objects, pawns_outside, exit_available, board
     """
     current_pawn, others = exclude_pawn(color, pawns)
     if current_pawn[0] != -1 and current_pawn[1] != -1:
-        collision = False
+        pawn_collision = False
 
         for p in others.values():
             if p == [current_pawn[0] - 1, current_pawn[1]]:
-                collision = True
+                pawn_collision = True
 
-        if current_pawn[0] > 0 and not collision:
-            pawns[color][0] -= 1
+        if current_pawn[0] > 0 and not pawn_collision:
+            if not board[current_pawn[0] - 1][current_pawn[1]] == "*":
+                pawns[color][0] -= 1
         
         update_on_objects(color, pawns, pawns_on_objects, board)
         update_on_exit(color, pawns, pawns_outside, exit_available, board)
@@ -59,14 +60,15 @@ def move_down(color, pawns, pawns_on_objects, pawns_outside, exit_available, boa
     """
     current_pawn, others = exclude_pawn(color, pawns)
     if current_pawn[0] != -1 and current_pawn[1] != -1:
-        collision = False
+        pawn_collision = False
 
         for p in others.values():
             if p == [current_pawn[0] + 1, current_pawn[1]]:
-                collision = True
+                pawn_collision = True
 
-        if current_pawn[0] < len(board) - 1 and not collision:
-            pawns[color][0] += 1
+        if current_pawn[0] < len(board) - 1 and not pawn_collision:
+            if not board[current_pawn[0] + 1][current_pawn[1]] == "*":
+                pawns[color][0] += 1
 
     update_on_objects(color, pawns, pawns_on_objects, board)
     update_on_exit(color, pawns, pawns_outside, exit_available, board)
@@ -80,14 +82,15 @@ def move_left(color, pawns, pawns_on_objects, pawns_outside, exit_available, boa
     """
     current_pawn, others = exclude_pawn(color, pawns)
     if current_pawn[0] != -1 and current_pawn[1] != -1:
-        collision = False
+        pawn_collision = False
 
         for p in others.values():
             if p == [current_pawn[0], current_pawn[1] - 1]:
-                collision = True
+                pawn_collision = True
 
-        if current_pawn[1] > 0 and not collision:
-            pawns[color][1] -= 1
+        if current_pawn[1] > 0 and not pawn_collision:
+            if not board[current_pawn[0]][current_pawn[1] - 1] == "*":
+                pawns[color][1] -= 1
 
         update_on_objects(color, pawns, pawns_on_objects, board)
         update_on_exit(color, pawns, pawns_outside, exit_available, board)
@@ -101,14 +104,15 @@ def move_right(color, pawns, pawns_on_objects, pawns_outside, exit_available, bo
     """
     current_pawn, others = exclude_pawn(color, pawns)
     if current_pawn[0] != -1 and current_pawn[1] != -1:
-        collision = False
+        pawn_collision = False
 
         for p in others.values():
             if p == [current_pawn[0], current_pawn[1] + 1]:
-                collision = True
+                pawn_collision = True
 
-        if current_pawn[1] < len(board[0]) - 1 and not collision:
-            pawns[color][1] += 1
+        if current_pawn[1] < len(board[0]) - 1 and not pawn_collision:
+            if not board[current_pawn[0]][current_pawn[1] + 1] == "*":
+                pawns[color][1] += 1
 
         update_on_objects(color, pawns, pawns_on_objects, board)
         update_on_exit(color, pawns, pawns_outside, exit_available, board)
