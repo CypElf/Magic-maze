@@ -60,7 +60,7 @@ def display_game(purple, orange, yellow, green, exit_available, board, start_tim
 					txt = "EXIT"
 
 				rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
-				texte(x + cell_width / 2, y + cell_height / 2, txt, ancrage = "center")
+				texte(x + cell_width / 2, y + cell_height / 2, txt, ancrage = "center", taille = 19)
 
 			else:
 				if board[i][j] == "p":
