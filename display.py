@@ -53,7 +53,7 @@ def display_game(purple, orange, yellow, green, exit_available, board, start_tim
 					color = "white"
 					txt = ""
 				elif board[i][j] == "*":
-					color = "black"
+					color = "grey"
 					txt = ""
 				else:
 					if exit_available:
@@ -66,13 +66,13 @@ def display_game(purple, orange, yellow, green, exit_available, board, start_tim
 				texte(x + cell_width / 2, y + cell_height / 2, txt, ancrage = "center", taille = 19)
 
 			else:
-				if board[i][j] == "p":
+				if board[i][j] == "p" and not exit_available:
 					image(x, y, "res/img/objects/purple.png", ancrage = "nw")
-				elif board[i][j] == "o":
+				elif board[i][j] == "o" and not exit_available:
 					image(x, y, "res/img/objects/orange.png", ancrage = "nw")
-				elif board[i][j] == "y":
+				elif board[i][j] == "y" and not exit_available:
 					image(x, y, "res/img/objects/yellow.png", ancrage = "nw")
-				elif board[i][j] == "g":
+				elif board[i][j] == "g" and not exit_available:
 					image(x, y, "res/img/objects/green.png", ancrage = "nw")
 
 			if [i, j] == purple:
