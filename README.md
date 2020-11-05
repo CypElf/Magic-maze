@@ -20,25 +20,26 @@ Vous devez bien entendu avoir [Python](https://www.python.org/downloads/) d'inst
 
 ### Implémentations
 
-Ont été implémentés :
-- une fonction gérant l'affichage à partir de l'état de la partie (sortie activée, temps écoulé depuis le début), du plateau de jeu et des coordonnées des joueurs.
-- 4 fonctions gérant le déplacement dans une direction (haut, bas, gauche, droite), gérant également les collisions entre les différents pions ainsi qu'entre ceux ci et les bords du plateau.
-- un timer de 3 minutes arrêtant la partie s'il arrive à 0.
+Fonctionnalités implémentées :
+- un module display s'occupant de passer de la partie logique à l'affichage à l'écran de l'utilisateur : affichage de splash screen, du jeu en lui même, des messages de victoire ou de défaite, etc.
+- un module move s'occupant de la partie logique du déplacement des pions et de son impact sur l'état du jeu : déplacement d'un pion dans le plateau de jeu, prise en compte des collisions, gestion de l'activation de la sortie, etc.
+- un système de timer de 3 minutes qui, s'il arrive à 0, indique que la partie est perdue.
 - un mode debug bougeant automatiquement un pion aléatoirement choisi dans une direction aléatoire.
 
 ### Organisation du programme
 
-Un splash screen est affiché au démarrage, affichant les commandes du jeu, puis après un clic de l'utilisateur, le jeu démarre. Il enregistre le temps actuel pour le timer de 3 minutes, puis il rentre dans une boucle infinie, dans laquelle il attend que le joueur appuie sur une des touches utilisables pour se déplacer, changer de pion, entrer en mode debug ou encore arrêter le programme. Lorsque le joueur a gagné ou que le timer est écoulé, le programme s'arrête en affichant un message approprié.
+Un splash screen est affiché au démarrage, affichant les commandes du jeu. Puis, après un clic de l'utilisateur, le jeu démarre. Il enregistre le temps actuel et lance ainsi le compte à rebours de 3 minutes. Ensuite, il rentre dans une boucle infinie, dans laquelle il attend que le joueur appuie sur une des touches utilisables pour se déplacer, changer de pion, entrer en mode debug ou encore arrêter le programme. Lorsque le joueur a gagné ou que le temps est écoulé, le programme s'arrête en affichant un message approprié selon la cause de sa fin.
 
 ### Choix techniques
 
-- Pour représenter le plateau de jeu, une matrice a été choisie. Elle permet de représenter de façon intuitive et claire le plateau.
-- Pour représenter les pions, nous avons choisi des listes de deux éléments représentant leurs coordonnées sur le plateau. Nous avions dans un premier temps voulu utiliser des tuples pour représenter les coordonnées des pions, mais nous avons finalement changé d'avis et choisit d'utiliser des listes pour pouvoir modifier un des deux champs des coordonnées du pion en place au moment de le déplacer sur le plateau. 
-- Nous avons choisi, pour regrouper les pions, d'utiliser un dictionnaire dont les clés sont les couleurs des pions et les valeurs leurs coordonnées. Cela permet, en stockant la couleur du pion actuellement sélectionné dans une variable, d'effectuer des actions sur n'importe quel pion de la même façon. Si nous avions utilisé des listes à la place, nous aurions du choisir de représenter chacun des pions de couleur par un des indices de 0 à 3. Cela aurait été beaucoup moins clair et potentiellement source de confusions.
+- Pour représenter le plateau de jeu, une matrice a été choisie. Elle permet de représenter de façon intuitive et claire le plateau. Pour représenter les éléments de ce plateau, nous avons choisi certaines valeurs à placer comme éléments dans la matrice représentant le plateau de jeu.
+- Pour représenter un pion, nous avons choisi d'utiliser une liste de deux éléments représentant ses coordonnées sur le plateau. Nous avions dans un premier temps, intuitivement, voulu utiliser des tuples pour représenter les coordonnées des pions, mais nous avons finalement changé d'avis et choisi d'utiliser des listes pour pouvoir modifier un des deux champs des coordonnées du pion en place au moment de le déplacer sur le plateau (les tuples sont iummutables et auraient donc rendu la modification d'un de ses deux éléments plus lourde à écrire). 
+- Nous avons choisi, pour regrouper les pions, d'utiliser un dictionnaire dont les clés sont les couleurs des pions et les valeurs la liste de leurs coordonnées. Cela permet, en stockant la couleur du pion actuellement sélectionné dans une variable, d'effectuer des actions sur n'importe quel pion de la même faç, en utilisant la couleur du pion actuellement sélectionné comme clé du dictionnaire des pions. Pour comparer, si nous avions utilisé des listes à la place, nous aurions du choisir un ordre par convention pour représenter chacun des pions de couleur, par des indices de 0 à 3. Cela aurait été beaucoup moins clair au moment d'accéder à un élément et aurait rendu les choses plus compliquées et bien moins claires au moment de les manipuler.
+- De manière plus générale, pour structurer le programme, vous avons suivi la démarche suivante : chaque partie du programme est séparée des autres et fonctionne indépendamment. Chaque partie demande certaines données dont elle ne se préoccupe pas de l'origine, et effectue son travail dessus sans se soucier de quoi que ce soir d'autre. C'est enfin en combinant toutes ces fonctionnalités (affichage, déplacement...) dans le coeur du programme que le programme se déroule.
 
 ### Problèmes rencontrés
 
-Nous avons rencontré un problème qui s'est révélé ardu à fixer, il s'agit du fait que le jeu ralentissait avec le temps, c'est à dire que déplacer les pions avait une latence de plus en plus élevée. Finalement, cela s'est révélé être du à l'oubli d'appeler la fonction `efface_tout()` de upemtk pour effacer le contenu de la fenêtre avant de ré afficher le plateau de jeu. A cause de cet oubli, chaque affichage était "superposé" aux anciens et c'est ce qui causait ce ralentissement, augmentant avec le temps, un peu plus à chaque affichage supplémentaire effectué par dessus les anciens.
+Un problème qui a été assez problématique est que le jeu ralentissait avec le temps, c'est à dire que déplacer les pions avait une latence de plus en plus élevée. Finalement, cela s'est révélé être du à l'oubli d'appeler la fonction `efface_tout()` de upemtk pour effacer le contenu de la fenêtre avant de ré afficher le plateau de jeu. A cause de cet oubli, chaque affichage était "superposé" aux anciens et c'est ce qui causait ce ralentissement, augmentant avec le temps, un peu plus à chaque affichage supplémentaire effectué par dessus les anciens. Il s'agit d'un problème finalement simple à fixer, mais qui a été très compliqué à identifier et donc source de beaucoup de recherches sur son origine. A part ça, nous n'avons pas rencontré de problème en particulier.
 
 ## Crédits
-Cyprien Molinet et Baptiste Mlynarz
+Cyprien Molinet et Baptiste Mlynarz.
