@@ -4,7 +4,7 @@ This module handles the pawns travel across the game board.
 
 def update_on_objects(color, pawns, pawns_on_objects, board):
     """
-    Update the pawns_on_objects dictionary provided using the new pawns coordinates.
+    Update the pawns_on_objects dictionary provided using the new pawns coordinates. If the pawn is at the same coordinates as its object, its value in this dictionnary will be True, otherwise it will be False.
     """
     if board[pawns[color][0]][pawns[color][1]] == color[0:1]:
         pawns_on_objects[color] = True
@@ -14,7 +14,7 @@ def update_on_objects(color, pawns, pawns_on_objects, board):
 
 def update_on_exit(color, pawns, pawns_outside, exit_available, board):
     """
-    Update the pawns_outside dictionary provided using the new pawns coordinates.
+    Update the pawns_outside dictionary provided using the new pawns coordinates. If the pawn is at the same position as the exit cell, its coordinates are set to -1 to represent the "outside the board" position.
     """
     if exit_available and board[pawns[color][0]][pawns[color][1]] == "e":
         pawns_outside[color] = True

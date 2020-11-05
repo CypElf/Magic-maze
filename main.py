@@ -1,25 +1,22 @@
+"""
+This is the core of the program. It contains the main loop and all the game logic.
+"""
 from upemtk import *
 from random import choice
-from move import move_up, move_left, move_down, move_right
-from display import display_game
 from time import monotonic
+from move import *
+from display import *
 
 def main():
-	# as we can only use upemtk, we can't resize images before printing them with image(). A consequence of this is that the window width and height must not change, or otherwise, the pawns images used will not fit correctly the size of a cell, which will be adapted to the new witdth and height.
-	window_width = 900
+	# DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images
+	window_width = 1200
 	window_height = 600
 	
+	game_width = 900
+	game_height = 600
+	
 	cree_fenetre(window_width, window_height)
-
-	splash_screen_title = "MAGIC MAZE"
-	splash_screen_texte = "Mission:\nVous avez 3 minutes pour récupérer tous les objets et vous échapper par la sortie.\n\nContrôles :\n- ZQSD ou ↑←↓→ pour se déplacer\n- POYG ou 1234 pour choisir un pion\n- échap pour quitter\n- b pour activer / désactiver le mode debug (actions automatiques aléatoires)"
-	splash_screen_press_to_start = "Cliquez n'importe où pour démarrer le jeu."
-	texte(window_width / 2, window_height / 2 - (hauteur_texte() * len(splash_screen_texte.split("\n")) / 1.5), splash_screen_title, ancrage = "center", taille = 26)
-	texte(window_width / 2, window_height / 2, splash_screen_texte, ancrage = "center", taille = 16)
-	texte(window_width / 2, window_height / 2 + hauteur_texte() * len(splash_screen_texte.split("\n")), splash_screen_press_to_start, ancrage = "center", taille = 12)
-	mise_a_jour()
-	attente_clic()
-	efface_tout()
+	display_splash_screen(window_width, window_height)
 
 	board = [
 			[".", "e", "*", "*", "*", "*", ".", ".", ".", ".", "*", "*", ".", ".", "."],
@@ -43,8 +40,9 @@ def main():
 	down_keys = ["down", "s"]
 	right_keys = ["right", "d"]
 
+	pawn_switch_key = "n"
 	debug_key = "b"
-	escape_key = "escape"
+	exit_key = "escape"
 
 	purple_keys = ["ampersand", "1", "p"]
 	orange_keys = ["eacute", "2", "o"]
@@ -56,26 +54,35 @@ def main():
 	exit_available = False
 
 	start_time = monotonic()
+	print(start_time)
 
 	lost = False
 	won = False
-
-	display_game(pawns["purple"], pawns["orange"], pawns["yellow"], pawns["green"], exit_available, board, start_time, window_width, window_height)
 
 	while True:
 		touche = attente_touche(50)
 
 		if touche != None or debug_mode:
-			if debug_mode and (touche == None or touche.lower() != debug_key and touche.lower() != escape_key):
+			if debug_mode and (touche == None or touche.lower() != debug_key and touche.lower() != exit_key):
 				current_color = choice(list(pawns.keys()))
 				key = choice([up_keys[0], left_keys[0], down_keys[0], right_keys[0]])
 			else:
 				key = touche.lower()
 
-			if key == escape_key:
+			if key == exit_key:
 				break
 
-			if key == debug_key:
+			elif key == pawn_switch_key:
+				if current_color == "purple":
+					current_color = "orange"
+				elif current_color == "orange":
+					current_color = "yellow"
+				elif current_color == "yellow":
+					current_color = "green"
+				else:
+					current_color = "purple"
+
+			elif key == debug_key:
 				debug_mode = not debug_mode
 
 			elif key in up_keys:
@@ -108,25 +115,17 @@ def main():
 		lost = (3 * 60 + start_time) - monotonic() <= 0
 		won = False not in pawns_outside.values()
 		
-		efface_tout()
-
 		if lost or won:
 			break
 		
-		display_game(pawns["purple"], pawns["orange"], pawns["yellow"], pawns["green"], exit_available, board, start_time, window_width, window_height)
+		display_game(board, pawns["purple"], pawns["orange"], pawns["yellow"], pawns["green"], current_color, exit_available, start_time, game_width, game_height, window_width, window_height)
 		
 	if won:
-		texte(window_width / 2, window_height / 2, "You have won!", ancrage = "center")
-		mise_a_jour()
-		attente_clic()
-	
-	if lost:
-		texte(window_width / 2, window_height / 2, "You have lost!", ancrage = "center")
-		mise_a_jour()
-		attente_clic()
-	
-	ferme_fenetre()
+		display_victory(window_width, window_height)
+	elif lost: # an elif, not an else, because if the user press escape to close the game while in progress, we don't want to print anything
+		display_defeat(window_width, window_height)
 
+	ferme_fenetre()
 
 if __name__ == "__main__":
 	main()
