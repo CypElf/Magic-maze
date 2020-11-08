@@ -54,7 +54,6 @@ def main():
 	exit_available = False
 
 	start_time = monotonic()
-	print(start_time)
 
 	lost = False
 	won = False

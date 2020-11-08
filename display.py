@@ -9,7 +9,7 @@ def display_victory(window_width, window_height):
 	Display a defeat message in the middle of the screen.
 	"""
 	efface_tout()
-	texte(window_width / 2, window_height / 2, "You have won!", ancrage = "center")
+	texte(window_width / 2, window_height / 2, "Vous avez gagné !", ancrage = "center")
 	mise_a_jour()
 	attente_clic()
 
@@ -18,7 +18,7 @@ def display_defeat(window_width, window_height):
 	Display a defeat message in the middle of the screen.
 	"""
 	efface_tout()
-	texte(window_width / 2, window_height / 2, "You have lost!", ancrage = "center")
+	texte(window_width / 2, window_height / 2, "Vous avez perdu !", ancrage = "center")
 	mise_a_jour()
 	attente_clic()
 
@@ -121,7 +121,7 @@ def display_game(board, purple, orange, yellow, green, current_color, exit_avail
 				image(x, y, "res/img/players/green.png", ancrage = "nw")
 
 	timer = monotonic()
-	texte(window_width - 15, window_height / 20, "time left: " + str(int((3 * 60 + start_time + 1) - timer)), ancrage = "ne")
+	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((3 * 60 + start_time + 1) - timer)), ancrage = "ne")
 
 	x_offset = 30
 
