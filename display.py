@@ -37,7 +37,7 @@ def display_splash_screen(window_width, window_height):
 	attente_clic()
 	efface_tout()
 
-def display_game(board, purple, orange, yellow, green, current_color, exit_available, start_time, game_width, game_height, window_width, window_height):
+def display_game(board, pawns, current_color, exit_available, start_time, game_width, game_height, window_width, window_height):
 	"""
 	Display the board and the pawns on their positions.
 	
@@ -68,10 +68,8 @@ def display_game(board, purple, orange, yellow, green, current_color, exit_avail
 	columns_count = len(board[0])
 	assert columns_count >= 2, "the specified board does not have enough columns"
 
-	assert purple[0] < rows_count and purple[0] >= -1 and purple[1] < columns_count and purple[1] >= -1, "purple position is out of range"
-	assert orange[0] < rows_count and orange[0] >= -1 and orange[1] < columns_count and orange[1] >= -1, "orange position is out of range"
-	assert yellow[0] < rows_count and yellow[0] >= -1 and yellow[1] < columns_count and yellow[1] >= -1, "yellow position is out of range"
-	assert green[0] < rows_count and green[0] >= -1 and green[1] < columns_count and green[1] >= -1, "green position is out of range"
+	for color in pawns:
+		assert pawns[color][0] < rows_count and pawns[color][0] >= -1 and pawns[color][1] < columns_count and pawns[color][1] >= -1, f"{color} position is out of range"
 
 	efface_tout()
 
@@ -111,13 +109,13 @@ def display_game(board, purple, orange, yellow, green, current_color, exit_avail
 				
 				rectangle(x, y, x + cell_width, y + cell_height)
 
-			if [i, j] == purple:
+			if [i, j] == pawns["purple"]:
 				image(x, y, "res/img/players/purple.png", ancrage = "nw")
-			elif [i, j] == orange:
+			elif [i, j] == pawns["orange"]:
 				image(x, y, "res/img/players/orange.png", ancrage = "nw")
-			elif [i, j] == yellow:
+			elif [i, j] == pawns["yellow"]:
 				image(x, y, "res/img/players/yellow.png", ancrage = "nw")
-			elif [i, j] == green:
+			elif [i, j] == pawns["green"]:
 				image(x, y, "res/img/players/green.png", ancrage = "nw")
 
 	timer = monotonic()

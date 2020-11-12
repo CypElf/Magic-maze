@@ -29,7 +29,7 @@ def exclude_pawn(color, pawns):
     others.pop(color)
     return current_pawn, others
 
-def move_up(color, pawns, pawns_on_objects, pawns_outside, exit_available, board):
+def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction):
     """
     Move the pawn corresponding to the given color up in the board.
     pawns must be a dictionary where the keys are color strings and values their coordinates as a list of 2 elements.
@@ -37,82 +37,33 @@ def move_up(color, pawns, pawns_on_objects, pawns_outside, exit_available, board
     board must be a valid 2 dimensional list representing the game.
     """
     current_pawn, others = exclude_pawn(color, pawns)
+    
     if current_pawn[0] != -1 and current_pawn[1] != -1:
         pawn_collision = False
 
+        x_change = 0
+        y_change = 0
+        if direction == "up":
+            x_change = -1
+            wall_colision = not current_pawn[0] > 0
+        elif direction == "down":
+            x_change = 1
+            wall_colision = not current_pawn[0] < len(board) - 1
+        elif direction == "left":
+            y_change = -1
+            wall_colision = not current_pawn[1] > 0
+        else:
+            y_change = 1
+            wall_colision = not current_pawn[1] < len(board[0]) - 1
+
         for p in others.values():
-            if p == [current_pawn[0] - 1, current_pawn[1]]:
+            if p == [current_pawn[0] + x_change, current_pawn[1] + y_change]:
                 pawn_collision = True
 
-        if current_pawn[0] > 0 and not pawn_collision:
-            if not board[current_pawn[0] - 1][current_pawn[1]] == "*":
-                pawns[color][0] -= 1
+        if not wall_colision and not pawn_collision:
+            if not board[current_pawn[0] + x_change][current_pawn[1] + y_change] == "*":
+                pawns[color][0] += x_change
+                pawns[color][1] += y_change
         
-        update_on_objects(color, pawns, pawns_on_objects, board)
-        update_on_exit(color, pawns, pawns_outside, exit_available, board)
-
-def move_down(color, pawns, pawns_on_objects, pawns_outside, exit_available, board):
-    """
-    Move the pawn corresponding to the given color down in the board.
-    pawns must be a dictionary where the keys are color strings and values their coordinates as a list of 2 elements.
-    color must be a color string usable as a key in pawns.
-    board must be a valid 2 dimensional list representing the game.
-    """
-    current_pawn, others = exclude_pawn(color, pawns)
-    if current_pawn[0] != -1 and current_pawn[1] != -1:
-        pawn_collision = False
-
-        for p in others.values():
-            if p == [current_pawn[0] + 1, current_pawn[1]]:
-                pawn_collision = True
-
-        if current_pawn[0] < len(board) - 1 and not pawn_collision:
-            if not board[current_pawn[0] + 1][current_pawn[1]] == "*":
-                pawns[color][0] += 1
-
-    update_on_objects(color, pawns, pawns_on_objects, board)
-    update_on_exit(color, pawns, pawns_outside, exit_available, board)
-
-def move_left(color, pawns, pawns_on_objects, pawns_outside, exit_available, board):
-    """
-    Move the pawn corresponding to the given color to the left in the board.
-    pawns must be a dictionary where the keys are color strings and values their coordinates as a list of 2 elements.
-    color must be a color string usable as a key in pawns.
-    board must be a valid 2 dimensional list representing the game.
-    """
-    current_pawn, others = exclude_pawn(color, pawns)
-    if current_pawn[0] != -1 and current_pawn[1] != -1:
-        pawn_collision = False
-
-        for p in others.values():
-            if p == [current_pawn[0], current_pawn[1] - 1]:
-                pawn_collision = True
-
-        if current_pawn[1] > 0 and not pawn_collision:
-            if not board[current_pawn[0]][current_pawn[1] - 1] == "*":
-                pawns[color][1] -= 1
-
-        update_on_objects(color, pawns, pawns_on_objects, board)
-        update_on_exit(color, pawns, pawns_outside, exit_available, board)
-
-def move_right(color, pawns, pawns_on_objects, pawns_outside, exit_available, board):
-    """
-    Move the pawn corresponding to the given color to the right in the board.
-    pawns must be a dictionary where the keys are color strings and values their coordinates as a list of 2 elements.
-    color must be a color string usable as a key in pawns.
-    board must be a valid 2 dimensional list representing the game.
-    """
-    current_pawn, others = exclude_pawn(color, pawns)
-    if current_pawn[0] != -1 and current_pawn[1] != -1:
-        pawn_collision = False
-
-        for p in others.values():
-            if p == [current_pawn[0], current_pawn[1] + 1]:
-                pawn_collision = True
-
-        if current_pawn[1] < len(board[0]) - 1 and not pawn_collision:
-            if not board[current_pawn[0]][current_pawn[1] + 1] == "*":
-                pawns[color][1] += 1
-
-        update_on_objects(color, pawns, pawns_on_objects, board)
-        update_on_exit(color, pawns, pawns_outside, exit_available, board)
+                update_on_objects(color, pawns, pawns_on_objects, board)
+                update_on_exit(color, pawns, pawns_outside, exit_available, board)
