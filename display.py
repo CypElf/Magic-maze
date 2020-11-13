@@ -4,21 +4,16 @@ This module contains display functionnalities, used to draw all the user interfa
 from upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, efface_tout
 from time import monotonic
 
-def display_victory(window_width, window_height):
+def display_game_end(window_width, window_height, victory):
 	"""
-	Display a defeat message in the middle of the screen.
+	Display a victory of defeat message, based on the victory parameter, in the middle of the screen.
 	"""
+	if victory:
+		txt = "gagné"
+	else:
+		txt = "perdu"
 	efface_tout()
-	texte(window_width / 2, window_height / 2, "Vous avez gagné !", ancrage = "center")
-	mise_a_jour()
-	attente_clic()
-
-def display_defeat(window_width, window_height):
-	"""
-	Display a defeat message in the middle of the screen.
-	"""
-	efface_tout()
-	texte(window_width / 2, window_height / 2, "Vous avez perdu !", ancrage = "center")
+	texte(window_width / 2, window_height / 2, f"Vous avez {txt} !", ancrage = "center")
 	mise_a_jour()
 	attente_clic()
 
@@ -46,17 +41,17 @@ def display_game(board, pawns, current_color, exit_available, start_time, game_w
 
 	Exemples :
 
-	>>> display_game([], [0, 0], [0, 0], [0, 0], [0, 0], "purple", True, 300000.0, 900, 600, 1200, 600)
+	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough rows
 
-	>>> display_game([[], []], [0, 0], [0, 0], [0, 0], [0, 0], "purple", True, 300000.0, 900, 600, 1200, 600)
+	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough columns
 
-	>>> display_game([[".", "."], [".", "."]], [0, 1], [1, 0], [2, -2], [1, 1], "purple", True, 300000.0, 900, 600, 1200, 600)
+	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, 300000.0, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: yellow position is out of range
@@ -98,43 +93,29 @@ def display_game(board, pawns, current_color, exit_available, start_time, game_w
 					image(x, y, "res/img/misc/exit.png", ancrage = "nw")
 
 			else:
-				if board[i][j] == "p" and not exit_available:
-					image(x, y, "res/img/objects/purple.png", ancrage = "nw")
-				elif board[i][j] == "o" and not exit_available:
-					image(x, y, "res/img/objects/orange.png", ancrage = "nw")
-				elif board[i][j] == "y" and not exit_available:
-					image(x, y, "res/img/objects/yellow.png", ancrage = "nw")
-				elif board[i][j] == "g" and not exit_available:
-					image(x, y, "res/img/objects/green.png", ancrage = "nw")
+				objects = {"p": "purple", "o": "orange", "y": "yellow", "g": "green"}
+
+				if not exit_available:
+					for obj in ["p", "o", "y", "g"]:
+						if board[i][j] == obj:
+							image(x, y, f"res/img/objects/{objects[obj]}.png", ancrage = "nw")
+							break
 				
 				rectangle(x, y, x + cell_width, y + cell_height)
 
-			if [i, j] == pawns["purple"]:
-				image(x, y, "res/img/players/purple.png", ancrage = "nw")
-			elif [i, j] == pawns["orange"]:
-				image(x, y, "res/img/players/orange.png", ancrage = "nw")
-			elif [i, j] == pawns["yellow"]:
-				image(x, y, "res/img/players/yellow.png", ancrage = "nw")
-			elif [i, j] == pawns["green"]:
-				image(x, y, "res/img/players/green.png", ancrage = "nw")
+			for color in ["purple", "orange", "yellow", "green"]:
+				if [i, j] == pawns[color]:
+					image(x, y, f"res/img/players/{color}.png", ancrage = "nw")
+					break
 
 	timer = monotonic()
 	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((3 * 60 + start_time + 1) - timer)), ancrage = "ne")
 
 	x_offset = 30
 
-	image(window_width - (window_width - game_width) / 2 + x_offset, window_height // 5, "res/img/players/purple.png", ancrage = "center")
-	image(window_width - (window_width - game_width) / 2 + x_offset, window_height / 5 * 2, "res/img/players/orange.png", ancrage = "center")
-	image(window_width - (window_width - game_width) / 2 + x_offset, window_height / 5 * 3, "res/img/players/yellow.png", ancrage = "center")
-	image(window_width - (window_width - game_width) / 2 + x_offset, window_height / 5 * 4, "res/img/players/green.png", ancrage = "center")
+	for i, color in enumerate(["purple", "orange", "yellow", "green"]):
+		image(window_width - (window_width - game_width) / 2 + x_offset, window_height / 5 * (i + 1), f"res/img/players/{color}.png", ancrage = "center")
 
-	if current_color == "purple":
-		y_offset = 1
-	elif current_color == "orange":
-		y_offset = 2
-	elif current_color == "yellow":
-		y_offset = 3
-	else:
-		y_offset = 4
+	y_offsets = {"purple": 1, "orange": 2, "yellow": 3, "green": 4}
 
-	image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / 5 * y_offset, "res/img/misc/arrow.png", ancrage = "center")
+	image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / 5 * y_offsets[current_color], "res/img/misc/arrow.png", ancrage = "center")
