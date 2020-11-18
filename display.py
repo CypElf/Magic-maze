@@ -32,7 +32,7 @@ def display_splash_screen(window_width, window_height):
 	attente_clic()
 	efface_tout()
 
-def display_game(board, pawns, current_color, exit_available, start_time, game_width, game_height, window_width, window_height):
+def display_game(board, pawns, current_color, exit_available, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
 	Display the board and the pawns on their positions.
 	
@@ -41,17 +41,17 @@ def display_game(board, pawns, current_color, exit_available, start_time, game_w
 
 	Exemples :
 
-	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 900, 600, 1200, 600)
+	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough rows
 
-	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 900, 600, 1200, 600)
+	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough columns
 
-	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, 300000.0, 900, 600, 1200, 600)
+	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: yellow position is out of range
@@ -96,20 +96,20 @@ def display_game(board, pawns, current_color, exit_available, start_time, game_w
 				objects = {"p": "purple", "o": "orange", "y": "yellow", "g": "green"}
 
 				if not exit_available:
-					for obj in ["p", "o", "y", "g"]:
+					for obj in {"p", "o", "y", "g"}:
 						if board[i][j] == obj:
 							image(x, y, f"res/img/objects/{objects[obj]}.png", ancrage = "nw")
 							break
 				
 				rectangle(x, y, x + cell_width, y + cell_height)
 
-			for color in ["purple", "orange", "yellow", "green"]:
+			for color in {"purple", "orange", "yellow", "green"}:
 				if [i, j] == pawns[color]:
 					image(x, y, f"res/img/players/{color}.png", ancrage = "nw")
 					break
 
 	timer = monotonic()
-	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((3 * 60 + start_time + 1) - timer)), ancrage = "ne")
+	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - timer)), ancrage = "ne")
 
 	x_offset = 30
 

@@ -4,8 +4,8 @@ This is the core of the program. It contains the main loop and all the game logi
 from upemtk import *
 from random import choice
 from time import monotonic
-from move import move
 from display import *
+from keys import get_keys, key_triggered
 
 def main():
 	# DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images
@@ -41,6 +41,7 @@ def main():
 	exit_available = False
 
 	start_time = monotonic()
+	timeout = 3 # timeout is in minutes
 
 	lost = False
 	won = False
@@ -51,7 +52,7 @@ def main():
 		if touche != None or debug_mode:
 			if debug_mode and (touche == None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
 				current_color = choice(list(pawns.keys()))
-				key = choice([keys["up"][0], keys["left"][0], keys["down"][0], keys["right"][0]])
+				key = choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"]))])
 			else:
 				key = touche.lower()
 
@@ -63,58 +64,18 @@ def main():
 			if not exit_available and not False in pawns_on_objects.values():
 				exit_available = True
 			
-		lost = (3 * 60 + start_time) - monotonic() <= 0
+		lost = (timeout * 60 + start_time) - monotonic() <= 0
 		won = False not in pawns_outside.values()
 		
 		if lost or won:
 			break
 		
-		display_game(board, pawns, current_color, exit_available, start_time, game_width, game_height, window_width, window_height)
+		display_game(board, pawns, current_color, exit_available, start_time, timeout, game_width, game_height, window_width, window_height)
 		
 	if won or lost:
 		display_game_end(window_width, window_height, won)
 
 	ferme_fenetre()
-
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board):
-	for direction in ["up", "down", "left", "right"]:
-		if key in keys[direction]:
-			move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction)
-			break
-	
-	for color in ["purple", "orange", "yellow", "green"]:
-		if key in keys[color]:
-			current_color = color
-			break
-
-	if key == keys["switch"]:
-		current_color = next_color(current_color)
-
-	elif key == keys["debug"]:
-		debug_mode = not debug_mode
-	
-	elif key == keys["exit"]:
-		return current_color, True, debug_mode
-
-	return current_color, False, debug_mode
-
-def get_keys():
-	return {
-		"up": ["up", "z"],
-		"left": ["left", "q"],
-		"down": ["down", "s"],
-		"right": ["right", "d"],
-		"switch": "n",
-		"debug": "b",
-		"exit": "escape",
-		"purple": ["ampersand","1", "p"],
-		"orange":  ["eacute", "2", "o"],
-		"yellow": ["quotedbl", "3", "y"],
-		"green": ["quoteright", "4", "g"]
-	}
-
-def next_color(current_color):
-	return {"purple": "orange", "orange": "yellow", "yellow": "green", "green": "purple"}[current_color]
 
 if __name__ == "__main__":
 	main()
