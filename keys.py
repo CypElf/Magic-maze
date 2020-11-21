@@ -1,9 +1,11 @@
 from move import move
 
 def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board):
+	hourglass_returned = False
+	quit = False
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
-			move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction)
+			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction)
 			break
 	
 	for color in {"purple", "orange", "yellow", "green"}:
@@ -18,9 +20,9 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		debug_mode = not debug_mode
 	
 	elif key == keys["exit"]:
-		return current_color, True, debug_mode
+		quit = True
 
-	return current_color, False, debug_mode
+	return current_color, quit, hourglass_returned, debug_mode
 
 def get_keys():
 	return {

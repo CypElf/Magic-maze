@@ -76,8 +76,9 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 			x = j * cell_width
 			y = i * cell_height
 
-			if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e":
-				if board[i][j] == ".":
+			if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ":
+				txt = ""
+				if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ":
 					color = "white"
 				elif board[i][j] == "*":
 					color = "grey"
@@ -88,6 +89,10 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 						color = "white"
 
 				rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
+
+				for e in {"h", "µ"}:
+					if board[i][j] == e:
+						texte(x + cell_width / 2, y + cell_height / 2, e, ancrage = "center")
 
 				if board[i][j] == "e":
 					image(x, y, "res/img/misc/exit.png", ancrage = "nw")
@@ -108,8 +113,7 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 					image(x, y, f"res/img/players/{color}.png", ancrage = "nw")
 					break
 
-	timer = monotonic()
-	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - timer)), ancrage = "ne")
+	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - monotonic())), ancrage = "ne")
 
 	x_offset = 30
 

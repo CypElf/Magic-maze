@@ -19,9 +19,15 @@ def update_on_exit(color, pawns, pawns_outside, exit_available, board):
         pawns_outside[color] = True
         pawns[color] = [-1,-1]
 
+def update_on_hourglass(color, pawns, board):
+    on_hourglass = board[pawns[color][0]][pawns[color][1]] == "h"
+    if on_hourglass:
+        board[pawns[color][0]][pawns[color][1]] = "µ"
+    return on_hourglass
+
 def split_pawns(color, pawns):
     """
-    This function remove the pawn corresponding to the given color from the dictionary, and returns a tuple with the coordinates of the removed pawn and the dictionary without the element.
+    Remove the pawn corresponding to the given color from the dictionary, and returns a tuple with the coordinates of the removed pawn and the pawns dictionary without the removed one.
     """
     current_pawn = pawns[color]
     others = pawns.copy()
@@ -51,11 +57,9 @@ def get_offsets(direction):
 
 def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction):
     """
-    Move the pawn corresponding to the given color up in the board.
-    pawns must be a dictionary where the keys are color strings and values their coordinates as a list of 2 elements.
-    color must be a color string usable as a key in pawns.
-    board must be a valid 2 dimensional list representing the game.
+    Move the pawn corresponding to the given color in the given direction in the board, and update the game state though pawns_on_objects and pawns_outside.
     """
+    on_hourglass = False
     current_pawn, others_pawns = split_pawns(color, pawns)
     
     if current_pawn[0] != -1 and current_pawn[1] != -1: # if coordinates are -1, the pawn is outside the board, it has escaped successfully
@@ -68,3 +72,5 @@ def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, board, d
     
             update_on_objects(color, pawns, pawns_on_objects, board)
             update_on_exit(color, pawns, pawns_outside, exit_available, board)
+            on_hourglass = update_on_hourglass(color, pawns, board)
+    return on_hourglass

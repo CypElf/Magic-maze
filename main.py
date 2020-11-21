@@ -20,14 +20,14 @@ def main():
 
 	board = [
 			[".", "e", "*", "*", "*", "*", ".", ".", ".", ".", "*", "*", ".", ".", "."],
-			[".", ".", "*", "*", "*", ".", ".", ".", ".", "g", "*", "*", ".", ".", "."],
-			["*", ".", ".", ".", ".", ".", ".", ".", "*", "*", "*", "*", ".", ".", "p"],
+			[".", ".", "*", "*", "*", ".", ".", ".", ".", "g", "*", "*", "h", ".", "."],
+			["*", ".", ".", ".", "h", ".", ".", ".", "*", "*", "*", "*", ".", ".", "p"],
 			["*", "*", ".", ".", ".", ".", ".", ".", "*", "*", ".", "*", ".", "*", "*"],
 			["*", "*", "*", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
 			["*", "*", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
 			["*", "*", ".", ".", ".", "*", "*", ".", ".", ".", ".", ".", ".", ".", "."],
-			[".", ".", ".", ".", ".", "*", "*", ".", "*", "*", ".", ".", "*", "*", "."],
-			[".", ".", ".", "*", ".", ".", ".", ".", "*", "*", ".", ".", "*", "y", "."],
+			[".", ".", "h", ".", ".", "*", "*", ".", "*", "*", ".", ".", "*", "*", "."],
+			[".", ".", ".", "*", ".", ".", ".", ".", "*", "*", "h", ".", "*", "y", "."],
 			[".", "o", ".", "*", ".", ".", ".", ".", "*", ".", ".", ".", "*", ".", "."],
 		]
 
@@ -56,15 +56,19 @@ def main():
 			else:
 				key = touche.lower()
 
-			current_color, exit_pressed, debug_mode = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board)
+			current_color, exit_pressed, hourglass_returned, debug_mode = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board)
 			
 			if exit_pressed:
 				break
 
 			if not exit_available and not False in pawns_on_objects.values():
 				exit_available = True
+
+			if hourglass_returned:
+				now = monotonic()
+				start_time = now - (timeout * 60 + start_time - now) - 1
 			
-		lost = (timeout * 60 + start_time) - monotonic() <= 0
+		lost = timeout * 60 + start_time - monotonic() <= 0
 		won = False not in pawns_outside.values()
 		
 		if lost or won:
