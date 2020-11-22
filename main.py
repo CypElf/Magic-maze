@@ -4,8 +4,8 @@ This is the core of the program. It contains the main loop and all the game logi
 from upemtk import *
 from random import choice
 from time import monotonic
-from display import *
-from keys import get_keys, key_triggered
+from display import display_main_menu, display_game, display_game_end
+from keys import key_triggered
 
 def main():
 	# DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images
@@ -16,7 +16,7 @@ def main():
 	game_height = 600
 	
 	cree_fenetre(window_width, window_height)
-	players_count, keys = display_splash_screen(window_width, window_height)
+	keys = display_main_menu(window_width, window_height)
 
 	board = [
 			[".", "e", "*", "*", "*", "*", ".", ".", ".", ".", "*", "*", ".", ".", "."],

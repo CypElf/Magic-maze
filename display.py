@@ -19,9 +19,10 @@ def display_game_end(window_width, window_height, victory):
 	mise_a_jour()
 	attente_clic()
 
-def display_splash_screen(window_width, window_height):
+def display_main_menu(window_width, window_height):
 	"""
-	Display the game splash screen that allow to choose the players number and shows the caccording controls.
+	Display the game main menu that allow to choose the players count, then shows the according controls.
+	Return a keys dictionary that contains the game controls according to the player count.
 	"""
 	efface_tout()
 	
@@ -35,6 +36,7 @@ def display_splash_screen(window_width, window_height):
 			text = "solo"
 		text_width = longueur_texte(text)
 		text_height = hauteur_texte()
+
 		x = window_width / 4 * i
 		y = window_height / 3 * 2.2
 		texte(x, y, text, ancrage = "center")
@@ -47,43 +49,50 @@ def display_splash_screen(window_width, window_height):
 		click_x, click_y, _ = attente_clic()
 		for i, (x1, y1, x2, y2) in enumerate(zones_coords):
 			if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
-				keys = get_keys(i + 1)
-
 				efface_tout()
-				
-				if i == 0:
-					texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
-					texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
-					click_to_start_y = window_height / 4 * 3
-					
-				else:
-					for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
-						texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
-					direction_keys = dict()
-					for direction, printable_direction in {("up", "en haut"), ("down", "en bas"), ("left", "à gauche"), ("right", "à droite")}:
-						direction_keys[keys[direction]] = printable_direction
+				players_count = i + 1
+				keys = get_keys(players_count)
 
-					if i == 1:
-						for j in {1, 2}:
-							texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+				display_controls(window_width, window_height, players_count, keys)
 
-						for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
-							texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
-					else:
-						for j in {1, 2, 3}:
-							texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+				return keys
 
-						for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}", 20), (f"- c : aller {direction_keys['c']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
-							texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
-					
-					click_to_start_y = window_height / 6 * 5
+def display_controls(window_width, window_height, player_count, keys):
+	"""
+	Display the right game controls screen according to the players count.
+	"""
+	if player_count == 1:
+		texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
+		texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
+		click_to_start_y = window_height / 4 * 3
+		
+	else:
+		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
+			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
-				texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour commencer.", ancrage = "center", taille = 14)
-				mise_a_jour()
-				attente_clic()
+		direction_keys = dict()
+		for direction, printable_direction in {("up", "en haut"), ("down", "en bas"), ("left", "à gauche"), ("right", "à droite")}:
+			direction_keys[keys[direction]] = printable_direction
 
-				return i + 1, keys
+		if player_count == 2:
+			for j in {1, 2}:
+				texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+
+			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
+				texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+		else:
+			for j in {1, 2, 3}:
+				texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+
+			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}", 20), (f"- c : aller {direction_keys['c']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
+				texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+		
+		click_to_start_y = window_height / 6 * 5
+
+	texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour commencer.", ancrage = "center", taille = 14)
+	mise_a_jour()
+	attente_clic()
 
 def display_game(board, pawns, current_color, exit_available, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
@@ -136,7 +145,7 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 					color = "grey"
 				else:
 					if exit_available:
-						color = "green"
+						color = "lightgreen"
 					else:
 						color = "white"
 
