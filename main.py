@@ -16,7 +16,7 @@ def main():
 	game_height = 600
 	
 	cree_fenetre(window_width, window_height)
-	display_splash_screen(window_width, window_height)
+	players_count, keys = display_splash_screen(window_width, window_height)
 
 	board = [
 			[".", "e", "*", "*", "*", "*", ".", ".", ".", ".", "*", "*", ".", ".", "."],
@@ -26,15 +26,14 @@ def main():
 			["*", "*", "*", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
 			["*", "*", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
 			["*", "*", ".", ".", ".", "*", "*", ".", ".", ".", ".", ".", ".", ".", "."],
-			[".", ".", "h", ".", ".", "*", "*", ".", "*", "*", ".", ".", "*", "*", "."],
-			[".", ".", ".", "*", ".", ".", ".", ".", "*", "*", "h", ".", "*", "y", "."],
+			[".", ".", ".", ".", ".", "*", "*", ".", "*", "*", ".", ".", "*", "*", "."],
+			[".", ".", "h", "*", ".", ".", ".", ".", "*", "*", "h", ".", "*", "y", "."],
 			[".", "o", ".", "*", ".", ".", ".", ".", "*", ".", ".", ".", "*", ".", "."],
 		]
 
 	pawns = { "purple": [4, 7], "orange": [5, 7], "yellow": [4, 8], "green": [5, 8] }
 	pawns_on_objects = { "purple": False, "orange": False, "yellow": False, "green": False }
 	pawns_outside = { "purple": False, "orange": False, "yellow": False, "green": False }
-	keys = get_keys()
 
 	current_color = "purple"
 	debug_mode = False
@@ -56,10 +55,7 @@ def main():
 			else:
 				key = touche.lower()
 
-			current_color, exit_pressed, hourglass_returned, debug_mode = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board)
-			
-			if exit_pressed:
-				break
+			current_color, hourglass_returned, debug_mode = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board)
 
 			if not exit_available and not False in pawns_on_objects.values():
 				exit_available = True

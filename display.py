@@ -1,36 +1,89 @@
 """
 This module contains display functionnalities, used to draw all the user interface to the window.
 """
-from upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, efface_tout
+from tkinter import font
+from upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 from time import monotonic
+from keys import get_keys
 
 def display_game_end(window_width, window_height, victory):
 	"""
 	Display a victory of defeat message, based on the victory parameter, in the middle of the screen.
 	"""
 	if victory:
-		txt = "gagné"
+		game_state = "gagné"
 	else:
-		txt = "perdu"
+		game_state = "perdu"
 	efface_tout()
-	texte(window_width / 2, window_height / 2, f"Vous avez {txt} !", ancrage = "center")
+	texte(window_width / 2, window_height / 2, f"Vous avez {game_state} !", ancrage = "center")
 	mise_a_jour()
 	attente_clic()
 
 def display_splash_screen(window_width, window_height):
 	"""
-	Display the game splash screen in the middle of the screen. This splash screen shows the game controls.
+	Display the game splash screen that allow to choose the players number and shows the caccording controls.
 	"""
 	efface_tout()
-	splash_screen_title = "MAGIC MAZE"
-	splash_screen_texte = "Mission:\nVous avez 3 minutes pour récupérer tous les objets et vous échapper par la sortie.\n\nContrôles :\n- ZQSD ou ↑←↓→ pour se déplacer\n- POYG ou 1234 pour sélectionner un pion\n- n pour alternativement switcher de pion\n- b pour activer / désactiver le mode debug (actions automatiques aléatoires)\n- échap pour quitter une partie en cours"
-	splash_screen_press_to_start = "Cliquez n'importe où pour démarrer le jeu."
-	texte(window_width / 2, window_height / 2 - (hauteur_texte() * len(splash_screen_texte.split("\n")) / 1.5), splash_screen_title, ancrage = "center", taille = 26)
-	texte(window_width / 2, window_height / 2, splash_screen_texte, ancrage = "center", taille = 16)
-	texte(window_width / 2, window_height / 2 + hauteur_texte() * len(splash_screen_texte.split("\n")), splash_screen_press_to_start, ancrage = "center", taille = 12)
+	
+	image(window_width / 2, window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
+	zones_coords = []
+
+	for i in [1, 2, 3]:
+		if i > 1:
+			text = f"{i} joueurs"
+		else:
+			text = "solo"
+		text_width = longueur_texte(text)
+		text_height = hauteur_texte()
+		x = window_width / 4 * i
+		y = window_height / 3 * 2.2
+		texte(x, y, text, ancrage = "center")
+
+		zones_coords.append((x - text_width / 2 - 20, y - text_height / 2 - 20, x + text_width / 2 + 20, y + text_height / 2 + 20))
+		rectangle(zones_coords[i - 1][0], zones_coords[i - 1][1], zones_coords[i - 1][2], zones_coords[i - 1][3], epaisseur = 2)
 	mise_a_jour()
-	attente_clic()
-	efface_tout()
+
+	while True:
+		click_x, click_y, _ = attente_clic()
+		for i, (x1, y1, x2, y2) in enumerate(zones_coords):
+			if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
+				keys = get_keys(i + 1)
+
+				efface_tout()
+				
+				if i == 0:
+					texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
+					texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
+					click_to_start_y = window_height / 4 * 3
+					
+				else:
+					for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
+						texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
+
+					direction_keys = dict()
+					for direction, printable_direction in {("up", "en haut"), ("down", "en bas"), ("left", "à gauche"), ("right", "à droite")}:
+						direction_keys[keys[direction]] = printable_direction
+
+					if i == 1:
+						for j in {1, 2}:
+							texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+
+						for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
+							texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+					else:
+						for j in {1, 2, 3}:
+							texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+
+						for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}", 20), (f"- c : aller {direction_keys['c']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
+							texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+					
+					click_to_start_y = window_height / 6 * 5
+
+				texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour commencer.", ancrage = "center", taille = 14)
+				mise_a_jour()
+				attente_clic()
+
+				return i + 1, keys
 
 def display_game(board, pawns, current_color, exit_available, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
@@ -77,7 +130,6 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 			y = i * cell_height
 
 			if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ":
-				txt = ""
 				if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ":
 					color = "white"
 				elif board[i][j] == "*":
@@ -90,12 +142,9 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 
 				rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
 
-				for e in {"h", "µ"}:
-					if board[i][j] == e:
-						texte(x + cell_width / 2, y + cell_height / 2, e, ancrage = "center")
-
-				if board[i][j] == "e":
-					image(x, y, "res/img/misc/exit.png", ancrage = "nw")
+				for char, img in {("h", "hourglass"), ("µ", "used_hourglass"), ("e", "exit")}:
+					if board[i][j] == char:
+						image(x, y, f"res/img/misc/{img}.png", ancrage = "nw")
 
 			else:
 				objects = {"p": "purple", "o": "orange", "y": "yellow", "g": "green"}
