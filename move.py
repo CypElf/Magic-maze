@@ -20,6 +20,9 @@ def update_on_exit(color, pawns, pawns_outside, exit_available, board):
         pawns[color] = [-1,-1]
 
 def update_on_hourglass(color, pawns, board):
+    """
+    If the given color pawn is on an hourglass cell, set the hourglass cell as used.
+    """
     on_hourglass = board[pawns[color][0]][pawns[color][1]] == "h"
     if on_hourglass:
         board[pawns[color][0]][pawns[color][1]] = "µ"
@@ -35,6 +38,9 @@ def split_pawns(color, pawns):
     return current_pawn, others
 
 def map_collision(current_pawn, board, offsets):
+    """
+    Returns True if the pawn, after moving with the given offsets, will be out of the board or on a non available cell, and False otherwise.
+    """
     empty_cell = False
     board_limit = False
 
@@ -47,12 +53,18 @@ def map_collision(current_pawn, board, offsets):
     return empty_cell or board_limit
 
 def pawn_collision(current_pawn, others_pawns, offsets):
+    """
+    Returns True if the pawn, after moving with the given offsets, will be on the same cell as another pawn, and False otherwise.
+    """
     for p in others_pawns.values():
         if p == [current_pawn[0] + offsets[0], current_pawn[1] + offsets[1]]:
             return True
     return False
 
 def get_offsets(direction):
+    """
+    Returns the x and y offsets according to the given direction.
+    """
     return {"up": (-1, 0), "down": (1, 0), "left": (0, -1), "right": (0, 1)}[direction]
 
 def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction):

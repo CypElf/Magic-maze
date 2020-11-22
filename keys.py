@@ -1,8 +1,15 @@
+"""
+This module handles all the keys related things.
+"""
+
 from random import shuffle
 from upemtk import ferme_fenetre
 from move import move
 
 def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board):
+	"""
+	Execute the appropriate action in the game according to the triggered key.
+	"""
 	hourglass_returned = False
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
@@ -22,6 +29,9 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 	return current_color, hourglass_returned, debug_mode
 
 def get_keys(players_count):
+	"""
+	Return the right keys according to the players count.
+	"""
 	if players_count == 1:
 		return {
 			"up": {"up", "z"},
@@ -60,4 +70,7 @@ def get_keys(players_count):
 		return keys
 
 def next_color(current_color):
+	"""
+	Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
+	"""
 	return {"purple": "orange", "orange": "yellow", "yellow": "green", "green": "purple"}[current_color]
