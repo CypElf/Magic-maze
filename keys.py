@@ -4,7 +4,8 @@ This module handles all the keys related things.
 from random import shuffle
 from time import time
 from display import display_pause
-import logic
+from menu import handle_pause_menu_interaction
+from logic import move, next_color
 
 def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, board, game_width, game_height):
 	"""
@@ -16,11 +17,11 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
-			hourglass_returned = logic.move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction)
+			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction)
 			break
 
 	if key in keys["switch"]:
-		current_color = logic.next_color(current_color)
+		current_color = next_color(current_color)
 
 	elif key == keys["debug"]:
 		debug_mode = not debug_mode
@@ -30,7 +31,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		current_time = time()
 
 		pause_rectangle_coords, zones_coords = display_pause(game_width, game_height)
-		logic.handle_pause_menu_interaction(pause_rectangle_coords, zones_coords, keys["exit"])
+		handle_pause_menu_interaction(pause_rectangle_coords, zones_coords, keys["exit"])
 
 		current_time = start_time + (time() - current_time)
 	return current_color, hourglass_returned, debug_mode, (paused, current_time)

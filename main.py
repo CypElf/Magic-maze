@@ -1,11 +1,13 @@
 """
 This is the core of the program. It contains the main loop and all the game logic.
 """
-from logic import apply_debug_mode, handle_main_menu_interaction, invert_hourglass, is_time_elapsed
-from upemtk import *
+from logic import apply_debug_mode
+from upemtk import cree_fenetre, attente_touche, ferme_fenetre
 from time import time
+from timer import invert_hourglass, is_time_elapsed
 from display import display_main_menu, display_game, display_game_end
 from keys import key_triggered
+from menu import handle_main_menu_interaction
 
 def main():
 	# DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images
