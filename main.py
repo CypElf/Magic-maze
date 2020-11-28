@@ -31,6 +31,7 @@ def main():
 			[".", "o", ".", "*", ".", ".", ".", ".", "*", ".", ".", ".", "*", ".", "."],
 		]
 
+	walls = {frozenset(((3, 5), (4, 5))), frozenset(((3, 6), (4, 6))), frozenset(((3, 7), (4, 7))), frozenset(((8, 1), (9, 1))), frozenset(((8, 2), (9, 2)))}
 	pawns = { "purple": [4, 7], "orange": [5, 7], "yellow": [4, 8], "green": [5, 8] }
 	pawns_on_objects = { "purple": False, "orange": False, "yellow": False, "green": False }
 	pawns_outside = { "purple": False, "orange": False, "yellow": False, "green": False }
@@ -55,7 +56,7 @@ def main():
 			else:
 				key = touche.lower()
 
-			current_color, hourglass_returned, debug_mode = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board)
+			current_color, hourglass_returned, debug_mode = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, walls, board)
 
 			if not exit_available and not False in pawns_on_objects.values():
 				exit_available = True
@@ -70,7 +71,7 @@ def main():
 		if lost or won:
 			break
 		
-		display_game(board, pawns, current_color, exit_available, start_time, timeout, game_width, game_height, window_width, window_height)
+		display_game(board, pawns, current_color, exit_available, walls, start_time, timeout, game_width, game_height, window_width, window_height)
 		
 	if won or lost:
 		display_game_end(window_width, window_height, won)

@@ -37,14 +37,14 @@ def split_pawns(color, pawns):
     others.pop(color)
     return current_pawn, others
 
-def map_collision(current_pawn, board, offsets):
+def map_collision(current_pawn, board, walls, offsets):
     """
     Returns True if the pawn, after moving with the given offsets, will be out of the board or on a non available cell, and False otherwise.
     """
     empty_cell = False
     board_limit = False
 
-    if (offsets == (-1, 0) and not current_pawn[0] > 0) or (offsets == (1, 0) and not current_pawn[0] < len(board) - 1) or (offsets == (0, -1) and not current_pawn[1] > 0) or (offsets == (0, 1) and not current_pawn[1] < len(board[0]) - 1):
+    if frozenset((((current_pawn[0]), (current_pawn[1])), ((current_pawn[0] + offsets[0]), (current_pawn[1] + offsets[1])))) in walls or (offsets == (-1, 0) and not current_pawn[0] > 0) or (offsets == (1, 0) and not current_pawn[0] < len(board) - 1) or (offsets == (0, -1) and not current_pawn[1] > 0) or (offsets == (0, 1) and not current_pawn[1] < len(board[0]) - 1):
         board_limit = True
 
     if not board_limit:
@@ -67,7 +67,7 @@ def get_offsets(direction):
     """
     return {"up": (-1, 0), "down": (1, 0), "left": (0, -1), "right": (0, 1)}[direction]
 
-def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction):
+def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction):
     """
     Move the pawn corresponding to the given color in the given direction in the board, and update the game state though pawns_on_objects and pawns_outside.
     """
@@ -76,7 +76,7 @@ def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, board, d
     
     if current_pawn[0] != -1 and current_pawn[1] != -1: # if coordinates are -1, the pawn is outside the board, it has escaped successfully
         offsets = get_offsets(direction)
-        collision = pawn_collision(current_pawn, others_pawns, offsets) or map_collision(current_pawn, board, offsets)
+        collision = pawn_collision(current_pawn, others_pawns, offsets) or map_collision(current_pawn, board, walls, offsets)
 
         if not collision:
             pawns[color][0] += offsets[0]

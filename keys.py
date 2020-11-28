@@ -6,14 +6,14 @@ from random import shuffle
 from upemtk import ferme_fenetre
 from move import move
 
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, board):
+def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, walls, board):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
 	hourglass_returned = False
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
-			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction)
+			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction)
 			break
 
 	if key in keys["switch"]:

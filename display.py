@@ -93,7 +93,7 @@ def display_controls(window_width, window_height, player_count, keys):
 	mise_a_jour()
 	attente_clic()
 
-def display_game(board, pawns, current_color, exit_available, start_time, timeout, game_width, game_height, window_width, window_height):
+def display_game(board, pawns, current_color, exit_available, walls, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
 	Display the board and the pawns on their positions.
 	
@@ -102,17 +102,17 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 
 	Exemples :
 
-	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 3, 900, 600, 1200, 600)
+	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough rows
 
-	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, 300000.0, 3, 900, 600, 1200, 600)
+	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough columns
 
-	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, 300000.0, 3, 900, 600, 1200, 600)
+	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, {((0, 0), (0, 1))}, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: yellow position is out of range
@@ -169,6 +169,9 @@ def display_game(board, pawns, current_color, exit_available, start_time, timeou
 				if [i, j] == pawns[color]:
 					image(x, y, f"res/img/players/{color}.png", ancrage = "nw")
 					break
+
+			if i > 0 and {(i - 1, j), (i, j)} in walls:
+				rectangle(x, y - 2, x + cell_width, y + 2, remplissage = "grey")
 
 	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - monotonic())), ancrage = "ne")
 
