@@ -1,6 +1,89 @@
 """
-This module handles the pawns travel across the game board.
+This module includes all the game logic.
 """
+from upemtk import attente_clic, clic_x, clic_y, donne_evenement, ferme_fenetre, efface_tout, mise_a_jour, touche, type_evenement
+from display import display_controls
+from keys import get_keys
+from random import choice
+from time import time
+
+def handle_pause_menu_interaction(pause_rectangle_coords, zones_coords, pause_key):
+    """
+    Handles the pause menu interactions, such as clicking on save or quit.
+    """
+    unpaused = False
+    while not unpaused:
+
+        event = donne_evenement()
+        type_ev = type_evenement(event)
+
+        if type_ev == "ClicGauche":
+            click_x = clic_x(event)
+            click_y = clic_y(event)
+
+            for i, (x1, y1, x2, y2, txt) in enumerate(zones_coords):
+                if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
+                    if txt == "quitter":
+                        ferme_fenetre()
+                        exit(0)
+                    else:
+                        # TODO : save the game state in a file
+                        pass
+                elif not (click_x >= pause_rectangle_coords[0] and click_x <= pause_rectangle_coords[2] and click_y >= pause_rectangle_coords[1] and click_y <= pause_rectangle_coords[3]):
+                    unpaused = True
+        elif type_ev == "Touche":
+            if touche(event).lower() == pause_key:
+                unpaused = True
+        mise_a_jour()
+
+def handle_main_menu_interaction(zones_coords, window_width, window_height):
+    """
+    Handles the main menu interactions, such as loading a save or choosing the players count.
+    """
+    keys = dict()
+    nothing_selected = True
+
+    while nothing_selected:
+        click_x, click_y, _ = attente_clic()
+        for i, (x1, y1, x2, y2) in enumerate(zones_coords):
+            if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
+                efface_tout()
+
+                players_count = i + 1
+                keys = get_keys(players_count)
+
+                display_controls(window_width, window_height, players_count, keys)
+                attente_clic()
+                nothing_selected = False
+                return keys
+
+def next_color(current_color):
+	"""
+	Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
+	"""
+	return {"purple": "orange", "orange": "yellow", "yellow": "green", "green": "purple"}[current_color]
+
+def apply_debug_mode(touche, keys, pawns, current_color, debug_mode):
+    """
+    If the debug mode is enabled, returns a random color and a random key direction. Otherwise, returns the current color and key.
+    """
+    if debug_mode and (touche == None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
+        return choice(list(pawns.keys())), choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"]))])
+    else:
+        return current_color, touche.lower()
+
+def invert_hourglass(start_time, timeout):
+    """
+    Returns a new start time corresponding from which the time elapsed has been inverted according to the timout.
+    """
+    now = time()
+    return now - (timeout * 60 + start_time - now) - 1
+
+def is_time_elapsed(start_time, timeout):
+    """
+    Returns True if the time has elapsed, and False otherwise.
+    """
+    return timeout * 60 + start_time - time() <= 0
 
 def update_on_objects(color, pawns, pawns_on_objects, board):
     """
@@ -39,7 +122,7 @@ def split_pawns(color, pawns):
 
 def map_collision(current_pawn, board, walls, offsets):
     """
-    Returns True if the pawn, after moving with the given offsets, will be out of the board or on a non available cell, and False otherwise.
+    Returns True if the pawn, after moving with the given offsets, will be out of the board, on a non available cell, or have to pass through walls, and False otherwise.
     """
     empty_cell = False
     board_limit = False

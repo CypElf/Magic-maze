@@ -3,8 +3,8 @@ This module handles all the keys related things.
 """
 from random import shuffle
 from time import time
-from move import move
-import display
+from display import display_pause
+import logic
 
 def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, board, game_width, game_height):
 	"""
@@ -16,11 +16,11 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
-			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction)
+			hourglass_returned = logic.move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction)
 			break
 
 	if key in keys["switch"]:
-		current_color = next_color(current_color)
+		current_color = logic.next_color(current_color)
 
 	elif key == keys["debug"]:
 		debug_mode = not debug_mode
@@ -28,9 +28,11 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 	elif key == keys["exit"]:
 		paused = True
 		current_time = time()
-		display.display_pause(game_width, game_height)
-		current_time = start_time + (time() - current_time)
 
+		pause_rectangle_coords, zones_coords = display_pause(game_width, game_height)
+		logic.handle_pause_menu_interaction(pause_rectangle_coords, zones_coords, keys["exit"])
+
+		current_time = start_time + (time() - current_time)
 	return current_color, hourglass_returned, debug_mode, (paused, current_time)
 
 def get_keys(players_count):
@@ -55,7 +57,7 @@ def get_keys(players_count):
 			"exit": "escape"
 		}
 	
-		directions = {"up", "down", "left", "right"}
+		directions = ["up", "down", "left", "right"]
 		shuffle(directions)
 		for key, direction in zip({"a", "z", "o", "p"}, directions):
 			keys[direction] = key
@@ -73,9 +75,3 @@ def get_keys(players_count):
 			keys[direction] = key
 			
 		return keys
-
-def next_color(current_color):
-	"""
-	Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
-	"""
-	return {"purple": "orange", "orange": "yellow", "yellow": "green", "green": "purple"}[current_color]

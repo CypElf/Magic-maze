@@ -1,9 +1,8 @@
 """
 This module contains display functionnalities, used to draw all the user interface to the window.
 """
-from upemtk import ferme_fenetre, rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
+from upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 from time import time
-from keys import get_keys
 
 def display_game_end(window_width, window_height, victory):
 	"""
@@ -44,54 +43,49 @@ def display_main_menu(window_width, window_height):
 		rectangle(zones_coords[i - 1][0], zones_coords[i - 1][1], zones_coords[i - 1][2], zones_coords[i - 1][3], epaisseur = 2)
 	mise_a_jour()
 
-	while True:
-		click_x, click_y, _ = attente_clic()
-		for i, (x1, y1, x2, y2) in enumerate(zones_coords):
-			if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
-				efface_tout()
-
-				players_count = i + 1
-				keys = get_keys(players_count)
-
-				display_controls(window_width, window_height, players_count, keys)
-
-				return keys
+	return zones_coords
 
 def display_controls(window_width, window_height, player_count, keys):
 	"""
 	Display the right game controls screen according to the players count.
 	"""
 	if player_count == 1:
-		texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
-		texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
+		display_solo_controls(window_width, window_height)
 		click_to_start_y = window_height / 4 * 3
 		
 	else:
 		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
-		direction_keys = dict()
-		for direction, printable_direction in {("up", "en haut"), ("down", "en bas"), ("left", "à gauche"), ("right", "à droite")}:
-			direction_keys[keys[direction]] = printable_direction
+		direction_keys = {keys[direction]: printable_direction for direction, printable_direction in {("up", "en haut"), ("down", "en bas"), ("left", "à gauche"), ("right", "à droite")}}
 
 		if player_count == 2:
-			for j in {1, 2}:
-				texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
-
-			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}\n- q : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
-				texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+			display_two_players_controls(window_width, window_height, direction_keys)
 		else:
-			for j in {1, 2, 3}:
-				texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
-
-			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : switcher de pion", 20), (f"- c : aller {direction_keys['c']}\n- v : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
-				texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+			display_three_players_controls(window_width, window_height, direction_keys)
 		
 		click_to_start_y = window_height / 6 * 5
 
 	texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour commencer.", ancrage = "center", taille = 14)
 	mise_a_jour()
-	attente_clic()
+
+def display_solo_controls(window_width, window_height):
+	texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
+	texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
+
+def display_two_players_controls(window_width, window_height, direction_keys):
+	for j in {1, 2}:
+		texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+
+	for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}\n- q : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
+		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+
+def display_three_players_controls(window_width, window_height, direction_keys):
+	for j in {1, 2, 3}:
+		texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+
+	for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : switcher de pion", 20), (f"- c : aller {direction_keys['c']}\n- v : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
+		texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
 
 def display_pause(game_width, game_height):
 	pause_rectangle_width = game_width / 5 * 4 - game_width / 5
@@ -110,19 +104,7 @@ def display_pause(game_width, game_height):
 		texte(x, y, txt, ancrage = "center")
 		zones_coords.add((x - 100, y - 40, x + 100, y + 40, txt))
 
-	unpaused = False
-	while not unpaused:
-		click_x, click_y, _ = attente_clic()
-		for i, (x1, y1, x2, y2, txt) in enumerate(zones_coords):
-			if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
-				if txt == "quitter":
-					ferme_fenetre()
-					exit(0)
-				else:
-					# TODO : save the game state in a file
-					pass
-			elif not (click_x >= pause_rectangle_coords[0] and click_x <= pause_rectangle_coords[2] and click_y >= pause_rectangle_coords[1] and click_y <= pause_rectangle_coords[3]):
-				unpaused = True
+	return pause_rectangle_coords, zones_coords
 
 def display_game(board, pawns, current_color, exit_available, walls, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
@@ -180,6 +162,7 @@ def display_game(board, pawns, current_color, exit_available, walls, start_time,
 
 	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - time())), ancrage = "ne")
 	display_side_panel(window_width, window_height, game_width, current_color)
+	mise_a_jour()
 
 def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	"""
