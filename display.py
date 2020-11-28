@@ -63,11 +63,11 @@ def display_controls(window_width, window_height, player_count, keys):
 	"""
 	if player_count == 1:
 		texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
-		texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
+		texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
 		click_to_start_y = window_height / 4 * 3
 		
 	else:
-		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- v : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
+		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
 		direction_keys = dict()
@@ -78,13 +78,13 @@ def display_controls(window_width, window_height, player_count, keys):
 			for j in {1, 2}:
 				texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 
-			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
+			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}\n- q : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
 				texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
 		else:
 			for j in {1, 2, 3}:
 				texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 
-			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}", 20), (f"- c : aller {direction_keys['c']}", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}", 20)]):
+			for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : switcher de pion", 20), (f"- c : aller {direction_keys['c']}\n- v : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
 				texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
 		
 		click_to_start_y = window_height / 6 * 5

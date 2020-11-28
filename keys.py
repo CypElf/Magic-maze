@@ -16,7 +16,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, board, direction)
 			break
 
-	if key == keys["switch"]:
+	if key in keys["switch"]:
 		current_color = next_color(current_color)
 
 	elif key == keys["debug"]:
@@ -38,19 +38,19 @@ def get_keys(players_count):
 			"left": {"left", "q"},
 			"down": {"down", "s"},
 			"right": {"right", "d"},
-			"switch": "v",
+			"switch": {"n"},
 			"debug": "b",
 			"exit": "escape"
 		}
 
 	elif players_count == 2:
 		keys = {
-			"switch": "v",
+			"switch": {"q", "m"},
 			"debug": "b",
 			"exit": "escape"
 		}
 	
-		directions = ["up", "down", "left", "right"]
+		directions = {"up", "down", "left", "right"}
 		shuffle(directions)
 		for key, direction in zip({"a", "z", "o", "p"}, directions):
 			keys[direction] = key
@@ -58,7 +58,7 @@ def get_keys(players_count):
 		return keys
 	else:
 		keys = {
-			"switch": "v",
+			"switch": {"z", "m", "v"},
 			"debug": "b",
 			"exit": "escape"
 		}
