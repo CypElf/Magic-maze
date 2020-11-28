@@ -3,7 +3,7 @@ This is the core of the program. It contains the main loop and all the game logi
 """
 from upemtk import *
 from random import choice
-from time import monotonic
+from time import time
 from display import display_main_menu, display_game, display_game_end
 from keys import key_triggered
 
@@ -40,7 +40,7 @@ def main():
 	debug_mode = False
 	exit_available = False
 
-	start_time = monotonic()
+	start_time = time()
 	timeout = 3 # timeout is in minutes
 
 	lost = False
@@ -56,16 +56,19 @@ def main():
 			else:
 				key = touche.lower()
 
-			current_color, hourglass_returned, debug_mode = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, walls, board)
+			current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, board, game_width, game_height)
+
+			if paused:
+				start_time = returned_time
 
 			if not exit_available and not False in pawns_on_objects.values():
 				exit_available = True
 
 			if hourglass_returned:
-				now = monotonic()
+				now = time()
 				start_time = now - (timeout * 60 + start_time - now) - 1
 			
-		lost = timeout * 60 + start_time - monotonic() <= 0
+		lost = timeout * 60 + start_time - time() <= 0
 		won = False not in pawns_outside.values()
 		
 		if lost or won:

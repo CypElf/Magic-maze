@@ -1,8 +1,8 @@
 """
 This module contains display functionnalities, used to draw all the user interface to the window.
 """
-from upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
-from time import monotonic
+from upemtk import ferme_fenetre, rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
+from time import time
 from keys import get_keys
 
 def display_game_end(window_width, window_height, victory):
@@ -28,7 +28,7 @@ def display_main_menu(window_width, window_height):
 	image(window_width / 2, window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
 	zones_coords = []
 
-	for i in [1, 2, 3]:
+	for i in range(1, 4):
 		if i > 1:
 			text = f"{i} joueurs"
 		else:
@@ -93,6 +93,37 @@ def display_controls(window_width, window_height, player_count, keys):
 	mise_a_jour()
 	attente_clic()
 
+def display_pause(game_width, game_height):
+	pause_rectangle_width = game_width / 5 * 4 - game_width / 5
+	pause_rectangle_height = game_height / 4 * 3 - game_height / 4
+	pause_rectangle_coords = (game_width / 5, game_height / 4, game_width / 5 + pause_rectangle_width, game_height / 4 + pause_rectangle_height)
+
+	rectangle(pause_rectangle_coords[0], pause_rectangle_coords[1], pause_rectangle_coords[2], pause_rectangle_coords[3], remplissage = "white", epaisseur = 2)
+	texte(pause_rectangle_coords[0] + pause_rectangle_width / 2, pause_rectangle_coords[1] + pause_rectangle_height / 4, "PAUSE", ancrage = "center", taille = 36)
+
+	zones_coords = set()
+
+	for i, txt in {(1, "sauvegarder"), (2.5, "quitter")}:
+		x = pause_rectangle_coords[0] + pause_rectangle_width / 3.5 * i
+		y = pause_rectangle_coords[1] + pause_rectangle_height / 4 * 2.5
+		rectangle(x - 100, y - 40, x + 100, y + 40)
+		texte(x, y, txt, ancrage = "center")
+		zones_coords.add((x - 100, y - 40, x + 100, y + 40, txt))
+
+	unpaused = False
+	while not unpaused:
+		click_x, click_y, _ = attente_clic()
+		for i, (x1, y1, x2, y2, txt) in enumerate(zones_coords):
+			if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
+				if txt == "quitter":
+					ferme_fenetre()
+					exit(0)
+				else:
+					# TODO : save the game state in a file
+					pass
+			elif not (click_x >= pause_rectangle_coords[0] and click_x <= pause_rectangle_coords[2] and click_y >= pause_rectangle_coords[1] and click_y <= pause_rectangle_coords[3]):
+				unpaused = True
+
 def display_game(board, pawns, current_color, exit_available, walls, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
 	Display the board and the pawns on their positions.
@@ -137,33 +168,7 @@ def display_game(board, pawns, current_color, exit_available, walls, start_time,
 			x = j * cell_width
 			y = i * cell_height
 
-			if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ":
-				if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ":
-					color = "white"
-				elif board[i][j] == "*":
-					color = "grey"
-				else:
-					if exit_available:
-						color = "lightgreen"
-					else:
-						color = "white"
-
-				rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
-
-				for char, img in {("h", "hourglass"), ("µ", "used_hourglass"), ("e", "exit")}:
-					if board[i][j] == char:
-						image(x, y, f"res/img/misc/{img}.png", ancrage = "nw")
-
-			else:
-				objects = {"p": "purple", "o": "orange", "y": "yellow", "g": "green"}
-
-				if not exit_available:
-					for obj in {"p", "o", "y", "g"}:
-						if board[i][j] == obj:
-							image(x, y, f"res/img/objects/{objects[obj]}.png", ancrage = "nw")
-							break
-				
-				rectangle(x, y, x + cell_width, y + cell_height)
+			display_cell(board, i, j, x, y, cell_width, cell_height, exit_available)
 
 			for color in {"purple", "orange", "yellow", "green"}:
 				if [i, j] == pawns[color]:
@@ -173,8 +178,42 @@ def display_game(board, pawns, current_color, exit_available, walls, start_time,
 			if i > 0 and {(i - 1, j), (i, j)} in walls:
 				rectangle(x, y - 2, x + cell_width, y + 2, remplissage = "grey")
 
-	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - monotonic())), ancrage = "ne")
+	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - time())), ancrage = "ne")
+	display_side_panel(window_width, window_height, game_width, current_color)
 
+def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
+	"""
+	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
+	"""
+	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ":
+		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ":
+			color = "white"
+		elif board[i][j] == "*":
+			color = "grey"
+		else:
+			if exit_available:
+				color = "lightgreen"
+			else:
+				color = "white"
+
+		rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
+
+		for char, img in {("h", "hourglass"), ("µ", "used_hourglass"), ("e", "exit")}:
+			if board[i][j] == char:
+				image(x, y, f"res/img/misc/{img}.png", ancrage = "nw")
+
+	else:
+		objects = {"p": "purple", "o": "orange", "y": "yellow", "g": "green"}
+
+		if not exit_available:
+			for obj in {"p", "o", "y", "g"}:
+				if board[i][j] == obj:
+					image(x, y, f"res/img/objects/{objects[obj]}.png", ancrage = "nw")
+					break
+		
+		rectangle(x, y, x + cell_width, y + cell_height)
+
+def display_side_panel(window_width, window_height, game_width, current_color):
 	x_offset = 30
 
 	for i, color in enumerate(["purple", "orange", "yellow", "green"]):

@@ -1,16 +1,19 @@
 """
 This module handles all the keys related things.
 """
-
 from random import shuffle
-from upemtk import ferme_fenetre
+from time import time
 from move import move
+import display
 
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, debug_mode, walls, board):
+def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, board, game_width, game_height):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
+	current_time = None
+	paused = False
 	hourglass_returned = False
+
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
 			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction)
@@ -23,10 +26,12 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		debug_mode = not debug_mode
 	
 	elif key == keys["exit"]:
-		ferme_fenetre()
-		exit(0)
+		paused = True
+		current_time = time()
+		display.display_pause(game_width, game_height)
+		current_time = start_time + (time() - current_time)
 
-	return current_color, hourglass_returned, debug_mode
+	return current_color, hourglass_returned, debug_mode, (paused, current_time)
 
 def get_keys(players_count):
 	"""
