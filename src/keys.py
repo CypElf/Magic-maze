@@ -1,11 +1,12 @@
 """
 This module handles all the keys related things.
 """
-from random import shuffle, choice
+from random import shuffle
 from time import time
-from display import display_pause
-from menu import handle_pause_menu_interaction
-from logic import move, next_color, use_escalator
+from src.timer import adjust_time
+from src.display import display_pause
+from src.menu import handle_pause_menu_interaction
+from src.logic import move, next_color, use_escalator
 
 def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, escalators, board, game_width, game_height):
 	"""
@@ -28,7 +29,6 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		pass
 
 	elif key == keys["escalator"]:
-		# TODO : move the pawn to the other side of the escalator if there is one in the current cell
 		use_escalator(current_color, pawns, escalators)
 
 	elif key == keys["debug"]:
@@ -38,10 +38,10 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		paused = True
 		current_time = time()
 
-		pause_rectangle_coords, zones_coords = display_pause(game_width, game_height)
-		handle_pause_menu_interaction(pause_rectangle_coords, zones_coords, keys["exit"])
+		pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause(game_width, game_height)
+		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"], pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board)
 
-		current_time = start_time + (time() - current_time)
+		current_time = adjust_time(start_time, current_time)
 	return current_color, hourglass_returned, debug_mode, (paused, current_time)
 
 def get_keys(players_count):

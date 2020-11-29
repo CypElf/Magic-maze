@@ -1,8 +1,9 @@
 """
 This module contains display functionnalities, used to draw all the user interface to the window.
 """
-from upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 from time import time
+from src.upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
+from src.timer import get_timer
 
 def display_game_end(window_width, window_height, victory):
 	"""
@@ -17,13 +18,34 @@ def display_game_end(window_width, window_height, victory):
 	mise_a_jour()
 	attente_clic()
 
-def display_main_menu(window_width, window_height):
+def display_loading_save_error(window_width, window_height):
+	texte(window_width / 2, window_height / 8 * 7, "Vous n'avez pas encore fait de sauvegarde.", ancrage = "center", taille = 16)
+
+def display_save_loading_menu(window_width, window_height):
 	"""
-	Display the game main menu that allow to choose the players count, then shows the according controls.
-	Return a keys dictionary that contains the game controls according to the player count.
+	Display the menu that allow to choose between starting a new game or loading a previously saved game.
 	"""
 	efface_tout()
-	
+	image(window_width / 2, window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
+	zones_coords = []
+
+	for i, txt in enumerate(("Nouvelle partie", "Charger la sauvegarde")):
+		x = window_width / 3 * (i + 1)
+		y = window_height / 3 * 2.2
+		text_width = longueur_texte(txt)
+		text_height = hauteur_texte()
+
+		texte(x, y, txt, ancrage = "center")
+		zones_coords.append((x - text_width / 2 - 20, y - text_height / 2 - 20, x + text_width / 2 + 20, y + text_height / 2 + 20))
+		rectangle(zones_coords[i][0], zones_coords[i][1], zones_coords[i][2], zones_coords[i][3], epaisseur = 2)
+	mise_a_jour()
+	return zones_coords
+
+def display_players_selection_menu(window_width, window_height):
+	"""
+	Display the menu that allow to choose the number of players that will play together.
+	"""
+	efface_tout()
 	image(window_width / 2, window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
 	zones_coords = []
 
@@ -42,7 +64,6 @@ def display_main_menu(window_width, window_height):
 		zones_coords.append((x - text_width / 2 - 20, y - text_height / 2 - 20, x + text_width / 2 + 20, y + text_height / 2 + 20))
 		rectangle(zones_coords[i - 1][0], zones_coords[i - 1][1], zones_coords[i - 1][2], zones_coords[i - 1][3], epaisseur = 2)
 	mise_a_jour()
-
 	return zones_coords
 
 def display_controls(window_width, window_height, player_count, keys):
@@ -115,7 +136,10 @@ def display_pause(game_width, game_height):
 		texte(x, y, txt, ancrage = "center")
 		zones_coords.add((x - 100, y - 40, x + 100, y + 40, txt))
 
-	return pause_rectangle_coords, zones_coords
+	return pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords
+
+def display_save_success(pause_rectangle_coords, width, height):
+	texte(pause_rectangle_coords[0] + width / 2, pause_rectangle_coords[1] + height / 8 * 7, "La partie a bien été sauvegardée.", ancrage = "center", taille = 16)
 
 def display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
@@ -169,7 +193,7 @@ def display_game(board, pawns, current_color, exit_available, walls, escalators,
 	display_escalators(escalators, cell_width, cell_height)
 	display_players(pawns, cell_width, cell_height)
 
-	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - time())), ancrage = "ne")
+	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((get_timer(start_time, timeout) + 1))), ancrage = "ne")
 	display_side_panel(window_width, window_height, game_width, current_color)
 	mise_a_jour()
 
