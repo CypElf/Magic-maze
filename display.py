@@ -57,12 +57,10 @@ def display_controls(window_width, window_height, player_count, keys):
 		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
-		direction_keys = {keys[direction]: printable_direction for direction, printable_direction in {("up", "en haut"), ("down", "en bas"), ("left", "à gauche"), ("right", "à droite")}}
-
 		if player_count == 2:
-			display_two_players_controls(window_width, window_height, direction_keys)
+			display_two_players_controls(window_width, window_height, keys)
 		else:
-			display_three_players_controls(window_width, window_height, direction_keys)
+			display_three_players_controls(window_width, window_height, keys)
 		
 		click_to_start_y = window_height / 6 * 5
 
@@ -73,19 +71,32 @@ def display_solo_controls(window_width, window_height):
 	texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
 	texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
 
-def display_two_players_controls(window_width, window_height, direction_keys):
+def display_two_players_controls(window_width, window_height, keys):
+	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex")}}
+	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
+
 	for j in {1, 2}:
 		texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+	
+	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- e : {printables[inverted_keys['e']]}\n- q : switcher de pion"
+	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- v : switcher de pion"
 
-	for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : aller {direction_keys['z']}\n- q : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
-		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+	for j, txt in enumerate([txt_player1, txt_player2]):
+		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
-def display_three_players_controls(window_width, window_height, direction_keys):
+def display_three_players_controls(window_width, window_height, keys):
+	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex")}}
+	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
+
 	for j in {1, 2, 3}:
 		texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 
-	for j, (txt, font_size) in enumerate([(f"- a : aller {direction_keys['a']}\n- z : switcher de pion", 20), (f"- c : aller {direction_keys['c']}\n- v : switcher de pion", 20), (f"- o : aller {direction_keys['o']}\n- p : aller {direction_keys['p']}\n- m : switcher de pion", 20)]):
-		texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = font_size)
+	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- q : switcher de pion"
+	txt_player2 = f"- x : {printables[inverted_keys['x']]}\n- c : {printables[inverted_keys['c']]}\n- v : switcher de pion"
+	txt_player3 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- m : switcher de pion"
+
+	for j, txt in enumerate([txt_player1, txt_player2, txt_player3]):
+		texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
 def display_pause(game_width, game_height):
 	pause_rectangle_width = game_width / 5 * 4 - game_width / 5
@@ -197,11 +208,13 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 def display_escalators(escalators, cell_width, cell_height):
 	for (i1, j1), (i2, j2) in escalators:
 		if i1 - i2 == 1 and j2 - j1 == 1:
-			image((j1 + 1) * cell_width, i1 * cell_height, "res/img/misc/ladder1.png", ancrage = "center")
+			offset_x, offset_y, ladder = 1, 0, 1
 		elif i1 - i2 == 1 and j2 - j1 == 2:
-			image((j1 + 1.5) * cell_width, i1 * cell_height, "res/img/misc/ladder2.png", ancrage = "center")
+			offset_x, offset_y, ladder = 1.5, 0, 2
 		else:
-			image((j1 + 1) * cell_width, (i1 - 0.5) * cell_height, "res/img/misc/ladder3.png", ancrage = "center")
+			offset_x, offset_y, ladder = 1, -0.5, 3
+
+		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/misc/ladder{ladder}.png", ancrage = "center")
 
 def display_players(pawns, cell_width, cell_height):
 	for color in {"purple", "orange", "yellow", "green"}:

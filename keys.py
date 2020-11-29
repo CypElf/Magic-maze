@@ -1,7 +1,7 @@
 """
 This module handles all the keys related things.
 """
-from random import shuffle
+from random import shuffle, choice
 from time import time
 from display import display_pause
 from menu import handle_pause_menu_interaction
@@ -22,6 +22,14 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 
 	if key in keys["switch"]:
 		current_color = next_color(current_color)
+
+	elif key == keys["vortex"]:
+		# TODO : teleport the pawn to another chosen vortex
+		pass
+
+	elif key == keys["escalator"]:
+		# TODO : move the pawn to the other side of the escalator if there is one in the current cell
+		pass
 
 	elif key == keys["debug"]:
 		debug_mode = not debug_mode
@@ -48,6 +56,7 @@ def get_keys(players_count):
 			"right": {"right", "d"},
 			"switch": {"n"},
 			"debug": "b",
+			"escalator": "e",
 			"exit": "escape"
 		}
 
@@ -62,17 +71,24 @@ def get_keys(players_count):
 		shuffle(directions)
 		for key, direction in zip({"a", "z", "o", "p"}, directions):
 			keys[direction] = key
+		remaining_keys = ["e", "i"]
+		shuffle(remaining_keys)
+		keys["escalator"], keys["vortex"] = remaining_keys[0], remaining_keys[1]
 
 		return keys
 	else:
 		keys = {
-			"switch": {"z", "m", "v"},
+			"switch": {"q", "m", "v"},
 			"debug": "b",
 			"exit": "escape"
 		}
 		directions = ["up", "down", "left", "right"]
 		shuffle(directions)
-		for key, direction in zip({"a", "c", "o", "p"}, directions):
+		for key, direction in zip({"a", "c", "p"}, directions):
 			keys[direction] = key
+
+		remaining_keys = ["z", "x", "o"]
+		shuffle(remaining_keys)
+		keys["escalator"], keys["vortex"], keys[directions[3]] = remaining_keys[0], remaining_keys[1], remaining_keys[2]
 			
 		return keys
