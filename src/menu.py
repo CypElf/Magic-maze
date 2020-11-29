@@ -1,10 +1,9 @@
 """
 This module handles the different menus interactions.
 """
-import json
-from time import time
 from src.upemtk import donne_evenement, type_evenement, clic_x, clic_y, ferme_fenetre, touche, mise_a_jour, attente_clic, efface_tout
 from src.display import display_controls, display_save_success
+from src.logic import make_save
 import src.keys as k
 
 def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, pause_key, pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board):
@@ -27,20 +26,9 @@ def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width,
                         ferme_fenetre()
                         exit(0)
                     else:
-                        with open("save.json", "w") as savefile:
-                            state = {
-                                "pawns": pawns,
-                                "pawns_on_objects": pawns_on_objects,
-                                "pawns_outside": pawns_outside,
-                                "current_color": current_color,
-                                "debug_mode": debug_mode,
-                                "exit_available": exit_available,
-                                "start_time": start_time,
-                                "save_time": time(),
-                                "board": board
-                            }
-                            json.dump(state, savefile)
+                        make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board)
                         display_save_success(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height)
+
                 elif not (click_x >= pause_rectangle_coords[0] and click_x <= pause_rectangle_coords[2] and click_y >= pause_rectangle_coords[1] and click_y <= pause_rectangle_coords[3]):
                     unpaused = True
         elif type_ev == "Touche":
@@ -48,7 +36,7 @@ def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width,
                 unpaused = True
         mise_a_jour()
 
-def handle_save_loading_menu_interaction(zones_coords, window_width, window_height):
+def handle_save_loading_menu_interaction(zones_coords):
     """
     Handles the first game menu where you can choose between starting a new game on loading a save previously done.
     """

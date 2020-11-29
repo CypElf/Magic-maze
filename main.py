@@ -22,11 +22,11 @@ def main():
 	cree_fenetre(window_width, window_height)
 	zones_coords = display_save_loading_menu(window_width, window_height)
 	
-	save_loading = handle_save_loading_menu_interaction(zones_coords, window_width, window_height)
+	save_loading = handle_save_loading_menu_interaction(zones_coords)
 	
 	while save_loading and not path.isfile("save.json"):
 		display_loading_save_error(window_width, window_height)
-		save_loading = handle_save_loading_menu_interaction(zones_coords, window_width, window_height)
+		save_loading = handle_save_loading_menu_interaction(zones_coords)
 
 	zones_coords = display_players_selection_menu(window_width, window_height)
 	keys = handle_players_selection_menu_interaction(zones_coords, window_width, window_height)

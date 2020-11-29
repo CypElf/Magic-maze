@@ -2,6 +2,23 @@
 This module includes all the game logic.
 """
 from random import choice
+from time import time
+from json import dump
+
+def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board):
+    with open("save.json", "w") as savefile:
+        state = {
+            "pawns": pawns,
+            "pawns_on_objects": pawns_on_objects,
+            "pawns_outside": pawns_outside,
+            "current_color": current_color,
+            "debug_mode": debug_mode,
+            "exit_available": exit_available,
+            "start_time": start_time,
+            "save_time": time(),
+            "board": board
+        }
+        dump(state, savefile)
 
 def next_color(current_color):
 	"""
