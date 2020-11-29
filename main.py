@@ -34,7 +34,8 @@ def main():
 			[".", "o", ".", "*", ".", ".", ".", ".", "*", ".", ".", ".", "*", ".", "."],
 		]
 
-	walls = {frozenset(((3, 5), (4, 5))), frozenset(((3, 6), (4, 6))), frozenset(((3, 7), (4, 7))), frozenset(((8, 1), (9, 1))), frozenset(((8, 2), (9, 2)))}
+	escalators = {(((7, 11), (6, 12))), (((3, 10), (2, 12))), (((8, 7), (6, 8)))}
+	walls = {frozenset(((3, 5), (4, 5))), frozenset(((3, 6), (4, 6))), frozenset(((3, 7), (4, 7))), frozenset(((8, 1), (9, 1))), frozenset(((8, 2), (9, 2))), frozenset(((6, 13), (6, 14)))}
 	pawns = { "purple": [4, 7], "orange": [5, 7], "yellow": [4, 8], "green": [5, 8] }
 	pawns_on_objects = {"purple": False, "orange": False, "yellow": False, "green": False}
 	pawns_outside = pawns_on_objects.copy()
@@ -72,7 +73,7 @@ def main():
 		if lost or won:
 			break
 		
-		display_game(board, pawns, current_color, exit_available, walls, start_time, timeout, game_width, game_height, window_width, window_height)
+		display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height)
 		
 	if won or lost:
 		display_game_end(window_width, window_height, won)

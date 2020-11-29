@@ -106,26 +106,24 @@ def display_pause(game_width, game_height):
 
 	return pause_rectangle_coords, zones_coords
 
-def display_game(board, pawns, current_color, exit_available, walls, start_time, timeout, game_width, game_height, window_width, window_height):
+def display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height):
 	"""
 	Display the board and the pawns on their positions.
 	
 	board is supposed to be a valid two dimensional list, with at least 2 rows and 2 columns.
 	purple, orange, yellow, green are all supposed to be a list of two elements that describe their position inside the board.
 
-	Exemples :
-
-	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, 300000.0, 3, 900, 600, 1200, 600)
+	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, {((0, 1), (1, 1))}, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough rows
 
-	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, 300000.0, 3, 900, 600, 1200, 600)
+	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, {((0, 1), (1, 1))}, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: the specified board does not have enough columns
 
-	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, {((0, 0), (0, 1))}, 300000.0, 3, 900, 600, 1200, 600)
+	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, {((0, 0), (0, 1))}, {((0, 1), (1, 1))}, 300000.0, 3, 900, 600, 1200, 600)
 	Traceback (most recent call last):
 		...
 	AssertionError: yellow position is out of range
@@ -152,13 +150,13 @@ def display_game(board, pawns, current_color, exit_available, walls, start_time,
 
 			display_cell(board, i, j, x, y, cell_width, cell_height, exit_available)
 
-			for color in {"purple", "orange", "yellow", "green"}:
-				if [i, j] == pawns[color]:
-					image(x, y, f"res/img/players/{color}.png", ancrage = "nw")
-					break
-
 			if i > 0 and {(i - 1, j), (i, j)} in walls:
 				rectangle(x, y - 2, x + cell_width, y + 2, remplissage = "grey")
+			if j > 0 and {(i, j - 1), (i, j)} in walls:
+				rectangle(x - 2, y, x + 2, y + cell_height, remplissage = "grey")
+
+	display_escalators(escalators, cell_width, cell_height)
+	display_players(pawns, cell_width, cell_height)
 
 	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((timeout * 60 + start_time + 1) - time())), ancrage = "ne")
 	display_side_panel(window_width, window_height, game_width, current_color)
@@ -195,6 +193,19 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 					break
 		
 		rectangle(x, y, x + cell_width, y + cell_height)
+
+def display_escalators(escalators, cell_width, cell_height):
+	for (i1, j1), (i2, j2) in escalators:
+		if i1 - i2 == 1 and j2 - j1 == 1:
+			image((j1 + 1) * cell_width, i1 * cell_height, "res/img/misc/ladder1.png", ancrage = "center")
+		elif i1 - i2 == 1 and j2 - j1 == 2:
+			image((j1 + 1.5) * cell_width, i1 * cell_height, "res/img/misc/ladder2.png", ancrage = "center")
+		else:
+			image((j1 + 1) * cell_width, (i1 - 0.5) * cell_height, "res/img/misc/ladder3.png", ancrage = "center")
+
+def display_players(pawns, cell_width, cell_height):
+	for color in {"purple", "orange", "yellow", "green"}:
+		image(pawns[color][1] * cell_width, pawns[color][0] * cell_height, f"res/img/players/{color}.png", ancrage = "nw")
 
 def display_side_panel(window_width, window_height, game_width, current_color):
 	x_offset = 30
