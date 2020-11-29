@@ -57,6 +57,7 @@ def get_keys(players_count):
 			"switch": {"n"},
 			"debug": "b",
 			"escalator": "e",
+			"vortex": "v",
 			"exit": "escape"
 		}
 
