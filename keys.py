@@ -5,9 +5,9 @@ from random import shuffle, choice
 from time import time
 from display import display_pause
 from menu import handle_pause_menu_interaction
-from logic import move, next_color
+from logic import move, next_color, use_escalator
 
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, board, game_width, game_height):
+def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, escalators, board, game_width, game_height):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
@@ -29,7 +29,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 
 	elif key == keys["escalator"]:
 		# TODO : move the pawn to the other side of the escalator if there is one in the current cell
-		pass
+		use_escalator(current_color, pawns, escalators)
 
 	elif key == keys["debug"]:
 		debug_mode = not debug_mode

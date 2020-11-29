@@ -14,7 +14,7 @@ def apply_debug_mode(touche, keys, pawns, current_color, debug_mode):
     If the debug mode is enabled, returns a random color and a random key direction. Otherwise, returns the current color and key.
     """
     if debug_mode and (touche == None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
-        return choice(list(pawns.keys())), choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"]))])
+        return choice(list(pawns.keys())), choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"]])
     else:
         return current_color, touche.lower()
 
@@ -102,3 +102,16 @@ def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, b
             update_on_exit(color, pawns, pawns_outside, exit_available, board)
             on_hourglass = update_on_hourglass(color, pawns, board)
     return on_hourglass
+
+def use_escalator(current_color, pawns, escalators):
+    """
+    Move the pawn to the other side of the escalator if he is on one's extremity and if there is no other pawn on the other side.
+    """
+    current_pawn, other_pawns = split_pawns(current_color, pawns)
+    current_position = tuple(current_pawn)
+
+    for coords1, coords2 in escalators:
+        if coords1 == current_position and list(coords2) not in other_pawns.values():
+            pawns[current_color] = list(coords2)
+        elif coords2 == current_position and coords1 not in other_pawns.values():
+            pawns[current_color] = list(coords1)
