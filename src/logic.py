@@ -132,3 +132,13 @@ def use_escalator(current_color, pawns, escalators):
             pawns[current_color] = list(coords2)
         elif coords2 == current_position and coords1 not in other_pawns.values():
             pawns[current_color] = list(coords1)
+
+def use_vortex(current_color, pawns, board):
+    """
+    Allow to choose a vortex to teleport to if the selected pawn is on one of its vortex.
+    """
+    current_pawn = pawns[current_color]
+    vortex_color = "v" + current_color[0]
+    if board[current_pawn[0]][current_pawn[1]] == vortex_color:
+        usable_vortex = {(i, j) for i in range(len(board)) for j in range(len(board[0])) if (i, j) != (current_pawn[0], current_pawn[1]) and board[i][j] == vortex_color}
+        pawns[current_color] = list(next(iter(usable_vortex)))

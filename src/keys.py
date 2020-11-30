@@ -6,7 +6,7 @@ from time import time
 from src.timer import adjust_time
 from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
-from src.logic import move, next_color, use_escalator
+from src.logic import move, next_color, use_escalator, use_vortex
 
 def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, escalators, board, game_width, game_height):
 	"""
@@ -26,7 +26,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 
 	elif key == keys["vortex"]:
 		# TODO : teleport the pawn to another chosen vortex
-		pass
+		use_vortex(current_color, pawns, board)
 
 	elif key == keys["escalator"]:
 		use_escalator(current_color, pawns, escalators)
