@@ -201,7 +201,7 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	"""
 	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
 	"""
-	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ":
+	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "v":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ":
 			color = "white"
 		elif board[i][j] == "*":
@@ -214,9 +214,9 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 
 		rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
 
-		for char, img in {("h", "hourglass"), ("µ", "used_hourglass"), ("e", "exit")}:
+		for char, img in {("h", "misc/hourglass"), ("µ", "misc/used_hourglass"), ("e", "misc/exit"), ("vp", "vortex/purple"), ("vo", "vortex/orange"), ("vy", "vortex/yellow"), ("vg", "vortex/green")}:
 			if board[i][j] == char:
-				image(x, y, f"res/img/misc/{img}.png", ancrage = "nw")
+				image(x, y, f"res/img/{img}.png", ancrage = "nw")
 
 	else:
 		objects = {"p": "purple", "o": "orange", "y": "yellow", "g": "green"}
