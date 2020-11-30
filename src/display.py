@@ -75,7 +75,7 @@ def display_controls(window_width, window_height, player_count, keys):
 		click_to_start_y = window_height / 4 * 3
 		
 	else:
-		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : quitter", 20)]):
+		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : mettre en pause", 20)]):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
 		if player_count == 2:
@@ -90,7 +90,7 @@ def display_controls(window_width, window_height, player_count, keys):
 
 def display_solo_controls(window_width, window_height):
 	texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
-	texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : quitter", ancrage = "center", taille = 20)
+	texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
 
 def display_two_players_controls(window_width, window_height, keys):
 	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex")}}
