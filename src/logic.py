@@ -138,11 +138,10 @@ def use_escalator(current_color, pawns, escalators):
             pawns[current_color] = list(coords1)
 
 def use_vortex(vortex_key, switch_key, current_color, pawns, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height, board):
-    current_pawn = pawns[current_color]
     vortex_color = "v" + current_color[0]
-    if board[current_pawn[0]][current_pawn[1]] == vortex_color:
-        usable_vortex = cycle(((i, j) for i in range(len(board)) for j in range(len(board[0])) if (i, j) != (current_pawn[0], current_pawn[1]) and board[i][j] == vortex_color))
-
+    usable_vortex = {(i, j) for i in range(len(board)) for j in range(len(board[0])) if board[i][j] == vortex_color}
+    if len(usable_vortex) > 0:
+        usable_vortex = cycle(usable_vortex)
         currently_selected_vortex = next(usable_vortex)
 
         while True:
