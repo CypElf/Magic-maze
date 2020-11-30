@@ -100,7 +100,7 @@ def display_two_players_controls(window_width, window_height, keys):
 		texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 	
 	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- e : {printables[inverted_keys['e']]}\n- q : switcher de pion"
-	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- v : switcher de pion"
+	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- m : switcher de pion"
 
 	for j, txt in enumerate([txt_player1, txt_player2]):
 		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
