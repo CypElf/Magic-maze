@@ -217,7 +217,12 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 
 		rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
 
-		for char, img in {("h", "misc/hourglass"), ("µ", "misc/used_hourglass"), ("e", "misc/exit"), ("vp", "vortex/purple"), ("vo", "vortex/orange"), ("vy", "vortex/yellow"), ("vg", "vortex/green")}:
+		if not exit_available:
+			vortex = {("vp", "vortex/purple"), ("vo", "vortex/orange"), ("vy", "vortex/yellow"), ("vg", "vortex/green")}
+		else:
+			vortex = {("vp", "vortex/grey"), ("vo", "vortex/grey"), ("vy", "vortex/grey"), ("vg", "vortex/grey")}
+
+		for char, img in {("h", "misc/hourglass"), ("µ", "misc/used_hourglass"), ("e", "misc/exit")}.union(vortex):
 			if board[i][j] == char:
 				image(x, y, f"res/img/{img}.png", ancrage = "nw")
 

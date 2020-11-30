@@ -131,26 +131,28 @@ def use_escalator(current_color, pawns, escalators):
     current_pawn, other_pawns = split_pawns(current_color, pawns)
     current_position = tuple(current_pawn)
 
-    for coords1, coords2 in escalators:
-        if coords1 == current_position and list(coords2) not in other_pawns.values():
-            pawns[current_color] = list(coords2)
-        elif coords2 == current_position and coords1 not in other_pawns.values():
-            pawns[current_color] = list(coords1)
+    if current_position[0] != -1 and current_position[1] != -1:
+        for coords1, coords2 in escalators:
+            if coords1 == current_position and list(coords2) not in other_pawns.values():
+                pawns[current_color] = list(coords2)
+            elif coords2 == current_position and coords1 not in other_pawns.values():
+                pawns[current_color] = list(coords1)
 
 def use_vortex(vortex_key, switch_key, current_color, pawns, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height, board):
-    vortex_color = "v" + current_color[0]
-    usable_vortex = {(i, j) for i in range(len(board)) for j in range(len(board[0])) if board[i][j] == vortex_color}
-    if len(usable_vortex) > 0:
-        usable_vortex = cycle(usable_vortex)
-        currently_selected_vortex = next(usable_vortex)
+    if not exit_available:
+        vortex_color = "v" + current_color[0]
+        usable_vortex = {(i, j) for i in range(len(board)) for j in range(len(board[0])) if board[i][j] == vortex_color}
+        if len(usable_vortex) > 0:
+            usable_vortex = cycle(usable_vortex)
+            currently_selected_vortex = next(usable_vortex)
 
-        while True:
-            display_selected_vortex(currently_selected_vortex[0], currently_selected_vortex[1], game_width, game_height, board)
-            touche = attente_touche_jusqua(50)
-            display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height)
-            if touche in switch_key:
-                currently_selected_vortex = next(usable_vortex)
-            if touche == vortex_key:
-                break
+            while True:
+                display_selected_vortex(currently_selected_vortex[0], currently_selected_vortex[1], game_width, game_height, board)
+                touche = attente_touche_jusqua(50)
+                display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height)
+                if touche in switch_key:
+                    currently_selected_vortex = next(usable_vortex)
+                if touche == vortex_key:
+                    break
 
-        pawns[current_color] = list(currently_selected_vortex)
+            pawns[current_color] = list(currently_selected_vortex)
