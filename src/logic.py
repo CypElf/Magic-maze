@@ -30,14 +30,14 @@ def next_color(current_color):
 	"""
 	return {"purple": "orange", "orange": "yellow", "yellow": "green", "green": "purple"}[current_color]
 
-def apply_debug_mode(touche, keys, pawns, current_color, debug_mode):
+def apply_debug_mode(touche, keys, debug_mode):
     """
     If the debug mode is enabled, returns a random color and a random key direction. Otherwise, returns the current color and key.
     """
     if debug_mode and (touche == None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
-        return choice(list(pawns.keys())), choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"]])
+        return choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"]))])
     else:
-        return current_color, touche.lower()
+        return touche.lower()
 
 def update_on_objects(color, pawns, pawns_on_objects, board):
     """
@@ -138,7 +138,7 @@ def use_escalator(current_color, pawns, escalators):
             elif coords2 == current_position and coords1 not in other_pawns.values():
                 pawns[current_color] = list(coords1)
 
-def use_vortex(vortex_key, switch_key, current_color, pawns, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height, board):
+def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board):
     if not exit_available:
         vortex_color = "v" + current_color[0]
         usable_vortex = {(i, j) for i in range(len(board)) for j in range(len(board[0])) if board[i][j] == vortex_color}
@@ -149,10 +149,11 @@ def use_vortex(vortex_key, switch_key, current_color, pawns, exit_available, wal
             while True:
                 display_selected_vortex(currently_selected_vortex[0], currently_selected_vortex[1], game_width, game_height, board)
                 touche = attente_touche_jusqua(50)
+                touche = apply_debug_mode(touche, keys, debug_mode)
                 display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height)
-                if touche in switch_key:
+                if touche in keys["switch"]:
                     currently_selected_vortex = next(usable_vortex)
-                if touche == vortex_key:
+                if touche == keys["vortex"]:
                     break
 
             pawns[current_color] = list(currently_selected_vortex)

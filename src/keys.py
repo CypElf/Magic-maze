@@ -25,7 +25,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		current_color = next_color(current_color)
 
 	elif key == keys["vortex"]:
-		use_vortex(key, keys["switch"], current_color, pawns, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height, board)
+		use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board)
 
 	elif key == keys["escalator"]:
 		use_escalator(current_color, pawns, escalators)
