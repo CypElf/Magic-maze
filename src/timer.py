@@ -20,4 +20,4 @@ def adjust_time(start_time, current_time):
     """
     Return a new time corresponding to the current time minus the saved time to restore the timer to a previous state.
     """
-    return start_time + (time() - current_time) + 1
+    return start_time + (time() - current_time)

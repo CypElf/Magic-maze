@@ -192,10 +192,13 @@ def display_game(board, pawns, current_color, exit_available, walls, escalators,
 
 	display_escalators(escalators, cell_width, cell_height)
 	display_players(pawns, cell_width, cell_height)
-
-	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((get_timer(start_time, timeout) + 1))), ancrage = "ne")
+	display_timer(window_width, window_height, start_time, timeout)
 	display_side_panel(window_width, window_height, game_width, current_color)
+	
 	mise_a_jour()
+
+def display_timer(window_width, window_height, start_time, timeout):
+	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((get_timer(start_time, timeout) + 1))), ancrage = "ne")
 
 def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	"""
@@ -253,3 +256,9 @@ def display_side_panel(window_width, window_height, game_width, current_color):
 	y_offsets = {"purple": 1, "orange": 2, "yellow": 3, "green": 4}
 
 	image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / 5 * y_offsets[current_color], "res/img/misc/arrow.png", ancrage = "center")
+
+def display_selected_vortex(i, j, game_width, game_height, board):
+	x = j * game_width / len(board[0])
+	y = i * game_height / len(board)
+
+	image(x, y, "res/img/misc/circle.png", ancrage = "nw")

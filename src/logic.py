@@ -4,6 +4,10 @@ This module includes all the game logic.
 from random import choice
 from time import time
 from json import dump
+from itertools import cycle
+from src.timer import adjust_time
+from src.display import display_selected_vortex, display_game
+from src.upemtk import attente_touche_jusqua
 
 def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board):
     with open("save.json", "w") as savefile:
@@ -133,12 +137,21 @@ def use_escalator(current_color, pawns, escalators):
         elif coords2 == current_position and coords1 not in other_pawns.values():
             pawns[current_color] = list(coords1)
 
-def use_vortex(current_color, pawns, board):
-    """
-    Allow to choose a vortex to teleport to if the selected pawn is on one of its vortex.
-    """
+def use_vortex(vortex_key, switch_key, current_color, pawns, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height, board):
     current_pawn = pawns[current_color]
     vortex_color = "v" + current_color[0]
     if board[current_pawn[0]][current_pawn[1]] == vortex_color:
-        usable_vortex = {(i, j) for i in range(len(board)) for j in range(len(board[0])) if (i, j) != (current_pawn[0], current_pawn[1]) and board[i][j] == vortex_color}
-        pawns[current_color] = list(next(iter(usable_vortex)))
+        usable_vortex = cycle(((i, j) for i in range(len(board)) for j in range(len(board[0])) if (i, j) != (current_pawn[0], current_pawn[1]) and board[i][j] == vortex_color))
+
+        currently_selected_vortex = next(usable_vortex)
+
+        while True:
+            display_selected_vortex(currently_selected_vortex[0], currently_selected_vortex[1], game_width, game_height, board)
+            touche = attente_touche_jusqua(50)
+            display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height)
+            if touche in switch_key:
+                currently_selected_vortex = next(usable_vortex)
+            if touche == vortex_key:
+                break
+
+        pawns[current_color] = list(currently_selected_vortex)

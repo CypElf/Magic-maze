@@ -18,7 +18,7 @@ __all__ = ['ignore_exception', 'auto_update', 'cree_fenetre',
            'polygone', 'rectangle', 'cercle', 'point', 'marque',
            'image', 'texte', 'longueur_texte', 'hauteur_texte',
            'efface_tout', 'efface', 'efface_marque', 'attente_clic',
-           'attente_touche', 'attente_clic_ou_touche', 'clic',
+           'attente_touche', 'attente_touche_jusqua', 'attente_clic_ou_touche', 'clic',
            'capture_ecran', 'donne_evenement', 'type_evenement',
            'clic_x', 'clic_y', 'touche', 'TypeEvenementNonValide',
            'FenetreNonCree', 'FenetreDejaCree']
@@ -491,7 +491,7 @@ def attente_touche():
             return touche(ev)
         mise_a_jour()
 
-def attente_touche(milliseconds):
+def attente_touche_jusqua(milliseconds):
     """
     Attend que l'utilisateur clique sur la fenêtre pendant le temps indiqué
     """

@@ -8,7 +8,7 @@ from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
 from src.logic import move, next_color, use_escalator, use_vortex
 
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, debug_mode, walls, escalators, board, game_width, game_height):
+def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, board, game_width, game_height, window_width, window_height):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
@@ -25,8 +25,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		current_color = next_color(current_color)
 
 	elif key == keys["vortex"]:
-		# TODO : teleport the pawn to another chosen vortex
-		use_vortex(current_color, pawns, board)
+		use_vortex(key, keys["switch"], current_color, pawns, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height, board)
 
 	elif key == keys["escalator"]:
 		use_escalator(current_color, pawns, escalators)
@@ -41,7 +40,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause(game_width, game_height)
 		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"], pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board)
 
-		current_time = adjust_time(start_time, current_time)
+		current_time = adjust_time(start_time, current_time) + 1
 	return current_color, hourglass_returned, debug_mode, (paused, current_time)
 
 def get_keys(players_count):
