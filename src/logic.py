@@ -36,8 +36,10 @@ def apply_debug_mode(touche, keys, debug_mode):
     """
     if debug_mode and (touche == None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
         return choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"]))])
-    else:
+    elif touche != None:
         return touche.lower()
+    else:
+        return touche
 
 def update_on_objects(color, pawns, pawns_on_objects, board):
     """
