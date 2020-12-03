@@ -5,7 +5,6 @@ from random import choice
 from time import time
 from json import dump
 from itertools import cycle
-from src.timer import adjust_time
 from src.display import display_selected_vortex, display_game
 from src.upemtk import attente_touche_jusqua
 

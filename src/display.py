@@ -1,7 +1,6 @@
 """
 This module contains display functionnalities, used to draw all the user interface to the window.
 """
-from time import time
 from src.upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 from src.timer import get_timer
 
@@ -198,6 +197,9 @@ def display_game(board, pawns, current_color, exit_available, walls, escalators,
 	mise_a_jour()
 
 def display_timer(window_width, window_height, start_time, timeout):
+	"""
+	Display the game timer at the top right of the window.
+	"""
 	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((get_timer(start_time, timeout) + 1))), ancrage = "ne")
 
 def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
