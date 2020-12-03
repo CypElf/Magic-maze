@@ -98,11 +98,11 @@ def display_two_players_controls(window_width, window_height, keys):
 	for j in {1, 2}:
 		texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 	
-	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- e : {printables[inverted_keys['e']]}\n- q : switcher de pion"
-	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- m : switcher de pion"
+	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- e : {printables[inverted_keys['e']]}\n- q"
+	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- m"
 
 	for j, txt in enumerate([txt_player1, txt_player2]):
-		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
+		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt + " : switcher de pion", ancrage = "center", taille = 20)
 
 def display_three_players_controls(window_width, window_height, keys):
 	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex")}}
@@ -111,12 +111,8 @@ def display_three_players_controls(window_width, window_height, keys):
 	for j in {1, 2, 3}:
 		texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 
-	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- q : switcher de pion"
-	txt_player2 = f"- x : {printables[inverted_keys['x']]}\n- c : {printables[inverted_keys['c']]}\n- v : switcher de pion"
-	txt_player3 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- m : switcher de pion"
-
-	for j, txt in enumerate([txt_player1, txt_player2, txt_player3]):
-		texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
+	for j, chars in enumerate([["a", "z", "q"], ["x", "c", "v"], ["o", "p", "m"]]):
+		texte(window_width / 4 * (j + 1), window_height / 6 * 4, f"- {chars[0]} : {printables[inverted_keys[chars[0]]]}\n- {chars[1]} : {printables[inverted_keys[chars[1]]]}\n- {chars[2]} : switcher de pion", ancrage = "center", taille = 20)
 
 def display_pause(game_width, game_height):
 	pause_rectangle_width = game_width / 5 * 4 - game_width / 5
@@ -222,19 +218,19 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 		if not exit_available:
 			vortex = {("vp", "vortex/purple"), ("vo", "vortex/orange"), ("vy", "vortex/yellow"), ("vg", "vortex/green")}
 		else:
-			vortex = {("vp", "vortex/grey"), ("vo", "vortex/grey"), ("vy", "vortex/grey"), ("vg", "vortex/grey")}
+			vortex = {(("vp", "vo", "vy", "vg"), "vortex/grey")}
 
 		for char, img in {("h", "misc/hourglass"), ("µ", "misc/used_hourglass"), ("e", "misc/exit")}.union(vortex):
-			if board[i][j] == char:
+			if board[i][j] in char:
 				image(x, y, f"res/img/{img}.png", ancrage = "nw")
 
 	else:
-		objects = {"p": "purple", "o": "orange", "y": "yellow", "g": "green"}
+		objects = {"purple", "orange", "yellow", "green"}
 
 		if not exit_available:
-			for obj in {"p", "o", "y", "g"}:
-				if board[i][j] == obj:
-					image(x, y, f"res/img/objects/{objects[obj]}.png", ancrage = "nw")
+			for obj in objects:
+				if board[i][j] == obj[0]:
+					image(x, y, f"res/img/objects/{obj}.png", ancrage = "nw")
 					break
 		
 		rectangle(x, y, x + cell_width, y + cell_height)
