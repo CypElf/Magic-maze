@@ -141,11 +141,13 @@ def use_escalator(current_color, pawns, escalators):
 
 def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board):
     if not exit_available:
+        
         vortex_color = "v" + current_color[0]
         usable_vortex = {(i, j) for i in range(len(board)) for j in range(len(board[0])) if board[i][j] == vortex_color}
         if len(usable_vortex) > 0:
             usable_vortex = cycle(usable_vortex)
             currently_selected_vortex = next(usable_vortex)
+            _, other_pawns = split_pawns(current_color, pawns)
 
             while True:
                 display_selected_vortex(currently_selected_vortex[0], currently_selected_vortex[1], game_width, game_height, board)
@@ -157,4 +159,6 @@ def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, st
                 if touche == keys["vortex"]:
                     break
 
-            pawns[current_color] = list(currently_selected_vortex)
+            currently_selected_vortex = list(currently_selected_vortex)
+            if currently_selected_vortex not in other_pawns.values():
+                pawns[current_color] = currently_selected_vortex

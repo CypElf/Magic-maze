@@ -41,5 +41,29 @@ Un splash screen est affiché au démarrage, affichant les commandes du jeu. Pui
 
 Un problème qui a été assez problématique est que le jeu ralentissait avec le temps, c'est à dire que déplacer les pions avait une latence de plus en plus élevée. Finalement, cela s'est révélé être du à l'oubli d'appeler la fonction `efface_tout()` de upemtk pour effacer le contenu de la fenêtre avant de ré afficher le plateau de jeu. A cause de cet oubli, chaque affichage était "superposé" aux anciens et c'est ce qui causait ce ralentissement, augmentant avec le temps, un peu plus à chaque affichage supplémentaire effectué par dessus les anciens. Il s'agit d'un problème finalement simple à fixer, mais qui a été très compliqué à identifier et donc source de beaucoup de recherches sur son origine. A part ça, nous n'avons pas rencontré de problème en particulier.
 
+## Phase 2
+
+### Implémentations
+
+Fonctionnalités implémentées :
+- des murs entre certaines cases
+- un système d'escalators
+- un système de vortex
+- un système de renversement de sablier
+- un menu de sélection du nombre de joueurs et une distribution aléatoire des actions possibles aux touches des joueurs
+- un menu de pause par lequel le jeu peut être sauvegardé pour être plus tard relancé dans le même état
+
+### Choix techniques
+
+Pour sauvegarder l'état du jeu, il nous fallait pouvoir sauvegarder des types de données complexes tels que des listes ou des dictionnaires. Nous avons par conséquent choisi de sauvegarder l'état du jeu en JSON (JavaScript Object Notation), qui répond bien à ce critère. Grâce au module standard json de Python, il a été très facile de mettre en place les sauvegardes et restaurations du jeu.
+L'organisation du code a bien évolué. Le module move a été renommé de façon plus large en `logic` et contient toutes les fonctions s'occupant de la partie logique du jeu. Le module `menu` contient des fonctions qui s'occupent de gérer l'appui sur certaines zones d'un menu donné. Un module `timer` contient tout ce qui est lié à la gestion du timer du jeu. Et enfin, tout ce qui est lié aux touches et leur appui est géré par le module `keys`.
+Ces modules ont été placés dans un sous dossier `src` pour rendre l'arborescence du projet plus claire.
+Dans les tuiles qui devront être implémentées pour la phase 3, on peut constater qu'il n'y a que 3 cas types d'escalators : un allant à 1 case en haut et 1 à droite, une allant de 2 en haut et 1 à droite, et enfin une allant de 2 à droite et 1 en haut. Par conséquent, comme faire une image d'escalator qui s'adapterait aux cases entre lesquelles elle serait aurait été très compliqué à réaliser et qu'il n'y aura que 3 cas possibles, nous avons choisi de faire 3 images différentes pour chacun de ces cas, choisies automatiquement lors de l'affichage d'un escalator en fonction du cas.
+
+### Problèmes rencontrés
+
+La sélection du vortex a été plutôt embêtante. En effet, lorsque le programme arrivait à la partie de sélection du vortex, l'affichage de la partie n'était logiquement plus effectué et le timer se retrouvait donc figé dans l'affichage (mais continuait de tourner en fond quand même, bien sur). De plus, le cercle noir de sélection de vortex ne pouvait pas être effacé tout seul pour en afficher un autre sur un autre vortex lorsque le joueur veut en sélectionner un autre. Il était nécessaire d'effacer la fenêtre. Par conséquent, un affichage de la fenêtre similaire à celui de la boucle principale du programme a du être mis en place pendant la sélection du vortex.
+Un autre problème souvent rencontré est que les fonctions ont souvent besoin de bien trop d'arguments. Cela devient rapidement compliqué de s'y retrouver. En effet, les fonctions peuvent être classées en 2 rangs : les fonctions plus globales, effectuant une tâche large (par exemple, `display_game()` qui affiche le plateau de jeu) et les fonctions plus spécialisées, appelées par les fonctions plus globales, pour faire certaines tâches précises (par exemple, `display_cell()` ou encore `display_players()`, qui affichent respectivement une cellule donnée et les pions, sont appelées par `display_game()`). Cependant, souvent, il y a de nombreuses sous fonctions demandant de nombreux arguments différents, et les fonctions globales ont donc besoin de ces arguments également afin de pouvoir les transmettre. Le résultat est que les fonctions les plus globales comme `display_game()` ou `key_triggered()` prennent de très nombreux arguments et cela n'est pas forcément idéal.
+
 ## Crédits
 Cyprien Molinet et Baptiste Mlynarz.
