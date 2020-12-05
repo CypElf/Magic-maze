@@ -130,14 +130,14 @@ def use_escalator(current_color, pawns, escalators):
     Move the pawn to the other side of the escalator if he is on one's extremity and if there is no other pawn on the other side.
     """
     current_pawn, other_pawns = split_pawns(current_color, pawns)
-    current_position = tuple(current_pawn)
 
-    if current_position[0] != -1 and current_position[1] != -1:
+    if current_pawn[0] != -1 and current_pawn[1] != -1:
         for coords1, coords2 in escalators:
-            if coords1 == current_position and list(coords2) not in other_pawns.values():
-                pawns[current_color] = list(coords2)
-            elif coords2 == current_position and list(coords1) not in other_pawns.values():
-                pawns[current_color] = list(coords1)
+            coords1, coords2 = list(coords1), list(coords2)
+            if coords1 == current_pawn and coords2 not in other_pawns.values():
+                pawns[current_color] = coords2
+            elif coords2 == current_pawn and coords1 not in other_pawns.values():
+                pawns[current_color] = coords1
 
 def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board):
     if not exit_available:
