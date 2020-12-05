@@ -136,7 +136,7 @@ def use_escalator(current_color, pawns, escalators):
         for coords1, coords2 in escalators:
             if coords1 == current_position and list(coords2) not in other_pawns.values():
                 pawns[current_color] = list(coords2)
-            elif coords2 == current_position and coords1 not in other_pawns.values():
+            elif coords2 == current_position and list(coords1) not in other_pawns.values():
                 pawns[current_color] = list(coords1)
 
 def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board):
