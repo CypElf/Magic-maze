@@ -248,9 +248,11 @@ def display_escalators(escalators, cell_width, cell_height):
 	offset_x, offset_y, ladder = None, None, None
 
 	for (i1, j1), (i2, j2) in escalators:
-		for diff1, diff2, off_x, off_y, lad in {(1, 1, 1, 0, 0), (1, 2, 1.5, 0, 3), (-2, 1, 1, 1.5, 2), (2, -1, 0, -0.5, 2), (-1, -2, -0.5, 1, 3)}:
+		# offset_x and offset_y are used to display the escalator in the right position
+		for diff1, diff2, off_x, off_y, lad in {(1, 1, 1, 0, 0), (2, 1, 1, -0.5, 1), (1, 2, 1.5, 0, 3), (-2, 1, 1, 1.5, 2), (2, -1, 0, -0.5, 2), (-1, -2, -0.5, 1, 3), (-2, -1, 0, 1.5, 1), (1, -2, -0.5, 0, 4), (-1, 2, 1.5, 1, 4)}:
 			if i1 - i2 == diff1 and j2 - j1 == diff2:
 				offset_x, offset_y, ladder = off_x, off_y, lad
+				break
 
 		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
 

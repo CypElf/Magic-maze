@@ -8,7 +8,7 @@ from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
 from src.logic import move, next_color, use_escalator, use_vortex, explore
 
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, board, game_width, game_height, window_width, window_height):
+def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, board, game_width, game_height, window_width, window_height):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
@@ -25,7 +25,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		current_color = next_color(current_color)
 
 	if key == keys["explore"]:
-		explore(pawns, current_color, board, walls, escalators)
+		explore(stock, pawns, current_color, board, walls, escalators)
 
 	elif key == keys["vortex"]:
 		use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board)
@@ -41,7 +41,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		current_time = time()
 
 		pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause(game_width, game_height)
-		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"], pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board)
+		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"], pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock)
 
 		current_time = adjust_time(start_time, current_time)
 	return current_color, hourglass_returned, debug_mode, (paused, current_time)

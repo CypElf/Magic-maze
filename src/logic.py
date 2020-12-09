@@ -9,7 +9,7 @@ from src.display import display_selected_vortex, display_game
 from src.upemtk import attente_touche_jusqua
 from src.cards import cards
 
-def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board):
+def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock):
     with open("save.json", "w") as savefile:
         state = {
             "pawns": pawns,
@@ -20,7 +20,10 @@ def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode,
             "exit_available": exit_available,
             "start_time": start_time,
             "save_time": time(),
-            "board": board
+            "board": board,
+            "walls": list(walls),
+            "escalators": list(escalators),
+            "stock": stock
         }
         dump(state, savefile)
 
@@ -164,11 +167,13 @@ def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, st
             if currently_selected_vortex not in other_pawns.values():
                 pawns[current_color] = currently_selected_vortex
 
-def get_random_card():
+def get_random_card(stock):
     """
-    Return a random card.
+    Return a random card and remove it from the stock.
     """
-    return choice(cards)
+    c = choice(stock)
+    stock.remove(c)
+    return c
 
 def reverse_horizontally(M):
     """
@@ -210,11 +215,12 @@ def next_direction(direction):
     """
     return {"d": "l", "r": "d", "u": "r", "l": "u"}[direction]
 
-def explore(pawns, current_color, board, walls, escalators):
+def explore(stock, pawns, current_color, board, walls, escalators):
     i, j = pawns[current_color][0], pawns[current_color][1]
     current_board_element = board[i][j]
     if current_board_element[0] == "a" and current_board_element[1] == current_color[0]:
-        new_card = get_random_card()
+        board[i][j] = "."
+        new_card = get_random_card(stock)
         direction = current_board_element[2]
 
         aligned = False
@@ -237,6 +243,25 @@ def explore(pawns, current_color, board, walls, escalators):
         if new_card["escalator"] is not None:
             escalators.add(((new_card["escalator"][0][0] + x, new_card["escalator"][0][1] + y), (new_card["escalator"][1][0] + x, new_card["escalator"][1][1] + y)))
 
+        # if two cards are put side by side, remove the exploration cells to the other card
         for a in range(len(new_card["board"])):
             for b in range(len(new_card["board"][0])):
                 board[x + a][y + b] = new_card["board"][a][b]
+
+                if board[x + a][y + b][0] == "a" and board[x + a][y + b][1] != "w":
+                    corr = {"l": (0, -1), "u": (-1, 0), "d": (1, 0), "r": (0, 1)}
+                    direction = board[x + a][y + b][2]
+                    off1, off2 = corr[direction]
+                    if x + a + off1 >= 0 and x + a + off1 < len(board) and y + b + off2 >= 0 and y + b + off2 < len(board[0]):
+                        if board[x + a + off1][y + b + off2][0] == "a":
+                            board[x + a][y + b] = "."
+                            board[x + a + off1][y + b + off2] = "."
+                        elif board[x + a + off1][y + b + off2] != "*":
+                            board[x + a][y + b] = "."
+    
+    # if there are no more cards in the stock, all the cards are deployed and you can't explore anything else, so all the remaining explore cells are removed
+    if len(stock) == 0:
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if board[i][j][0] == "a":
+                    board[i][j] = "."

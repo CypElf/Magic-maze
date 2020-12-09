@@ -10,6 +10,7 @@ from src.timer import invert_hourglass, adjust_time, get_timer
 from src.display import display_save_loading_menu, display_players_selection_menu, display_game, display_game_end, display_loading_save_error
 from src.keys import key_triggered
 from src.menu import handle_players_selection_menu_interaction, handle_save_loading_menu_interaction
+from src.cards import start_card, cards
 
 def main():
 	# DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images	
@@ -31,11 +32,6 @@ def main():
 	zones_coords = display_players_selection_menu(window_width, window_height)
 	keys = handle_players_selection_menu_interaction(zones_coords, window_width, window_height)
 
-	escalators = {((11, 15), (10, 16))}
-	walls = {
-		((8, 12), (8, 13)), ((7, 13), (8, 13)), ((7, 14), (8, 14)), ((7, 16), (8, 16)), ((8, 16), (8, 17)), ((9, 16), (9, 17)), ((10, 12), (10, 13)), ((8, 12), (11, 13)), ((11, 13), (12, 13)), ((11, 15), (12, 15)), ((9, 16), (9, 17)), ((10, 15), (10, 16)), ((9, 16), (10, 16)), ((8, 13), (9, 13)), ((9, 13), (10, 13)), ((10, 13), (11, 13)), ((11, 12), (11, 13))
-	}
-
 	if save_loading:
 		with open("save.json", "r") as savefile:
 			save = json.load(savefile)
@@ -47,13 +43,15 @@ def main():
 			exit_available = save["exit_available"]
 			start_time = adjust_time(save["start_time"], save["save_time"]) + 1
 			board = save["board"]
+			escalators = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["escalators"]))
+			walls = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["walls"]))
+			stock = save["stock"]
 	else:
-		board = [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] + list(map(lambda row: ["*"] * 13 + row + ["*"] * 13, [
-				["h", ".", "aou", "vp"],
-				["apl", ".", ".", "vy"],
-				["vo", ".", ".", "agr"],
-				["vg", "ayd", ".", "*"]
-			])) + [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30]
+		stock = cards
+		escalators = start_card["escalators"]
+		walls = start_card["walls"]
+
+		board = [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] + list(map(lambda row: ["*"] * 13 + row + ["*"] * 13, start_card["board"])) + [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30]
 
 		pawns = { "purple": [9, 14], "orange": [10, 14], "yellow": [9, 15], "green": [10, 15] }
 		pawns_on_objects = {"purple": False, "orange": False, "yellow": False, "green": False}
@@ -73,7 +71,7 @@ def main():
 		if touche is not None or debug_mode:
 			key = apply_debug_mode(touche, keys, debug_mode)
 
-			current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, board, game_width, game_height, window_width, window_height)
+			current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, board, game_width, game_height, window_width, window_height)
 
 			if paused:
 				start_time = returned_time
