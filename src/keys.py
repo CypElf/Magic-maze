@@ -6,7 +6,7 @@ from time import time
 from src.timer import adjust_time
 from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
-from src.logic import move, next_color, use_escalator, use_vortex, get_random_card, one_quarter_right_rotation
+from src.logic import move, next_color, use_escalator, use_vortex, explore
 
 def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, board, game_width, game_height, window_width, window_height):
 	"""
@@ -25,29 +25,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		current_color = next_color(current_color)
 
 	if key == keys["explore"]:
-		i, j = pawns[current_color][0], pawns[current_color][1]
-		current_board_element = board[i][j]
-		if current_board_element[0] == "a" and current_board_element[1] == current_color[0]:
-			new_card = get_random_card()
-			direction = current_board_element[2]
-
-			aligned = False
-			while not aligned:
-				for row in new_card["board"]:
-					for element in row:
-						if element.startswith("aw") and element[-1] == direction:
-							aligned = True
-				if not aligned:
-					one_quarter_right_rotation(new_card["board"])
-
-			x, y = 0, 0
-			for d, offset_x, offset_y in {("l", -2, -4), ("d", 1, -2), ("u", -4, -1), ("r", -1, 1)}:
-				if direction == d:
-					x, y = i + offset_x, j + offset_y
-
-			for a in range(len(new_card["board"])):
-				for b in range(len(new_card["board"][0])):
-					board[x + a][y + b] = new_card["board"][a][b]
+		explore(pawns, current_color, board, walls, escalators)
 
 	elif key == keys["vortex"]:
 		use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board)

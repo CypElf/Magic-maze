@@ -70,7 +70,7 @@ def main():
 	while True:
 		touche = attente_touche_jusqua(50)
 
-		if touche != None or debug_mode:
+		if touche is not None or debug_mode:
 			key = apply_debug_mode(touche, keys, debug_mode)
 
 			current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, board, game_width, game_height, window_width, window_height)

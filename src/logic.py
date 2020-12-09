@@ -34,9 +34,9 @@ def apply_debug_mode(touche, keys, debug_mode):
     """
     If the debug mode is enabled, returns a random color and a random key direction. Otherwise, returns the current color and key.
     """
-    if debug_mode and (touche == None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
+    if debug_mode and (touche is None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
         return choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"]))])
-    elif touche != None:
+    elif touche is not None:
         return touche.lower()
     else:
         return touche
@@ -192,16 +192,51 @@ def one_quarter_right_rotation(card):
     >>> M
     [[(20, 80, 50), (20, 30, 50)], [(60, 80, 90), (50, 80, 90)]]
     """
-    for i in range(len(card)):
+    board = card["board"]
+    for i in range(len(board)):
         for j in range(i + 1):
             for a, b in {(i, j), (j, i)}:
-                if card[a][b][-1] in {"l", "d", "u", "r"}:
-                    card[a][b] = card[a][b][:2] + next_direction(card[a][b][-1])
-            card[i][j], card[j][i] = card[j][i], card[i][j]
-    reverse_horizontally(card)
+                if board[a][b][-1] in {"l", "d", "u", "r"}:
+                    board[a][b] = board[a][b][:2] + next_direction(board[a][b][-1])
+            board[i][j], board[j][i] = board[j][i], board[i][j]
+    reverse_horizontally(board)
+    card["walls"] = {((j1, len(board) - (i1 + 1)), (j2, len(board) - (i2 + 1))) for (i1, j1), (i2, j2) in card["walls"]}
+    if card["escalator"] is not None:
+        card["escalator"] = ((card["escalator"][0][1], len(board) - (card["escalator"][0][0] + 1)), (card["escalator"][1][1], len(board) - (card["escalator"][1][0] + 1)))
 
 def next_direction(direction):
     """
     Return the new pointing direction of a direction after a 1/4 rotation to the right.
     """
     return {"d": "l", "r": "d", "u": "r", "l": "u"}[direction]
+
+def explore(pawns, current_color, board, walls, escalators):
+    i, j = pawns[current_color][0], pawns[current_color][1]
+    current_board_element = board[i][j]
+    if current_board_element[0] == "a" and current_board_element[1] == current_color[0]:
+        new_card = get_random_card()
+        direction = current_board_element[2]
+
+        aligned = False
+        while not aligned:
+            for row in new_card["board"]:
+                for element in row:
+                    if element.startswith("aw") and element[-1] == direction:
+                        aligned = True
+            if not aligned:
+                one_quarter_right_rotation(new_card)
+
+        x, y = 0, 0
+        for d, offset_x, offset_y in {("l", -2, -4), ("d", 1, -2), ("u", -4, -1), ("r", -1, 1)}:
+            if direction == d:
+                x, y = i + offset_x, j + offset_y
+
+        for (i1, j1), (i2, j2) in new_card["walls"]:
+            walls.add(((i1 + x, j1 + y), (i2 + x, j2 + y)))
+
+        if new_card["escalator"] is not None:
+            escalators.add(((new_card["escalator"][0][0] + x, new_card["escalator"][0][1] + y), (new_card["escalator"][1][0] + x, new_card["escalator"][1][1] + y)))
+
+        for a in range(len(new_card["board"])):
+            for b in range(len(new_card["board"][0])):
+                board[x + a][y + b] = new_card["board"][a][b]

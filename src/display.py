@@ -245,15 +245,14 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 		rectangle(x, y, x + cell_width, y + cell_height)
 
 def display_escalators(escalators, cell_width, cell_height):
-	for (i1, j1), (i2, j2) in escalators:
-		if abs(i1 - i2) == 1 and abs(j2 - j1) == 1:
-			offset_x, offset_y, ladder = 1, 0, 1
-		elif abs(i1 - i2) == 1 and abs(j2 - j1) == 2:
-			offset_x, offset_y, ladder = 1.5, 0, 2
-		else:
-			offset_x, offset_y, ladder = 1, -0.5, 3
+	offset_x, offset_y, ladder = None, None, None
 
-		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/misc/ladder{ladder}.png", ancrage = "center")
+	for (i1, j1), (i2, j2) in escalators:
+		for diff1, diff2, off_x, off_y, lad in {(1, 1, 1, 0, 0), (1, 2, 1.5, 0, 3), (-2, 1, 1, 1.5, 2), (2, -1, 0, -0.5, 2), (-1, -2, -0.5, 1, 3)}:
+			if i1 - i2 == diff1 and j2 - j1 == diff2:
+				offset_x, offset_y, ladder = off_x, off_y, lad
+
+		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
 
 def display_players(pawns, cell_width, cell_height):
 	for color in {"purple", "orange", "yellow", "green"}:
