@@ -7,6 +7,7 @@ from json import dump
 from itertools import cycle
 from src.display import display_selected_vortex, display_game
 from src.upemtk import attente_touche_jusqua
+from src.cards import cards
 
 def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board):
     with open("save.json", "w") as savefile:
@@ -82,7 +83,7 @@ def map_collision(current_pawn, board, walls, offsets):
     empty_cell = False
     board_limit = False
 
-    if frozenset((((current_pawn[0]), (current_pawn[1])), ((current_pawn[0] + offsets[0]), (current_pawn[1] + offsets[1])))) in walls or (offsets == (-1, 0) and not current_pawn[0] > 0) or (offsets == (1, 0) and not current_pawn[0] < len(board) - 1) or (offsets == (0, -1) and not current_pawn[1] > 0) or (offsets == (0, 1) and not current_pawn[1] < len(board[0]) - 1):
+    if (((current_pawn[0]), (current_pawn[1])), ((current_pawn[0] + offsets[0]), (current_pawn[1] + offsets[1]))) in walls or (((current_pawn[0] + offsets[0]), (current_pawn[1] + offsets[1])), ((current_pawn[0]), (current_pawn[1]))) in walls or (offsets == (-1, 0) and not current_pawn[0] > 0) or (offsets == (1, 0) and not current_pawn[0] < len(board) - 1) or (offsets == (0, -1) and not current_pawn[1] > 0) or (offsets == (0, 1) and not current_pawn[1] < len(board[0]) - 1):
         board_limit = True
 
     if not board_limit:
@@ -162,3 +163,45 @@ def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, st
             currently_selected_vortex = list(currently_selected_vortex)
             if currently_selected_vortex not in other_pawns.values():
                 pawns[current_color] = currently_selected_vortex
+
+def get_random_card():
+    """
+    Return a random card.
+    """
+    return choice(cards)
+
+def reverse_horizontally(M):
+    """
+    Reverse a matrix horizontally.
+    >>> M = [[(20, 30, 50), (50, 80, 90)], [(20, 30, 50), (50, 80, 90)]]
+    >>> reverse_horizontally(M)
+    >>> M
+    [[(50, 80, 90), (20, 30, 50)], [(50, 80, 90), (20, 30, 50)]]
+    """
+    nb_lignes = len(M)
+    nb_colonnes = len(M[0])
+    for i in range(nb_lignes):
+        for j in range(nb_colonnes // 2):
+            M[i][j], M[i][nb_colonnes - (j + 1)] = M[i][nb_colonnes - (j + 1)],  M[i][j]
+
+def one_quarter_right_rotation(card):
+    """
+    Rotate a card by 1/4 to the right.
+    >>> M = [[(20, 30, 50), (50, 80, 90)], [(20, 80, 50), (60, 80, 90)]]
+    >>> rotation_un_quart(M)
+    >>> M
+    [[(20, 80, 50), (20, 30, 50)], [(60, 80, 90), (50, 80, 90)]]
+    """
+    for i in range(len(card)):
+        for j in range(i + 1):
+            for a, b in {(i, j), (j, i)}:
+                if card[a][b][-1] in {"l", "d", "u", "r"}:
+                    card[a][b] = card[a][b][:2] + next_direction(card[a][b][-1])
+            card[i][j], card[j][i] = card[j][i], card[i][j]
+    reverse_horizontally(card)
+
+def next_direction(direction):
+    """
+    Return the new pointing direction of a direction after a 1/4 rotation to the right.
+    """
+    return {"d": "l", "r": "d", "u": "r", "l": "u"}[direction]

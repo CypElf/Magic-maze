@@ -170,8 +170,8 @@ def display_game(board, pawns, current_color, exit_available, walls, escalators,
 
 	efface_tout()
 
-	cell_width = game_width / columns_count
-	cell_height = game_height / rows_count
+	cell_width = 40
+	cell_height = 40
 
 	for i in range(rows_count):
 		for j in range(columns_count):
@@ -180,9 +180,9 @@ def display_game(board, pawns, current_color, exit_available, walls, escalators,
 
 			display_cell(board, i, j, x, y, cell_width, cell_height, exit_available)
 
-			if i > 0 and {(i - 1, j), (i, j)} in walls:
+			if i > 0 and ((i - 1, j), (i, j)) in walls or ((i, j), (i - 1, j)) in walls:
 				rectangle(x, y - 2, x + cell_width, y + 2, remplissage = "grey")
-			if j > 0 and {(i, j - 1), (i, j)} in walls:
+			if j > 0 and ((i, j - 1), (i, j)) in walls or ((i, j), (i, j - 1)) in walls:
 				rectangle(x - 2, y, x + 2, y + cell_height, remplissage = "grey")
 
 	display_escalators(escalators, cell_width, cell_height)
@@ -202,27 +202,36 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	"""
 	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
 	"""
-	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "v":
-		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ":
+	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
+		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 			color = "white"
 		elif board[i][j] == "*":
 			color = "grey"
-		else:
+		elif board[i][j] == "e":
 			if exit_available:
 				color = "lightgreen"
 			else:
 				color = "white"
+		else:
+			color = "white"
 
 		rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
 
+		if board[i][j][0] == "a":
+			for color in {"purple", "orange", "yellow", "green"}:
+				if color[0] == board[i][j][1]:
+					image(x, y, f"res/img/explore/{color}.png", ancrage = "nw")
+
+	vortex = set()
+	if board[i][j][0] == "v":
 		if not exit_available:
 			vortex = {("vp", "vortex/purple"), ("vo", "vortex/orange"), ("vy", "vortex/yellow"), ("vg", "vortex/green")}
 		else:
 			vortex = {(("vp", "vo", "vy", "vg"), "vortex/grey")}
 
-		for char, img in {("h", "misc/hourglass"), ("µ", "misc/used_hourglass"), ("e", "misc/exit")}.union(vortex):
-			if board[i][j] in char:
-				image(x, y, f"res/img/{img}.png", ancrage = "nw")
+	for char, img in {("h", "misc/hourglass"), ("µ", "misc/used_hourglass"), ("e", "misc/exit")}.union(vortex):
+		if board[i][j] in char:
+			image(x, y, f"res/img/{img}.png", ancrage = "nw")
 
 	else:
 		objects = {"purple", "orange", "yellow", "green"}
@@ -237,9 +246,9 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 
 def display_escalators(escalators, cell_width, cell_height):
 	for (i1, j1), (i2, j2) in escalators:
-		if i1 - i2 == 1 and j2 - j1 == 1:
+		if abs(i1 - i2) == 1 and abs(j2 - j1) == 1:
 			offset_x, offset_y, ladder = 1, 0, 1
-		elif i1 - i2 == 1 and j2 - j1 == 2:
+		elif abs(i1 - i2) == 1 and abs(j2 - j1) == 2:
 			offset_x, offset_y, ladder = 1.5, 0, 2
 		else:
 			offset_x, offset_y, ladder = 1, -0.5, 3
@@ -254,7 +263,7 @@ def display_side_panel(window_width, window_height, game_width, current_color):
 	x_offset = 30
 
 	for i, color in enumerate(["purple", "orange", "yellow", "green"]):
-		image(window_width - (window_width - game_width) / 2 + x_offset, window_height / 5 * (i + 1), f"res/img/players/{color}.png", ancrage = "center")
+		image(window_width - (window_width - game_width) / 2 + x_offset, window_height / 5 * (i + 1), f"res/img/big_players/{color}.png", ancrage = "center")
 
 	y_offsets = {"purple": 1, "orange": 2, "yellow": 3, "green": 4}
 

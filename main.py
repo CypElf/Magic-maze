@@ -13,11 +13,11 @@ from src.menu import handle_players_selection_menu_interaction, handle_save_load
 
 def main():
 	# DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images	
-	window_width = 1200
-	window_height = 600
+	window_width = 1500
+	window_height = 800
 
-	game_width = 900
-	game_height = 600
+	game_width = 1200
+	game_height = 800
 
 	cree_fenetre(window_width, window_height)
 	zones_coords = display_save_loading_menu(window_width, window_height)
@@ -31,8 +31,10 @@ def main():
 	zones_coords = display_players_selection_menu(window_width, window_height)
 	keys = handle_players_selection_menu_interaction(zones_coords, window_width, window_height)
 
-	escalators = {(((7, 11), (6, 12))), (((3, 10), (2, 12))), (((8, 7), (6, 8)))}
-	walls = {frozenset(((3, 5), (4, 5))), frozenset(((3, 6), (4, 6))), frozenset(((3, 7), (4, 7))), frozenset(((8, 1), (9, 1))), frozenset(((8, 2), (9, 2))), frozenset(((6, 13), (6, 14)))}
+	escalators = {((11, 15), (10, 16))}
+	walls = {
+		((8, 12), (8, 13)), ((7, 13), (8, 13)), ((7, 14), (8, 14)), ((7, 16), (8, 16)), ((8, 16), (8, 17)), ((9, 16), (9, 17)), ((10, 12), (10, 13)), ((8, 12), (11, 13)), ((11, 13), (12, 13)), ((11, 15), (12, 15)), ((9, 16), (9, 17)), ((10, 15), (10, 16)), ((9, 16), (10, 16)), ((8, 13), (9, 13)), ((9, 13), (10, 13)), ((10, 13), (11, 13)), ((11, 12), (11, 13))
+	}
 
 	if save_loading:
 		with open("save.json", "r") as savefile:
@@ -46,20 +48,14 @@ def main():
 			start_time = adjust_time(save["start_time"], save["save_time"]) + 1
 			board = save["board"]
 	else:
-		board = [
-				[".", "e", "*", "*", "*", "*", "vy", ".", ".", ".", "*", "*", "h", "vy", "."],
-				[".", ".", "*", "*", "*", ".", ".", ".", ".", "g", "*", "*", ".", ".", "."],
-				["*", ".", ".", ".", "h", ".", ".", ".", "*", "*", "*", "*", ".", ".", "p"],
-				["*", "*", ".", ".", ".", ".", ".", ".", "*", "*", ".", "*", "*", "*", "*"],
-				["*", "*", "*", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
-				["*", "*", "vp", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
-				["*", "*", ".", ".", ".", "*", "*", ".", ".", ".", ".", ".", ".", ".", "."],
-				[".", ".", ".", ".", ".", "*", "*", "*", "*", "*", ".", ".", "*", "*", "."],
-				[".", ".", "h", "*", ".", ".", ".", ".", "*", "*", "h", ".", "*", "y", "."],
-				[".", "o", "vo", "*", ".", ".", "vp", "vo", "*", ".", ".", ".", "*", "vy", "."],
-			]
+		board = [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] + list(map(lambda row: ["*"] * 13 + row + ["*"] * 13, [
+				["h", ".", "aou", "vp"],
+				["apl", ".", ".", "vy"],
+				["vo", ".", ".", "agr"],
+				["vg", "ayd", ".", "*"]
+			])) + [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30]
 
-		pawns = { "purple": [4, 7], "orange": [5, 7], "yellow": [4, 8], "green": [5, 8] }
+		pawns = { "purple": [9, 14], "orange": [10, 14], "yellow": [9, 15], "green": [10, 15] }
 		pawns_on_objects = {"purple": False, "orange": False, "yellow": False, "green": False}
 		pawns_outside = pawns_on_objects.copy()
 		current_color = "purple"
