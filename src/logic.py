@@ -217,7 +217,7 @@ def next_direction(direction):
 
 def explore(stock, pawns, current_color, board, walls, escalators):
     """
-    Pick a new card in the stock, add it to the board and remove it from the stock. Exploration cells that would collide with another card already on the board are automatically removed.
+    Pick a new card in the stock, add it to the board and remove it from the stock. Exploration cells that would cause a card to be added later out of bounds of in another card are automatically removed.
     """
     i, j = pawns[current_color][0], pawns[current_color][1]
     current_board_element = board[i][j]
@@ -239,51 +239,66 @@ def explore(stock, pawns, current_color, board, walls, escalators):
         if new_card["escalator"] is not None:
             escalators.add(((new_card["escalator"][0][0] + x, new_card["escalator"][0][1] + y), (new_card["escalator"][1][0] + x, new_card["escalator"][1][1] + y)))
 
-        remove_colliders_exploration_cells(new_card, x, y, board)
-    
+        for i in range(len(new_card["board"])):
+            for j in range(len(new_card["board"][0])):
+                absolute_x = x + i
+                absolute_y = y + j
+
+                board[absolute_x][absolute_y] = new_card["board"][i][j]
+
+                remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, new_card, i, j)
+                remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card)
+                remove_nearby_explorations_cells(board, x, y, new_card)
+
     if len(stock) == 0:
         remove_all_exploration_cells(board)
 
-def remove_colliders_exploration_cells(new_card, x, y, board):
+def remove_nearby_explorations_cells(board, x, y, new_card):
     """
-    Remove the exploration cells that would make two cards collide in the board after adding a new one.
+    Remove the explorations cells nearby the new added card to avoid collision, if any.
     """
-    for a in range(len(new_card["board"])):
-        for b in range(len(new_card["board"][0])):
-            absolute_x = x + a
-            absolute_y = y + b
-
-            board[absolute_x][absolute_y] = new_card["board"][a][b]
-
-            if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":
-
-                # bounds collision check
-
-                if (a == 0 and board[absolute_x][absolute_y][-1] == "u" and (absolute_x - 4 < 0 or absolute_y + 2 >= len(board[0]))) or (a == len(new_card["board"]) - 1 and board[absolute_x][absolute_y][-1] == "d" and (absolute_x + 4 >= len(board) or absolute_y - 2 < 0)) or (b == 0 and board[absolute_x][absolute_y][-1] == "l" and (absolute_x - 2 < 0 or absolute_y - 4 < 0)) or (b == len(new_card["board"][0]) - 1 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))):
+    for i in range(len(new_card["board"])):
+            for absolute_x, absolute_y in {(x + i, y - 1), (x + i, y + len(new_card["board"][0])), (x - 1, y + i), (x + len(new_card["board"]), y + i)}:
+                if absolute_y >= 0 and absolute_y < len(board[0]) and absolute_x >= 0 and absolute_x < len(board) and board[absolute_x][absolute_y][0] == "a":
                     board[absolute_x][absolute_y] = "."
-                    print(f"deleted an arrow because new card created by it would collide the bounds (arrow was at {absolute_x}, {absolute_y})")
 
-            if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":
+def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
+    """
+    Remove the exploration cells that would collide with another card in the board.
+    """
+    if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":      
+        direction = board[absolute_x][absolute_y][2]
+        found_something = False
 
-                # nearby cell check
+        off1, off2 = {"l": (-2, -4), "u": (-4, -1), "d": (1, -2), "r": (-1, 1)}[direction]
 
-                corr = {"l": (0, -1), "u": (-1, 0), "d": (1, 0), "r": (0, 1)}
-                direction = board[absolute_x][absolute_y][2]
-                off1, off2 = corr[direction]
+        for k in range(len(new_card["board"])):
+            for l in range(len(new_card["board"][0])):
+                a = absolute_x + off1 + k
+                b = absolute_y + off2 + l
 
-                if absolute_x + off1 >= 0 and absolute_x + off1 < len(board) and absolute_y + off2 >= 0 and absolute_y + off2 < len(board[0]):
-                
-                    if board[absolute_x + off1][absolute_y + off2] != "*":
-                        board[absolute_x][absolute_y] = "."
-                        
-                        if board[absolute_x + off1][absolute_y + off2][0] == "a":
-                            print("double explore")
-                            board[absolute_x + off1][absolute_y + off2] = "."
-                        else:
-                            print("single explore")
+                if board[a][b] != "*":
+                    board[absolute_x][absolute_y] = "."
+                    found_something = True
+                    break
+            if found_something:
+                break
+
+def remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, new_card, i, j):
+    """
+    Remove the exploration cells that would add a new card beyond the board bounds.
+    """
+    if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":
+
+        bounds_up_collision = i == 0 and board[absolute_x][absolute_y][-1] == "u" and (absolute_x - 4 < 0 or absolute_y + 2 >= len(board[0]))
+        bounds_down_collision = i == len(new_card["board"]) - 1 and board[absolute_x][absolute_y][-1] == "d" and (absolute_x + 4 >= len(board) or absolute_y - 2 < 0)
+        bounds_left_collision = j == 0 and board[absolute_x][absolute_y][-1] == "l" and (absolute_x - 2 < 0 or absolute_y - 4 < 0)
+        bounds_right_collision = j == len(new_card["board"][0]) - 1 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))
+
+        if bounds_up_collision or bounds_down_collision or bounds_left_collision or bounds_right_collision:
+            board[absolute_x][absolute_y] = "."
 
 def remove_all_exploration_cells(board):
-    print("all exploration cells removed because stock empty")
     for i in range(len(board)):
             for j in range(len(board[0])):
                 if board[i][j][0] == "a":
