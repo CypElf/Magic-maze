@@ -216,6 +216,9 @@ def next_direction(direction):
     return {"d": "l", "r": "d", "u": "r", "l": "u"}[direction]
 
 def explore(stock, pawns, current_color, board, walls, escalators):
+    """
+    Pick a new card in the stock, add it to the board and remove it from the stock. Exploration cells that would collide with another card already on the board are automatically removed.
+    """
     i, j = pawns[current_color][0], pawns[current_color][1]
     current_board_element = board[i][j]
     if current_board_element[0] == "a" and current_board_element[1] == current_color[0]:
@@ -223,14 +226,7 @@ def explore(stock, pawns, current_color, board, walls, escalators):
         new_card = get_random_card(stock)
         direction = current_board_element[2]
 
-        aligned = False
-        while not aligned:
-            for row in new_card["board"]:
-                for element in row:
-                    if element.startswith("aw") and element[-1] == direction:
-                        aligned = True
-            if not aligned:
-                one_quarter_right_rotation(new_card)
+        align_card(new_card, direction)
 
         x, y = 0, 0
         for d, offset_x, offset_y in {("l", -2, -4), ("d", 1, -2), ("u", -4, -1), ("r", -1, 1)}:
@@ -243,25 +239,65 @@ def explore(stock, pawns, current_color, board, walls, escalators):
         if new_card["escalator"] is not None:
             escalators.add(((new_card["escalator"][0][0] + x, new_card["escalator"][0][1] + y), (new_card["escalator"][1][0] + x, new_card["escalator"][1][1] + y)))
 
-        # if two cards are put side by side, remove the exploration cells to the other card
-        for a in range(len(new_card["board"])):
-            for b in range(len(new_card["board"][0])):
-                board[x + a][y + b] = new_card["board"][a][b]
-
-                if board[x + a][y + b][0] == "a" and board[x + a][y + b][1] != "w":
-                    corr = {"l": (0, -1), "u": (-1, 0), "d": (1, 0), "r": (0, 1)}
-                    direction = board[x + a][y + b][2]
-                    off1, off2 = corr[direction]
-                    if x + a + off1 >= 0 and x + a + off1 < len(board) and y + b + off2 >= 0 and y + b + off2 < len(board[0]):
-                        if board[x + a + off1][y + b + off2][0] == "a":
-                            board[x + a][y + b] = "."
-                            board[x + a + off1][y + b + off2] = "."
-                        elif board[x + a + off1][y + b + off2] != "*":
-                            board[x + a][y + b] = "."
+        remove_colliders_exploration_cells(new_card, x, y, board)
     
-    # if there are no more cards in the stock, all the cards are deployed and you can't explore anything else, so all the remaining explore cells are removed
     if len(stock) == 0:
-        for i in range(len(board)):
+        remove_all_exploration_cells(board)
+
+def remove_colliders_exploration_cells(new_card, x, y, board):
+    """
+    Remove the exploration cells that would make two cards collide in the board after adding a new one.
+    """
+    for a in range(len(new_card["board"])):
+        for b in range(len(new_card["board"][0])):
+            absolute_x = x + a
+            absolute_y = y + b
+
+            board[absolute_x][absolute_y] = new_card["board"][a][b]
+
+            if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":
+
+                # bounds collision check
+
+                if (a == 0 and board[absolute_x][absolute_y][-1] == "u" and (absolute_x - 4 < 0 or absolute_y + 2 >= len(board[0]))) or (a == len(new_card["board"]) - 1 and board[absolute_x][absolute_y][-1] == "d" and (absolute_x + 4 >= len(board) or absolute_y - 2 < 0)) or (b == 0 and board[absolute_x][absolute_y][-1] == "l" and (absolute_x - 2 < 0 or absolute_y - 4 < 0)) or (b == len(new_card["board"][0]) - 1 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))):
+                    board[absolute_x][absolute_y] = "."
+                    print(f"deleted an arrow because new card created by it would collide the bounds (arrow was at {absolute_x}, {absolute_y})")
+
+            if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":
+
+                # nearby cell check
+
+                corr = {"l": (0, -1), "u": (-1, 0), "d": (1, 0), "r": (0, 1)}
+                direction = board[absolute_x][absolute_y][2]
+                off1, off2 = corr[direction]
+
+                if absolute_x + off1 >= 0 and absolute_x + off1 < len(board) and absolute_y + off2 >= 0 and absolute_y + off2 < len(board[0]):
+                
+                    if board[absolute_x + off1][absolute_y + off2] != "*":
+                        board[absolute_x][absolute_y] = "."
+                        
+                        if board[absolute_x + off1][absolute_y + off2][0] == "a":
+                            print("double explore")
+                            board[absolute_x + off1][absolute_y + off2] = "."
+                        else:
+                            print("single explore")
+
+def remove_all_exploration_cells(board):
+    print("all exploration cells removed because stock empty")
+    for i in range(len(board)):
             for j in range(len(board[0])):
                 if board[i][j][0] == "a":
                     board[i][j] = "."
+
+def align_card(new_card, direction):
+    """
+    Rotate the new card board for its white arrow to be in the same direction as the given one.
+    """
+    aligned = False
+    while not aligned:
+        for row in new_card["board"]:
+            for element in row:
+                if element.startswith("aw") and element[-1] == direction:
+                    aligned = True
+        if not aligned:
+            one_quarter_right_rotation(new_card)
