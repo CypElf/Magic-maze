@@ -1,7 +1,7 @@
 """
 This module includes all the game logic.
 """
-from random import choice
+from random import choice, choices
 from time import time
 from json import dump
 from itertools import cycle
@@ -38,7 +38,7 @@ def apply_debug_mode(touche, keys, debug_mode):
     If the debug mode is enabled, returns a random color and a random key direction. Otherwise, returns the current color and key.
     """
     if debug_mode and (touche is None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
-        return choice([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"]))])
+        return choices([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"])), keys["explore"]], weights = [10, 10, 10, 10, 3, 3, 6, 3])[0]
     elif touche is not None:
         return touche.lower()
     else:

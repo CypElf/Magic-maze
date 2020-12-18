@@ -92,27 +92,30 @@ def display_solo_controls(window_width, window_height):
 	texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
 
 def display_two_players_controls(window_width, window_height, keys):
-	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex")}}
+	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex"), ("explore", "explorer")}}
 	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
 
 	for j in {1, 2}:
 		texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 	
 	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- e : {printables[inverted_keys['e']]}\n- q"
-	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- m"
+	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- l : {printables[inverted_keys['l']]}\n- m"
 
 	for j, txt in enumerate([txt_player1, txt_player2]):
 		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt + " : switcher de pion", ancrage = "center", taille = 20)
 
 def display_three_players_controls(window_width, window_height, keys):
-	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex")}}
+	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex"), ("explore", "explorer")}}
 	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
 
 	for j in {1, 2, 3}:
 		texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 
-	for j, chars in enumerate([["a", "z", "q"], ["x", "c", "v"], ["o", "p", "m"]]):
-		texte(window_width / 4 * (j + 1), window_height / 6 * 4, f"- {chars[0]} : {printables[inverted_keys[chars[0]]]}\n- {chars[1]} : {printables[inverted_keys[chars[1]]]}\n- {chars[2]} : switcher de pion", ancrage = "center", taille = 20)
+	for j, chars in enumerate([["a", "z", "q"], ["x", "c", "v"], ["o", "p", "m", "l"]]):
+		txt = f"- {chars[0]} : {printables[inverted_keys[chars[0]]]}\n- {chars[1]} : {printables[inverted_keys[chars[1]]]}\n- {chars[2]} : switcher de pion"
+		if j == 2:
+			txt += f"\n- {chars[3]} : {printables[inverted_keys[chars[3]]]}"
+		texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
 def display_pause(game_width, game_height):
 	pause_rectangle_width = game_width / 5 * 4 - game_width / 5

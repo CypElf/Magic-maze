@@ -75,9 +75,9 @@ def get_keys(players_count):
 		shuffle(directions)
 		for key, direction in zip({"a", "z", "o", "p"}, directions):
 			keys[direction] = key
-		remaining_keys = ["e", "i"]
+		remaining_keys = ["e", "i", "l"]
 		shuffle(remaining_keys)
-		keys["escalator"], keys["vortex"] = remaining_keys[0], remaining_keys[1]
+		keys["escalator"], keys["vortex"], keys["explore"] = remaining_keys[0], remaining_keys[1], remaining_keys[2]
 
 		return keys
 	else:
@@ -91,8 +91,8 @@ def get_keys(players_count):
 		for key, direction in zip({"a", "c", "p"}, directions):
 			keys[direction] = key
 
-		remaining_keys = ["z", "x", "o"]
+		remaining_keys = ["z", "x", "o", "l"]
 		shuffle(remaining_keys)
-		keys["escalator"], keys["vortex"], keys[directions[3]] = remaining_keys[0], remaining_keys[1], remaining_keys[2]
+		keys["escalator"], keys["vortex"], keys[directions[3]], keys["explore"] = remaining_keys[0], remaining_keys[1], remaining_keys[2], remaining_keys[3]
 			
 		return keys
