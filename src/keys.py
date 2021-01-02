@@ -8,7 +8,7 @@ from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
 from src.logic import move, next_color, use_escalator, use_vortex, explore
 
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, board, game_width, game_height, window_width, window_height):
+def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, on_board_cards, board, game_width, game_height, window_width, window_height):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
@@ -22,10 +22,10 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 			break
 
 	if key in keys["switch"]:
-		current_color = next_color(current_color)
+		current_color = next_color(current_color, pawns)
 
 	if key == keys["explore"]:
-		explore(stock, pawns, current_color, board, walls, escalators)
+		explore(stock, pawns, on_board_cards, current_color, board, walls, escalators)
 
 	elif key == keys["vortex"]:
 		use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board)

@@ -1,5 +1,5 @@
 """
-This is the core of the program. It contains the main loop and all the game logic.
+This is the core of the program. It contains the main loop and the encapsulating game logic.
 """
 import json
 from os import path
@@ -61,6 +61,7 @@ def main():
 		exit_available = False
 		start_time = time()
 	timeout = 3 # timeout is in minutes
+	on_board_cards = [] # TODO : get from save file
 
 	lost = False
 	won = False
@@ -71,7 +72,7 @@ def main():
 		if touche is not None or debug_mode:
 			key = apply_debug_mode(touche, keys, debug_mode)
 
-			current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, board, game_width, game_height, window_width, window_height)
+			current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, on_board_cards, board, game_width, game_height, window_width, window_height)
 
 			if paused:
 				start_time = returned_time

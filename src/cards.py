@@ -4,7 +4,22 @@ This module only contains the different game cards that can be added to the game
 # See the MM_PrintPlay.pdf file in the "sujet" folder to see the real game cards
 # The ones defined below are a litteral conversion in this game's representation
 
+# p = purple object
+# o = orange object
+# y = yellow object
+# g = green object
+# h = hourglass
+# µ = used hourglass
+# . = empty cell
+# * = not visitable empty cell
+# e = exit
+# axy = arrow of color x to the direction y (x can be p/o/y/g/w (w is white, others are the same as above) and y u/d/l/f (for up/down/left/right))
+# x = explore
+# f = fake pawns (aka guards) starting point
+# vx = vortex of color x (x can be p/o/y/g)
+
 start_card = {
+    "id": 1,
     "board": [
         ["h", ".", "aou", "vp"],
         ["apl", ".", ".", "vy"],
@@ -20,8 +35,9 @@ start_card = {
 cards = [
     {
         # card 2
+        "id": 2,
         "board": [
-            ["*", "*", ".", "."],
+            ["*", "*", "f", "."],
             ["aol", "*", "*", "e"],
             [".", ".", "*", "*"],
             ["vg", "awu", "vp", "*"]
@@ -33,6 +49,7 @@ cards = [
      },
     {
         # card 3
+        "id": 3,
         "board": [
             [".", ".", "vo", "*"],
             ["apl", ".", ".", "vg"],
@@ -46,6 +63,7 @@ cards = [
     },
     {
         # card 4
+        "id": 4,
         "board": [
             ["*", "*", "apu", "vy"],
             ["*", "h", ".", "*"],
@@ -59,6 +77,7 @@ cards = [
     },
     {
         # card 5
+        "id": 5,
         "board": [
             [".", ".", "aou", "."],
             ["ayl", ".", "h", "."],
@@ -72,6 +91,7 @@ cards = [
     },
     {
         # card 6
+        "id": 6,
         "board": [
             ["*", "y", "*", "*"],
             ["agl", ".", ".", "*"],
@@ -85,6 +105,7 @@ cards = [
     },
     {
         # card 7
+        "id": 7,
         "board": [
             ["*", "*", "o", "*"],
             ["vg", ".", ".", "."],
@@ -98,6 +119,7 @@ cards = [
     },
     {
         # card 8
+        "id": 8,
         "board": [
             [".", ".", ".", "."],
             ["aol", "*", "vy", "."],
@@ -111,6 +133,7 @@ cards = [
     },
     {
         # card 9
+        "id": 9,
         "board": [
             [".", ".", ".", "."],
             [".", "*", "vo", "."],

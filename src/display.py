@@ -205,7 +205,10 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	"""
 	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
 	"""
-	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
+	if board[i][j] == "debug_removed_explore": # TODO : remove this
+		rectangle(x, y, x + cell_width, y + cell_height, remplissage = "purple")
+
+	elif board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 			color = "white"
 		elif board[i][j] == "*":

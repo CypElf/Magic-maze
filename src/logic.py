@@ -27,11 +27,14 @@ def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode,
         }
         dump(state, savefile)
 
-def next_color(current_color):
-	"""
-	Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
-	"""
-	return {"purple": "orange", "orange": "yellow", "yellow": "green", "green": "purple"}[current_color]
+def next_color(current_color, pawns):
+    """
+    Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
+    """
+    colors = cycle(pawns.keys())
+    for color in colors:
+        if current_color == color:
+            return next(colors)
 
 def apply_debug_mode(touche, keys, debug_mode):
     """
@@ -160,8 +163,10 @@ def use_vortex(keys, current_color, pawns, exit_available, walls, escalators, st
                 display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height)
                 if touche in keys["switch"]:
                     currently_selected_vortex = next(usable_vortex)
-                if touche == keys["vortex"]:
+                elif touche == keys["vortex"]:
                     break
+                elif touche == keys["exit"]:
+                    return
 
             currently_selected_vortex = list(currently_selected_vortex)
             if currently_selected_vortex not in other_pawns.values():
@@ -215,7 +220,7 @@ def next_direction(direction):
     """
     return {"d": "l", "r": "d", "u": "r", "l": "u"}[direction]
 
-def explore(stock, pawns, current_color, board, walls, escalators):
+def explore(stock, pawns, on_board_cards, current_color, board, walls, escalators):
     """
     Pick a new card in the stock, add it to the board and remove it from the stock. Exploration cells that would cause a card to be added later out of bounds of in another card are automatically removed.
     """
@@ -239,6 +244,8 @@ def explore(stock, pawns, current_color, board, walls, escalators):
         if new_card["escalator"] is not None:
             escalators.add(((new_card["escalator"][0][0] + x, new_card["escalator"][0][1] + y), (new_card["escalator"][1][0] + x, new_card["escalator"][1][1] + y)))
 
+        on_board_cards.append({"id": new_card["id"], "top_left": (x, y)})
+
         for i in range(len(new_card["board"])):
             for j in range(len(new_card["board"][0])):
                 absolute_x = x + i
@@ -260,7 +267,7 @@ def remove_nearby_explorations_cells(board, x, y, new_card):
     for i in range(len(new_card["board"])):
             for absolute_x, absolute_y in {(x + i, y - 1), (x + i, y + len(new_card["board"][0])), (x - 1, y + i), (x + len(new_card["board"]), y + i)}:
                 if absolute_y >= 0 and absolute_y < len(board[0]) and absolute_x >= 0 and absolute_x < len(board) and board[absolute_x][absolute_y][0] == "a":
-                    board[absolute_x][absolute_y] = "."
+                    board[absolute_x][absolute_y] = "debug_removed_explore" # TODO : re put a '.' instead of the debug flag
 
 def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
     """
@@ -278,7 +285,7 @@ def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
                 b = absolute_y + off2 + l
 
                 if board[a][b] != "*":
-                    board[absolute_x][absolute_y] = "."
+                    board[absolute_x][absolute_y] = "debug_removed_explore" # TODO : re put a '.' instead of the debug flag
                     found_something = True
                     break
             if found_something:
@@ -296,7 +303,7 @@ def remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, new_ca
         bounds_right_collision = j == len(new_card["board"][0]) - 1 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))
 
         if bounds_up_collision or bounds_down_collision or bounds_left_collision or bounds_right_collision:
-            board[absolute_x][absolute_y] = "."
+            board[absolute_x][absolute_y] = "debug_removed_explore" # TODO : re put a '.' instead of the debug flag
 
 def remove_all_exploration_cells(board):
     for i in range(len(board)):
