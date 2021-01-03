@@ -205,8 +205,7 @@ def display_game(board, pawns, current_color, exit_available, walls, escalators,
 
 	display_escalators(escalators, cell_width, cell_height)
 	display_players(pawns, cell_width, cell_height)
-	display_timer(window_width, window_height, start_time, timeout)
-	display_side_panel(window_width, window_height, game_width, current_color)
+	display_side_panel(pawns, window_width, window_height, game_width, current_color, start_time, timeout)
 	
 	mise_a_jour()
 
@@ -214,7 +213,7 @@ def display_timer(window_width, window_height, start_time, timeout):
 	"""
 	Display the game timer at the top right of the window.
 	"""
-	texte(window_width - 10, window_height / 20, "temps restant : " + str(int((get_timer(start_time, timeout) + 1))), ancrage = "ne")
+	texte(window_width - 12, window_height / 40, "temps restant : " + str(int((get_timer(start_time, timeout) + 1))), ancrage = "ne")
 
 def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	"""
@@ -288,19 +287,21 @@ def display_players(pawns, cell_width, cell_height):
 			img = color
 		image(pawns[color][1] * cell_width, pawns[color][0] * cell_height, f"res/img/players/{img}.png", ancrage = "nw")
 
-def display_side_panel(window_width, window_height, game_width, current_color):
+def display_side_panel(pawns, window_width, window_height, game_width, current_color, start_time, timeout):
 	"""
 	Display the game side panel.
 	"""
+	display_timer(window_width, window_height, start_time, timeout)
 	x_offset = 30
 
-	for i, color in enumerate(["purple", "orange", "yellow", "green"]):
-		image(window_width - (window_width - game_width) / 2 + x_offset, window_height / 5 * (i + 1), f"res/img/big_players/{color}.png", ancrage = "center")
+	for i, color in enumerate(pawns):
+		if not color.startswith("fake"):
+			img = color
+		else:
+			img = "guard"
+		image(window_width - (window_width - game_width) / 2 + x_offset, window_height / (len(pawns) + 1) * (i + 1), f"res/img/big_players/{img}.png", ancrage = "center")
 
-	y_offsets = {"purple": 1, "orange": 2, "yellow": 3, "green": 4}
-
-	if not current_color.startswith("fake"):
-		image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / 5 * y_offsets[current_color], "res/img/misc/arrow.png", ancrage = "center")
+	image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / (len(pawns) + 1) * (list(pawns.keys()).index(current_color) + 1), "res/img/misc/arrow.png", ancrage = "center")
 
 def display_selected_vortex(i, j, game_width, game_height, board):
 	"""
