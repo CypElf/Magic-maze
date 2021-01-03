@@ -88,10 +88,16 @@ def display_controls(window_width, window_height, player_count, keys):
 	mise_a_jour()
 
 def display_solo_controls(window_width, window_height):
+	"""
+	Display the solo mode controls
+	"""
 	texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
 	texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
 
 def display_two_players_controls(window_width, window_height, keys):
+	"""
+	Display the 2 players mode controls
+	"""
 	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex"), ("explore", "explorer")}}
 	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
 
@@ -105,6 +111,9 @@ def display_two_players_controls(window_width, window_height, keys):
 		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt + " : switcher de pion", ancrage = "center", taille = 20)
 
 def display_three_players_controls(window_width, window_height, keys):
+	"""
+	Display the 3 players mode controls
+	"""
 	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex"), ("explore", "explorer")}}
 	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
 
@@ -118,6 +127,9 @@ def display_three_players_controls(window_width, window_height, keys):
 		texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
 def display_pause(game_width, game_height):
+	"""
+	Display the pause menu
+	"""
 	pause_rectangle_width = game_width / 5 * 4 - game_width / 5
 	pause_rectangle_height = game_height / 4 * 3 - game_height / 4
 	pause_rectangle_coords = (game_width / 5, game_height / 4, game_width / 5 + pause_rectangle_width, game_height / 4 + pause_rectangle_height)
@@ -137,6 +149,9 @@ def display_pause(game_width, game_height):
 	return pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords
 
 def display_save_success(pause_rectangle_coords, width, height):
+	"""
+	Display the success save message.
+	"""
 	texte(pause_rectangle_coords[0] + width / 2, pause_rectangle_coords[1] + height / 8 * 7, "La partie a bien été sauvegardée.", ancrage = "center", taille = 16)
 
 def display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height):
@@ -248,6 +263,9 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 		rectangle(x, y, x + cell_width, y + cell_height)
 
 def display_escalators(escalators, cell_width, cell_height):
+	"""
+	Display the escalators on the board.
+	"""
 	offset_x, offset_y, ladder = None, None, None
 
 	for (i1, j1), (i2, j2) in escalators:
@@ -260,6 +278,9 @@ def display_escalators(escalators, cell_width, cell_height):
 		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
 
 def display_players(pawns, cell_width, cell_height):
+	"""
+	Display the players pawns and the guards on the board.
+	"""
 	for color in pawns.keys():
 		if color.startswith("fake"):
 			img = "guard"
@@ -268,6 +289,9 @@ def display_players(pawns, cell_width, cell_height):
 		image(pawns[color][1] * cell_width, pawns[color][0] * cell_height, f"res/img/players/{img}.png", ancrage = "nw")
 
 def display_side_panel(window_width, window_height, game_width, current_color):
+	"""
+	Display the game side panel.
+	"""
 	x_offset = 30
 
 	for i, color in enumerate(["purple", "orange", "yellow", "green"]):
@@ -279,6 +303,9 @@ def display_side_panel(window_width, window_height, game_width, current_color):
 		image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / 5 * y_offsets[current_color], "res/img/misc/arrow.png", ancrage = "center")
 
 def display_selected_vortex(i, j, game_width, game_height, board):
+	"""
+	Display a circle at the given position to show a selected case (vortex selection).
+	"""
 	x = j * game_width / len(board[0])
 	y = i * game_height / len(board)
 
