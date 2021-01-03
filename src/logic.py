@@ -4,10 +4,11 @@ This module includes all the game logic.
 from random import choice, choices
 from time import time
 from json import dump
+from copy import deepcopy
 from itertools import cycle
 from src.display import display_selected_vortex, display_game
 from src.upemtk import attente_touche_jusqua
-from src.cards import cards
+from src.cards import original_read_only_cards
 
 def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock, on_board_cards):
     with open("save.json", "w") as savefile:
@@ -221,7 +222,7 @@ def reverse_horizontally(M):
 
 def one_quarter_right_rotation(card):
     """
-    Rotate a card by 1/4 to the right.
+    Rotate a card by 1/4 to the right, including its escalators and walls.
     >>> M = [[(20, 30, 50), (50, 80, 90)], [(20, 80, 50), (60, 80, 90)]]
     >>> rotation_un_quart(M)
     >>> M
@@ -235,9 +236,15 @@ def one_quarter_right_rotation(card):
                     board[a][b] = board[a][b][:2] + next_direction(board[a][b][-1])
             board[i][j], board[j][i] = board[j][i], board[i][j]
     reverse_horizontally(board)
-    card["walls"] = {((j1, len(board) - (i1 + 1)), (j2, len(board) - (i2 + 1))) for (i1, j1), (i2, j2) in card["walls"]}
+    card["walls"] = one_quarter_right_rotation_walls(board, card["walls"])
     if card["escalator"] is not None:
-        card["escalator"] = ((card["escalator"][0][1], len(board) - (card["escalator"][0][0] + 1)), (card["escalator"][1][1], len(board) - (card["escalator"][1][0] + 1)))
+        card["escalator"] = one_quarter_right_rotation_escalators(board, card["escalator"])
+
+def one_quarter_right_rotation_escalators(board, escalator):
+    return ((escalator[0][1], len(board) - (escalator[0][0] + 1)), (escalator[1][1], len(board) - (escalator[1][0] + 1)))
+
+def one_quarter_right_rotation_walls(board, walls):
+    return {((j1, len(board) - (i1 + 1)), (j2, len(board) - (i2 + 1))) for (i1, j1), (i2, j2) in walls}
 
 def next_direction(direction):
     """
@@ -258,10 +265,8 @@ def explore(stock, pawns, on_board_cards, current_color, board, walls, escalator
 
         align_card(new_card, direction)
 
-        x, y = 0, 0
-        for d, offset_x, offset_y in {("l", -2, -4), ("d", 1, -2), ("u", -4, -1), ("r", -1, 1)}:
-            if direction == d:
-                x, y = i + offset_x, j + offset_y
+        offset_i, offset_j = get_neighbor_top_left_corner_from_explore(direction)
+        x, y = i + offset_i, j + offset_j
 
         for (i1, j1), (i2, j2) in new_card["walls"]:
             walls.add(((i1 + x, j1 + y), (i2 + x, j2 + y)))
@@ -269,10 +274,10 @@ def explore(stock, pawns, on_board_cards, current_color, board, walls, escalator
         if new_card["escalator"] is not None:
             escalators.add(((new_card["escalator"][0][0] + x, new_card["escalator"][0][1] + y), (new_card["escalator"][1][0] + x, new_card["escalator"][1][1] + y)))
 
-        on_board_cards.append({"id": new_card["id"], "top_left": (x, y)})
+        on_board_cards.append({"id": new_card["id"], "top_left": (x, y), "rotations": new_card["rotations"]})
 
-        for i in range(len(new_card["board"])):
-            for j in range(len(new_card["board"][0])):
+        for i in range(4):
+            for j in range(4):
                 absolute_x = x + i
                 absolute_y = y + j
 
@@ -280,23 +285,23 @@ def explore(stock, pawns, on_board_cards, current_color, board, walls, escalator
                 if board[absolute_x][absolute_y] == "f":
                     pawns[f"fake_{len(pawns) - 4}"] = [absolute_x, absolute_y]
 
-                remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, new_card, i, j)
-                remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card)
-                remove_nearby_explorations_cells(board, x, y, new_card)
+                remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, i, j)
+                remove_colliders_exploration_cells(board, absolute_x, absolute_y)
+                remove_nearby_explorations_cells(board, x, y)
 
     if len(stock) == 0:
         remove_all_exploration_cells(board)
 
-def remove_nearby_explorations_cells(board, x, y, new_card):
+def remove_nearby_explorations_cells(board, x, y):
     """
     Remove the explorations cells nearby the new added card to avoid collision, if any.
     """
-    for i in range(len(new_card["board"])):
-            for absolute_x, absolute_y in {(x + i, y - 1), (x + i, y + len(new_card["board"][0])), (x - 1, y + i), (x + len(new_card["board"]), y + i)}:
+    for i in range(4):
+            for absolute_x, absolute_y in {(x + i, y - 1), (x + i, y + 4), (x - 1, y + i), (x + 4, y + i)}:
                 if absolute_y >= 0 and absolute_y < len(board[0]) and absolute_x >= 0 and absolute_x < len(board) and board[absolute_x][absolute_y][0] == "a":
                     board[absolute_x][absolute_y] = "."
 
-def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
+def remove_colliders_exploration_cells(board, absolute_x, absolute_y):
     """
     Remove the exploration cells that would collide with another card in the board.
     """
@@ -306,8 +311,8 @@ def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
 
         off1, off2 = {"l": (-2, -4), "u": (-4, -1), "d": (1, -2), "r": (-1, 1)}[direction]
 
-        for k in range(len(new_card["board"])):
-            for l in range(len(new_card["board"][0])):
+        for k in range(4):
+            for l in range(4):
                 a = absolute_x + off1 + k
                 b = absolute_y + off2 + l
 
@@ -318,16 +323,16 @@ def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
             if found_something:
                 break
 
-def remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, new_card, i, j):
+def remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, i, j):
     """
     Remove the exploration cells that would add a new card beyond the board bounds.
     """
     if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":
 
         bounds_up_collision = i == 0 and board[absolute_x][absolute_y][-1] == "u" and (absolute_x - 4 < 0 or absolute_y + 2 >= len(board[0]))
-        bounds_down_collision = i == len(new_card["board"]) - 1 and board[absolute_x][absolute_y][-1] == "d" and (absolute_x + 4 >= len(board) or absolute_y - 2 < 0)
+        bounds_down_collision = i == 3 and board[absolute_x][absolute_y][-1] == "d" and (absolute_x + 4 >= len(board) or absolute_y - 2 < 0)
         bounds_left_collision = j == 0 and board[absolute_x][absolute_y][-1] == "l" and (absolute_x - 2 < 0 or absolute_y - 4 < 0)
-        bounds_right_collision = j == len(new_card["board"][0]) - 1 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))
+        bounds_right_collision = j == 3 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))
 
         if bounds_up_collision or bounds_down_collision or bounds_left_collision or bounds_right_collision:
             board[absolute_x][absolute_y] = "."
@@ -343,13 +348,16 @@ def align_card(new_card, direction):
     Rotate the new card board for its white arrow to be in the same direction as the given one.
     """
     aligned = False
+    i = 0
     while not aligned:
         for row in new_card["board"]:
             for element in row:
                 if element.startswith("aw") and element[-1] == direction:
                     aligned = True
         if not aligned:
+            i += 1
             one_quarter_right_rotation(new_card)
+    new_card["rotations"] = i
 
 def spawn_reinforcement_guards(pawns, on_board_cards, board):
     """
@@ -367,3 +375,109 @@ def spawn_reinforcement_guards(pawns, on_board_cards, board):
                         chosen = choice(nearby)
                         pawns[f"fake_{len(pawns) - 4}"] = [x + chosen[0], y + chosen[1]]
                         return
+
+def opposite_direction(direction):
+    """
+    Return the opposite direction of the given one. The direction must be "up", "down", "left" or "right".
+    """
+    return {"up": "down", "left": "right", "down": "up", "right": "left"}[direction]
+
+def has_neighbors(on_board_cards, board, i, j, directions = {"up", "down", "left", "right"}, ignoreone = False):
+    """
+    Return True if a card is located nearby the given one. (i, j) are the coordinates of the top left corner of the card you want to check the neighbors. The direction parameter is optional and allow to check for a neighbor only in the given. This parameter must be a set containing the directions to check between "up", "left", "down" and "right" (as strings). Defaults to all of them. If ignoreone is set to True, ignore the neightbor of ID 1. Defaults to False.
+    """
+    for direction in directions:
+        neighbor_i, neighbor_j = get_neightbor_top_left_corner_from_top_left(direction)
+
+        for off1 in range(4):
+            for off2 in range(4):
+                x = i + neighbor_i + off1
+                y = j + neighbor_j + off2
+                if x >= 0 and x < len(board) and y >= 0 and y < len(board[0]) and board[x][y] != "*":
+                    skip = False
+                    if ignoreone and get_current_card([x, y], on_board_cards) == 1:
+                        skip = True
+                    if not skip:
+                        return True
+    return False
+
+def get_neighbor_top_left_corner_from_explore(direction):
+    """
+    Return the relative offsets where the top left corner of the neighbor card could be situated, from an exploration cell. Direction must be one of "up", "down", "left", or "right".
+    """
+    return {"l": (-2, -4), "d": (1, -2), "u": (-4, -1), "r": (-1, 1)}[direction[0]]
+
+def get_neightbor_top_left_corner_from_top_left(direction):
+    """
+    Return the relative offsets where the top left corner of the neighbor card could be situated, from the top left of a card. Direction must be one of "up", "down", "left", or "right".
+    """
+    return {"l": (-1, -4), "u": (-4, 1), "d": (4, -1), "r": (1, 4)}[direction[0]]
+
+def use_telekinesis(color, pawns, board, on_board_cards, escalators, walls, times_used):
+    """
+    Use the elfe telekinesis power to teleport a card from a location to another.
+    """
+    i, j = pawns[color][0], pawns[color][1]
+    current_board_element = board[i][j]
+
+    if color == "green" and current_board_element[0] == "a" and times_used < 2:
+        movable_cards = []
+
+        directions = ["up", "down", "left", "right"]
+        for card in on_board_cards:
+            if card["id"] != 1: # teleport the first base card is forbidden
+                movable = True
+                for dir2 in directions:
+                    off_i, off_j = get_neightbor_top_left_corner_from_top_left(dir2)
+                    dircopy = directions.copy()
+                    dircopy.remove(opposite_direction(dir2))
+
+                    if has_neighbors(on_board_cards, board, card["top_left"][0], card["top_left"][1], {dir2}, ignoreone = True) and not has_neighbors(on_board_cards, board, card["top_left"][0] + off_i, card["top_left"][1] + off_j, set(dircopy)):
+                        movable = False
+                if movable:
+                    movable_cards.append(card)
+
+        teleported_card = movable_cards[0] # TODO : allow the players to select the card to teleport
+        
+        original_card = original_read_only_cards[teleported_card["id"] - 2] # -2 because the cards start at ID 2
+        direction = current_board_element[2]
+
+
+        off_i, off_j = get_neighbor_top_left_corner_from_explore(direction)
+
+        board[i][j] = "."
+        for k in range(4):
+            for l in range(4):
+                absolute_x = i + k + off_i
+                absolute_y = j + l + off_j
+
+                board[teleported_card["top_left"][0] + k][teleported_card["top_left"][1] + l] = "*"
+                board[absolute_x][absolute_y] = original_card["board"][k][l]
+
+                remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, i, j)
+                remove_colliders_exploration_cells(board, absolute_x, absolute_y)
+                remove_nearby_explorations_cells(board, i + off_i, j + off_j)
+
+        if original_card["escalator"] is not None:
+            absolute_escalator = ((original_card["escalator"][0][0] + teleported_card["top_left"][0], original_card["escalator"][0][1] + teleported_card["top_left"][1]), (original_card["escalator"][1][0] + teleported_card["top_left"][0], original_card["escalator"][1][1] + teleported_card["top_left"][1]))
+
+            for _ in range(teleported_card["rotations"]):
+                one_quarter_right_rotation_escalators(board, absolute_escalator)
+
+            escalators = list(escalators)
+            escalators.remove(absolute_escalator)
+            escalators = set(escalators)
+            
+        for wall in original_card["walls"]:
+            absolute_wall = ((wall[0][0] + teleported_card["top_left"][0], wall[0][1] + teleported_card["top_left"][1]), (wall[1][0] + teleported_card["top_left"][0], wall[1][1] + teleported_card["top_left"][1]))
+
+            for _ in range(teleported_card["rotations"]):
+                one_quarter_right_rotation_walls(board, absolute_wall)
+
+            walls = list(walls)
+            walls.remove(absolute_wall)
+            walls = set(walls)
+
+        # TODO : add back the escalators and walls at the teleported position
+
+        return escalators, walls

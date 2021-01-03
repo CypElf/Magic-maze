@@ -60,7 +60,7 @@ def main():
 		current_color = "purple"
 		debug_mode = False
 		exit_available = False
-		on_board_cards = [{"id": 1, "top_left": (8, 13)}]
+		on_board_cards = [{"id": 1, "top_left": (8, 13), "rotations": 0}]
 		start_time = time()
 	timeout = 3 # timeout is in minutes
 
@@ -73,7 +73,7 @@ def main():
 		if touche is not None or debug_mode:
 			key = apply_debug_mode(touche, keys, debug_mode)
 
-			current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, on_board_cards, board, game_width, game_height, window_width, window_height)
+			escalators, walls, current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, on_board_cards, board, game_width, game_height, window_width, window_height)
 
 			if paused:
 				start_time = returned_time
