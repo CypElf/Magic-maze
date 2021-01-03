@@ -9,7 +9,7 @@ from src.display import display_selected_vortex, display_game
 from src.upemtk import attente_touche_jusqua
 from src.cards import cards
 
-def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock):
+def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock, on_board_cards):
     with open("save.json", "w") as savefile:
         state = {
             "pawns": pawns,
@@ -23,7 +23,8 @@ def make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode,
             "board": board,
             "walls": list(walls),
             "escalators": list(escalators),
-            "stock": stock
+            "stock": stock,
+            "on_board_cards": on_board_cards
         }
         dump(state, savefile)
 
@@ -60,7 +61,7 @@ def update_on_exit(color, pawns, pawns_outside, exit_available, board):
     """
     Update the pawns_outside dictionary provided using the new pawns coordinates. If the pawn is at the same position as the exit cell, its coordinates are set to -1 to represent the "outside the board" position.
     """
-    if exit_available and board[pawns[color][0]][pawns[color][1]] == "e":
+    if exit_available and board[pawns[color][0]][pawns[color][1]] == "e" and not color.startswith("fake"):
         pawns_outside[color] = True
         pawns[color] = [-1,-1]
 
@@ -112,7 +113,7 @@ def get_offsets(direction):
     """
     return {"up": (-1, 0), "down": (1, 0), "left": (0, -1), "right": (0, 1)}[direction]
 
-def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction):
+def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, on_board_cards, board, direction):
     """
     Move the pawn corresponding to the given color in the given direction in the board, and update the game state though pawns_on_objects and pawns_outside.
     """
@@ -124,13 +125,37 @@ def move(color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, b
         collision = pawn_collision(current_pawn, others_pawns, offsets) or map_collision(current_pawn, board, walls, offsets)
 
         if not collision:
-            pawns[color][0] += offsets[0]
-            pawns[color][1] += offsets[1]
-    
-            update_on_objects(color, pawns, pawns_on_objects, board)
-            update_on_exit(color, pawns, pawns_outside, exit_available, board)
-            on_hourglass = update_on_hourglass(color, pawns, board)
+            new_pawn_coords = [pawns[color][0] + offsets[0], pawns[color][1] + offsets[1]]
+            guarded = is_card_guarded(color, pawns, new_pawn_coords, on_board_cards)
+
+            if not guarded:
+                pawns[color] = new_pawn_coords
+        
+                update_on_objects(color, pawns, pawns_on_objects, board)
+                update_on_exit(color, pawns, pawns_outside, exit_available, board)
+                if not color.startswith("fake"):
+                    on_hourglass = update_on_hourglass(color, pawns, board)
     return on_hourglass
+
+def is_card_guarded(color, pawns, new_pawn_coords, on_board_cards):
+    current_card_id = get_current_card(pawns[color], on_board_cards)
+    new_card_id = get_current_card(new_pawn_coords, on_board_cards)
+
+    guarded_cards = list(map(lambda current_color: get_current_card(pawns[current_color], on_board_cards), filter(lambda current_color: (color.startswith("fake") or current_color.startswith("fake")) and current_color != color, pawns.keys())))
+    
+    if current_card_id in guarded_cards:
+        guarded_cards.remove(current_card_id) # prevent movement blocking when two guards are on the same card in a particular case where a reinforcement guard spawn on the same card as another guard
+
+    return new_card_id in guarded_cards
+
+def get_current_card(pawn, on_board_cards):
+    """
+    Return the card ID of the card where the current pawn is positionned.
+    """
+    i, j = pawn
+    for card in on_board_cards:
+        if i >= card["top_left"][0] and i < card["top_left"][0] + 4 and j >= card["top_left"][1] and j < card["top_left"][1] + 4:
+            return card["id"]
 
 def use_escalator(current_color, pawns, escalators):
     """
@@ -252,6 +277,8 @@ def explore(stock, pawns, on_board_cards, current_color, board, walls, escalator
                 absolute_y = y + j
 
                 board[absolute_x][absolute_y] = new_card["board"][i][j]
+                if board[absolute_x][absolute_y] == "f":
+                    pawns[f"fake_{len(pawns) - 4}"] = [absolute_x, absolute_y]
 
                 remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, new_card, i, j)
                 remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card)
@@ -267,7 +294,7 @@ def remove_nearby_explorations_cells(board, x, y, new_card):
     for i in range(len(new_card["board"])):
             for absolute_x, absolute_y in {(x + i, y - 1), (x + i, y + len(new_card["board"][0])), (x - 1, y + i), (x + len(new_card["board"]), y + i)}:
                 if absolute_y >= 0 and absolute_y < len(board[0]) and absolute_x >= 0 and absolute_x < len(board) and board[absolute_x][absolute_y][0] == "a":
-                    board[absolute_x][absolute_y] = "debug_removed_explore" # TODO : re put a '.' instead of the debug flag
+                    board[absolute_x][absolute_y] = "."
 
 def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
     """
@@ -285,7 +312,7 @@ def remove_colliders_exploration_cells(board, absolute_x, absolute_y, new_card):
                 b = absolute_y + off2 + l
 
                 if board[a][b] != "*":
-                    board[absolute_x][absolute_y] = "debug_removed_explore" # TODO : re put a '.' instead of the debug flag
+                    board[absolute_x][absolute_y] = "."
                     found_something = True
                     break
             if found_something:
@@ -303,7 +330,7 @@ def remove_out_of_bounds_exploration_cells(board, absolute_x, absolute_y, new_ca
         bounds_right_collision = j == len(new_card["board"][0]) - 1 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))
 
         if bounds_up_collision or bounds_down_collision or bounds_left_collision or bounds_right_collision:
-            board[absolute_x][absolute_y] = "debug_removed_explore" # TODO : re put a '.' instead of the debug flag
+            board[absolute_x][absolute_y] = "."
 
 def remove_all_exploration_cells(board):
     for i in range(len(board)):
@@ -323,3 +350,20 @@ def align_card(new_card, direction):
                     aligned = True
         if not aligned:
             one_quarter_right_rotation(new_card)
+
+def spawn_reinforcement_guards(pawns, on_board_cards, board):
+    """
+    Add the reinforcements guards in the game.
+    """
+    for card in on_board_cards:
+        x, y = card["top_left"]
+        for i in range(4):
+            for j in range(4):
+                if board[x + i][y + j] == "f2":
+                    if not [x + i, y + j] in pawns.values():
+                        pawns[f"fake_{len(pawns) - 4}"] = [x + i, y + j]
+                    else: # if the first guard is on the spawn cell, the reinforcement guard spawn on a random cell between the nearby ones
+                        nearby = list(filter(lambda offsets: offsets[0] < 4 and offsets[0] >= 0 and offsets[1] < 4 and offsets[1] >= 0 and board[x + offsets[0]][y + offsets[1]] != "*", [(i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)]))
+                        chosen = choice(nearby)
+                        pawns[f"fake_{len(pawns) - 4}"] = [x + chosen[0], y + chosen[1]]
+                        return

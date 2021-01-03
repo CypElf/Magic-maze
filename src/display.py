@@ -205,10 +205,7 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	"""
 	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
 	"""
-	if board[i][j] == "debug_removed_explore": # TODO : remove this
-		rectangle(x, y, x + cell_width, y + cell_height, remplissage = "purple")
-
-	elif board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
+	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 			color = "white"
 		elif board[i][j] == "*":
@@ -263,8 +260,12 @@ def display_escalators(escalators, cell_width, cell_height):
 		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
 
 def display_players(pawns, cell_width, cell_height):
-	for color in {"purple", "orange", "yellow", "green"}:
-		image(pawns[color][1] * cell_width, pawns[color][0] * cell_height, f"res/img/players/{color}.png", ancrage = "nw")
+	for color in pawns.keys():
+		if color.startswith("fake"):
+			img = "guard"
+		else:
+			img = color
+		image(pawns[color][1] * cell_width, pawns[color][0] * cell_height, f"res/img/players/{img}.png", ancrage = "nw")
 
 def display_side_panel(window_width, window_height, game_width, current_color):
 	x_offset = 30
@@ -274,7 +275,8 @@ def display_side_panel(window_width, window_height, game_width, current_color):
 
 	y_offsets = {"purple": 1, "orange": 2, "yellow": 3, "green": 4}
 
-	image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / 5 * y_offsets[current_color], "res/img/misc/arrow.png", ancrage = "center")
+	if not current_color.startswith("fake"):
+		image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / 5 * y_offsets[current_color], "res/img/misc/arrow.png", ancrage = "center")
 
 def display_selected_vortex(i, j, game_width, game_height, board):
 	x = j * game_width / len(board[0])

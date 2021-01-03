@@ -6,7 +6,7 @@ from src.display import display_controls, display_save_success
 from src.logic import make_save
 import src.keys as k
 
-def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, pause_key, pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock):
+def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, pause_key, pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock, on_board_cards):
     """
     Handles the pause menu interactions, such as clicking on save or quit.
     """
@@ -26,7 +26,7 @@ def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width,
                         ferme_fenetre()
                         exit(0)
                     else:
-                        make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock)
+                        make_save(pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock, on_board_cards)
                         display_save_success(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height)
 
                 elif not (click_x >= pause_rectangle_coords[0] and click_x <= pause_rectangle_coords[2] and click_y >= pause_rectangle_coords[1] and click_y <= pause_rectangle_coords[3]):

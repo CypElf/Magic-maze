@@ -18,7 +18,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
-			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, board, direction)
+			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, on_board_cards, board, direction)
 			break
 
 	if key in keys["switch"]:
@@ -41,7 +41,7 @@ def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outsi
 		current_time = time()
 
 		pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause(game_width, game_height)
-		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"], pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock)
+		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"], pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock, on_board_cards)
 
 		current_time = adjust_time(start_time, current_time)
 	return current_color, hourglass_returned, debug_mode, (paused, current_time)

@@ -4,7 +4,7 @@ This is the core of the program. It contains the main loop and the encapsulating
 import json
 from os import path
 from time import time
-from src.logic import apply_debug_mode
+from src.logic import apply_debug_mode, spawn_reinforcement_guards
 from src.upemtk import attente_touche_jusqua, cree_fenetre, ferme_fenetre
 from src.timer import invert_hourglass, adjust_time, get_timer
 from src.display import display_save_loading_menu, display_players_selection_menu, display_game, display_game_end, display_loading_save_error
@@ -46,6 +46,7 @@ def main():
 			escalators = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["escalators"]))
 			walls = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["walls"]))
 			stock = save["stock"]
+			on_board_cards = save["on_board_cards"]
 	else:
 		stock = cards
 		escalators = start_card["escalators"]
@@ -59,9 +60,9 @@ def main():
 		current_color = "purple"
 		debug_mode = False
 		exit_available = False
+		on_board_cards = [{"id": 1, "top_left": (8, 13)}]
 		start_time = time()
 	timeout = 3 # timeout is in minutes
-	on_board_cards = [] # TODO : get from save file
 
 	lost = False
 	won = False
@@ -79,6 +80,7 @@ def main():
 
 			if not exit_available and not False in pawns_on_objects.values():
 				exit_available = True
+				spawn_reinforcement_guards(pawns, on_board_cards, board)
 
 			if hourglass_returned:
 				start_time = invert_hourglass(start_time, timeout)

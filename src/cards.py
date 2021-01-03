@@ -13,9 +13,9 @@ This module only contains the different game cards that can be added to the game
 # . = empty cell
 # * = not visitable empty cell
 # e = exit
-# axy = arrow of color x to the direction y (x can be p/o/y/g/w (w is white, others are the same as above) and y u/d/l/f (for up/down/left/right))
-# x = explore
+# axy = arrow of color x to the direction y (x can be p/o/y/g/w (w is white, others are the same as above) and y u/d/l/f (for up/down/left/right)), used to explore
 # f = fake pawns (aka guards) starting point
+# f2 = fake pawns reinforcement (aka guards reinforcements) starting point
 # vx = vortex of color x (x can be p/o/y/g)
 
 start_card = {
@@ -121,7 +121,7 @@ cards = [
         # card 8
         "id": 8,
         "board": [
-            [".", ".", ".", "."],
+            [".", ".", "f2", "."],
             ["aol", "*", "vy", "."],
             ["*", "*", "*", "apr"],
             ["g", "awu", ".", "."]
