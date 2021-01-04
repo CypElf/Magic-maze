@@ -78,7 +78,7 @@ def display_controls(player_count, keys):
 		click_to_start_y = window_height / 4 * 3
 		
 	else:
-		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : mettre en pause", 20)]):
+		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : mettre en pause\n- g : utiliser la télékinésie de l'elfe", 20)]):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
 		if player_count == 2:

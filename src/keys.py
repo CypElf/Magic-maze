@@ -32,7 +32,8 @@ def get_keys(players_count):
 		keys = {
 			"switch": {"q", "m"},
 			"debug": "b",
-			"exit": "escape"
+			"exit": "escape",
+			"telekinesis": "g"
 		}
 	
 		directions = ["up", "down", "left", "right"]
@@ -48,7 +49,8 @@ def get_keys(players_count):
 		keys = {
 			"switch": {"q", "m", "v"},
 			"debug": "b",
-			"exit": "escape"
+			"exit": "escape",
+			"telekinesis": "g"
 		}
 		directions = ["up", "down", "left", "right"]
 		shuffle(directions)
