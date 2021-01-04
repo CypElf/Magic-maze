@@ -183,23 +183,23 @@ def display_game():
 
 	efface_tout()
 
-	cell_width = 40
-	cell_height = 40
+	cell_width = gs.cell_width
+	cell_height = gs.cell_height
 
 	for i in range(rows_count):
 		for j in range(columns_count):
 			x = j * cell_width
 			y = i * cell_height
 
-			display_cell(i, j, x, y, cell_width, cell_height)
+			display_cell(i, j, x, y)
 
 			if i > 0 and ((i - 1, j), (i, j)) in walls or ((i, j), (i - 1, j)) in walls:
 				rectangle(x, y - 2, x + cell_width, y + 2, remplissage = "grey")
 			if j > 0 and ((i, j - 1), (i, j)) in walls or ((i, j), (i, j - 1)) in walls:
 				rectangle(x - 2, y, x + 2, y + cell_height, remplissage = "grey")
 
-	display_escalators(cell_width, cell_height)
-	display_players(cell_width, cell_height)
+	display_escalators()
+	display_players()
 	display_side_panel()
 	
 	mise_a_jour()
@@ -210,7 +210,7 @@ def display_timer():
 	"""
 	texte(gs.window_width - 12, gs.window_height / 40, "temps restant : " + str(int((get_timer() + 1))), ancrage = "ne")
 
-def display_cell(i, j, x, y, cell_width, cell_height):
+def display_cell(i, j, x, y):
 	"""
 	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
 	"""
@@ -229,7 +229,7 @@ def display_cell(i, j, x, y, cell_width, cell_height):
 		else:
 			color = "white"
 
-		rectangle(x, y, x + cell_width, y + cell_height, remplissage = color)
+		rectangle(x, y, x + gs.cell_width, y + gs.cell_height, remplissage = color)
 
 		if board[i][j][0] == "a":
 			for color in {"purple", "orange", "yellow", "green"}:
@@ -256,9 +256,9 @@ def display_cell(i, j, x, y, cell_width, cell_height):
 					image(x, y, f"res/img/objects/{obj}.png", ancrage = "nw")
 					break
 		
-		rectangle(x, y, x + cell_width, y + cell_height)
+		rectangle(x, y, x + gs.cell_width, y + gs.cell_height)
 
-def display_escalators(cell_width, cell_height):
+def display_escalators():
 	"""
 	Display the escalators on the board.
 	"""
@@ -271,9 +271,9 @@ def display_escalators(cell_width, cell_height):
 				offset_x, offset_y, ladder = off_x, off_y, lad
 				break
 
-		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
+		image((j1 + offset_x) * gs.cell_width, (i1 + offset_y) * gs.cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
 
-def display_players(cell_width, cell_height):
+def display_players():
 	"""
 	Display the players pawns and the guards on the board.
 	"""
@@ -282,7 +282,7 @@ def display_players(cell_width, cell_height):
 			img = "guard"
 		else:
 			img = color
-		image(gs.pawns[color][1] * cell_width, gs.pawns[color][0] * cell_height, f"res/img/players/{img}.png", ancrage = "nw")
+		image(gs.pawns[color][1] * gs.cell_width, gs.pawns[color][0] * gs.cell_height, f"res/img/players/{img}.png", ancrage = "nw")
 
 def display_side_panel():
 	"""
@@ -304,11 +304,17 @@ def display_side_panel():
 
 	image(window_width - (window_width - gs.game_width) / 2 - 1.5 * x_offset, window_height / (len(pawns) + 1) * (list(pawns.keys()).index(gs.current_color) + 1), "res/img/misc/arrow.png", ancrage = "center")
 
-def display_selected_vortex(i, j):
+def display_selected_vortex(coords):
 	"""
 	Display a circle at the given position to show a selected case (vortex selection).
 	"""
-	x = j * gs.game_width / len(gs.board[0])
-	y = i * gs.game_height / len(gs.board)
+	x = coords[1] * gs.game_width / len(gs.board[0])
+	y = coords[0] * gs.game_height / len(gs.board)
 
 	image(x, y, "res/img/misc/circle.png", ancrage = "nw")
+
+def display_selected_card(top_left):
+	"""
+	Display a selector border to a card whose top left corner coordinates are passed as a parameter.
+	"""
+	image(top_left[1] * gs.cell_width, top_left[0] * gs.cell_height, "res/img/misc/border.png", ancrage = "nw")

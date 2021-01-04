@@ -8,7 +8,7 @@ from copy import deepcopy
 from itertools import cycle
 import src.game_state as gs
 from src.timer import invert_hourglass
-from src.display import display_selected_vortex, display_game
+from src.display import display_selected_vortex, display_game, display_selected_card
 from src.upemtk import attente_touche_jusqua
 from src.cards import cards
 
@@ -46,7 +46,7 @@ def apply_debug_mode(touche, keys):
     If the debug mode is enabled, returns a random color and a random key direction. Otherwise, returns the current color and key.
     """
     if gs.debug_mode and (touche is None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
-        return choices([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"])), keys["explore"]], weights = [10, 10, 10, 10, 3, 3, 6, 3])[0]
+        return choices([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"])), keys["explore"], keys["telekinesis"]], weights = [10, 10, 10, 10, 3, 3, 6, 3, 1])[0]
     elif touche is not None:
         return touche.lower()
     else:
@@ -202,10 +202,10 @@ def use_vortex(keys):
             _, other_pawns = split_pawns()
 
             while True:
-                display_selected_vortex(currently_selected_vortex[0], currently_selected_vortex[1])
                 touche = attente_touche_jusqua(50)
                 touche = apply_debug_mode(touche, keys)
                 display_game()
+                display_selected_vortex(currently_selected_vortex)
                 if touche in keys["switch"]:
                     currently_selected_vortex = next(usable_vortex)
                 elif touche == keys["vortex"]:
@@ -450,7 +450,7 @@ def get_neightbor_top_left_corner_from_top_left(direction):
     """
     return {"l": (-1, -4), "u": (-4, 1), "d": (4, -1), "r": (1, 4)}[direction[0]]
 
-def use_telekinesis():
+def use_telekinesis(keys):
     """
     Use the elfe telekinesis power to teleport a card from a location to another.
     """
@@ -465,8 +465,20 @@ def use_telekinesis():
         movable_cards = get_movable_cards()
 
         if movable_cards:
+            movable_cards = cycle(movable_cards)
+            teleported_card = next(movable_cards) # TODO : allow the players to select the card to teleport
 
-            teleported_card = movable_cards[0] # TODO : allow the players to select the card to teleport
+            while True:
+                touche = attente_touche_jusqua(50)
+                touche = apply_debug_mode(touche, keys)
+                display_game()
+                display_selected_card(teleported_card["top_left"])
+                if touche in keys["switch"]:
+                    teleported_card = next(movable_cards)
+                elif touche == keys["telekinesis"]:
+                    break
+                elif touche == keys["exit"]:
+                    return
 
             original_card = deepcopy(cards[teleported_card["id"] - 2]) # -2 because the cards start at ID 2
             for _ in range(teleported_card["rotations"]):

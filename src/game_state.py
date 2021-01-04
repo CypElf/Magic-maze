@@ -11,6 +11,9 @@ window_height = 800
 game_width = 1200
 game_height = 800
 
+cell_width = 40
+cell_height = 40
+
 board = [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] + list(map(lambda row: ["*"] * 13 + row + ["*"] * 13, start_card["board"])) + [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] # game start board, only the start card (ID 1) is present at the center
 
 stock = deepcopy(cards) # remaining cards that can be picked to be displayed at the screen
