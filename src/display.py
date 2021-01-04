@@ -78,7 +78,7 @@ def display_controls(player_count, keys):
 		click_to_start_y = window_height / 4 * 3
 		
 	else:
-		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- b : (dés)activer le mode debug\n- échap : mettre en pause\n- g : utiliser la télékinésie de l'elfe", 20)]):
+		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- g : utiliser la télékinésie de l'elfe\n- b : (dés)activer le mode debug\n- échap : mettre en pause", 20)]):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
 		if player_count == 2:
@@ -96,7 +96,7 @@ def display_solo_controls():
 	Display the solo mode controls
 	"""
 	texte(gs.window_width / 2, gs.window_height / 4, "Contrôles", ancrage = "center", taille = 26)
-	texte(gs.window_width / 2, gs.window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
+	texte(gs.window_width / 2, gs.window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- x : explorer\n- g : utiliser la télékinésie de l'elfe\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
 
 def display_two_players_controls(keys):
 	"""
