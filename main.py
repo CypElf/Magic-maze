@@ -39,6 +39,7 @@ def main():
 			gs.walls = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["walls"]))
 			gs.stock = save["stock"]
 			gs.on_board_cards = save["on_board_cards"]
+			gs.telekinesis_times_used = save["telekinesis_times_used"]
 
 	while True:
 		touche = attente_touche_jusqua(50)

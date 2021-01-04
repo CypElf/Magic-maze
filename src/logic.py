@@ -27,7 +27,8 @@ def make_save():
             "walls": list(gs.walls),
             "escalators": list(gs.escalators),
             "stock": gs.stock,
-            "on_board_cards": gs.on_board_cards
+            "on_board_cards": gs.on_board_cards,
+            "telekinesis_times_used": gs.telekinesis_times_used
         }
         dump(state, savefile)
 
@@ -292,28 +293,25 @@ def explore():
         align_card(new_card, direction)
 
         offset_i, offset_j = get_neighbor_top_left_corner_from_explore(direction)
-        x, y = i + offset_i, j + offset_j
+        top_left_i, top_left_j = i + offset_i, j + offset_j
 
-        for (i1, j1), (i2, j2) in new_card["walls"]:
-            gs.walls.add(((i1 + x, j1 + y), (i2 + x, j2 + y)))
+        add_walls_to_game(new_card["walls"], [top_left_i, top_left_j])
+        add_escalators_to_game(new_card["escalator"], [top_left_i, top_left_j])
 
-        if new_card["escalator"] is not None:
-            gs.escalators.add(((new_card["escalator"][0][0] + x, new_card["escalator"][0][1] + y), (new_card["escalator"][1][0] + x, new_card["escalator"][1][1] + y)))
-
-        gs.on_board_cards.append({"id": new_card["id"], "top_left": (x, y), "rotations": new_card["rotations"]})
+        gs.on_board_cards.append({"id": new_card["id"], "top_left": (top_left_i, top_left_j), "rotations": new_card["rotations"]})
 
         for i in range(4):
             for j in range(4):
-                absolute_x = x + i
-                absolute_y = y + j
+                current_i = top_left_i + i
+                current_j = top_left_j + j
 
-                board[absolute_x][absolute_y] = new_card["board"][i][j]
-                if board[absolute_x][absolute_y] == "f":
-                    pawns[f"fake_{len(pawns) - 4}"] = [absolute_x, absolute_y]
+                board[current_i][current_j] = new_card["board"][i][j]
+                if board[current_i][current_j] == "f":
+                    pawns[f"fake_{len(pawns) - 4}"] = [current_i, current_j]
 
-                remove_out_of_bounds_exploration_cells(absolute_x, absolute_y, i, j)
-                remove_colliders_exploration_cells(absolute_x, absolute_y)
-                remove_nearby_explorations_cells(x, y)
+                remove_out_of_bounds_exploration_cells(current_i, current_j)
+                remove_colliders_exploration_cells(current_i, current_j)
+                remove_nearby_explorations_cells(top_left_i, top_left_j)
 
     if len(gs.stock) == 0:
         remove_all_exploration_cells()
@@ -351,20 +349,22 @@ def remove_colliders_exploration_cells(absolute_x, absolute_y):
             if found_something:
                 break
 
-def remove_out_of_bounds_exploration_cells(absolute_x, absolute_y, i, j):
+def remove_out_of_bounds_exploration_cells(current_i, current_j):
     """
     Remove the exploration cells that would add a new card beyond the board bounds.
     """
     board = gs.board
-    if board[absolute_x][absolute_y][0] == "a" and board[absolute_x][absolute_y][1] != "w":
+    i, j = gs.pawns[gs.current_color][0], gs.pawns[gs.current_color][1]
+    
+    if board[current_i][current_j][0] == "a" and board[current_i][current_j][1] != "w":
 
-        bounds_up_collision = i == 0 and board[absolute_x][absolute_y][-1] == "u" and (absolute_x - 4 < 0 or absolute_y + 2 >= len(board[0]))
-        bounds_down_collision = i == 3 and board[absolute_x][absolute_y][-1] == "d" and (absolute_x + 4 >= len(board) or absolute_y - 2 < 0)
-        bounds_left_collision = j == 0 and board[absolute_x][absolute_y][-1] == "l" and (absolute_x - 2 < 0 or absolute_y - 4 < 0)
-        bounds_right_collision = j == 3 and board[absolute_x][absolute_y][-1] == "r" and (absolute_x + 2 >= len(board) or absolute_y + 4 >= len(board[0]))
+        bounds_up_collision = i == 0 and board[current_i][current_j][-1] == "u" and (current_i - 4 < 0 or current_j + 2 >= len(board[0]))
+        bounds_down_collision = i == 3 and board[current_i][current_j][-1] == "d" and (current_i + 4 >= len(board) or current_j - 2 < 0)
+        bounds_left_collision = j == 0 and board[current_i][current_j][-1] == "l" and (current_i - 2 < 0 or current_j - 4 < 0)
+        bounds_right_collision = j == 3 and board[current_i][current_j][-1] == "r" and (current_i + 2 >= len(board) or current_j + 4 >= len(board[0]))
 
         if bounds_up_collision or bounds_down_collision or bounds_left_collision or bounds_right_collision:
-            board[absolute_x][absolute_y] = "."
+            board[current_i][current_j] = "."
 
 def remove_all_exploration_cells():
     board = gs.board
@@ -450,82 +450,109 @@ def get_neightbor_top_left_corner_from_top_left(direction):
     """
     return {"l": (-1, -4), "u": (-4, 1), "d": (4, -1), "r": (1, 4)}[direction[0]]
 
-def use_telekinesis(times_used):
+def use_telekinesis():
     """
     Use the elfe telekinesis power to teleport a card from a location to another.
     """
     color = gs.current_color
-    on_board_cards = gs.on_board_cards
     board = gs.board
     pawns = gs.pawns
 
-    i, j = pawns[color][0], pawns[color][1]
-    current_board_element = board[i][j]
+    pawn_i, pawn_j = pawns[color][0], pawns[color][1]
+    current_board_element = board[pawn_i][pawn_j]
 
-    if color == "green" and current_board_element[0] == "a" and times_used < 2:
-        movable_cards = []
+    if color == "green" and current_board_element[0] == "a" and gs.telekinesis_times_used < 2:
+        movable_cards = get_movable_cards()
 
-        directions = ["up", "down", "left", "right"]
-        for card in on_board_cards:
-            if card["id"] != 1: # teleport the first base card is forbidden
-                movable = True
-                for dir2 in directions:
-                    off_i, off_j = get_neightbor_top_left_corner_from_top_left(dir2)
-                    dircopy = directions.copy()
-                    dircopy.remove(opposite_direction(dir2))
+        if movable_cards:
 
-                    if has_neighbors(card["top_left"][0], card["top_left"][1], {dir2}, ignoreone = True) and not has_neighbors(card["top_left"][0] + off_i, card["top_left"][1] + off_j, set(dircopy)):
+            teleported_card = movable_cards[0] # TODO : allow the players to select the card to teleport
+
+            original_card = deepcopy(cards[teleported_card["id"] - 2]) # -2 because the cards start at ID 2
+            for _ in range(teleported_card["rotations"]):
+                one_quarter_right_rotation(original_card)
+
+            direction = current_board_element[2] # direction in which the elfe is teleporting a card
+            off_i, off_j = get_neighbor_top_left_corner_from_explore(direction)
+
+            remove_escalators_from_game(original_card["escalator"], teleported_card["top_left"])
+            remove_walls_from_game(original_card["walls"], teleported_card["top_left"])
+
+            original_card = deepcopy(cards[teleported_card["id"] - 2])
+            align_card(original_card, direction)
+            original_card["top_left"] = [pawn_i + off_i, pawn_j + off_j]
+
+            board[pawn_i][pawn_j] = "."
+            for i in range(4):
+                for j in range(4):
+                    current_i = pawn_i + i + off_i
+                    current_j = pawn_j + j + off_j
+
+                    board[teleported_card["top_left"][0] + i][teleported_card["top_left"][1] + j] = "*"
+                    board[current_i][current_j] = original_card["board"][i][j]
+
+                    remove_out_of_bounds_exploration_cells(current_i, current_j)
+                    remove_colliders_exploration_cells(current_i, current_j)
+                    remove_nearby_explorations_cells(original_card["top_left"][0], original_card["top_left"][1])
+            
+            add_walls_to_game(original_card["walls"], original_card["top_left"])
+            add_escalators_to_game(original_card["escalator"], original_card["top_left"])
+            update_on_board_cards(original_card)
+
+            gs.telekinesis_times_used += 1
+
+def remove_escalators_from_game(escalator, top_left):
+    if escalator is not None:
+        absolute_escalator = ((escalator[0][0] + top_left[0], escalator[0][1] + top_left[1]), (escalator[1][0] + top_left[0], escalator[1][1] + top_left[1]))
+
+        gs.escalators = list(gs.escalators)
+        gs.escalators.remove(absolute_escalator)
+        gs.escalators = set(gs.escalators)
+
+def remove_walls_from_game(walls, top_left):
+    gs.walls = list(gs.walls)
+    for wall in walls:
+        absolute_wall = ((wall[0][0] + top_left[0], wall[0][1] + top_left[1]), (wall[1][0] + top_left[0], wall[1][1] + top_left[1]))
+
+        gs.walls.remove(absolute_wall)
+    gs.walls = set(gs.walls)
+
+def get_movable_cards():
+    movable_cards = []
+
+    directions = ["up", "down", "left", "right"]
+    for card in gs.on_board_cards:
+        if card["id"] != 1: # teleport the first base card is forbidden
+            movable = True
+            for dir2 in directions:
+                off_i, off_j = get_neightbor_top_left_corner_from_top_left(dir2)
+                dircopy = directions.copy()
+                dircopy.remove(opposite_direction(dir2))
+
+                if has_neighbors(card["top_left"][0], card["top_left"][1], {dir2}, ignoreone = True) and not has_neighbors(card["top_left"][0] + off_i, card["top_left"][1] + off_j, set(dircopy)):
+                    movable = False
+            if movable:
+                for pawn in gs.pawns.values():
+                    if pawn[0] >= card["top_left"][0] and pawn[0] < card["top_left"][0] + 4 and pawn[1] >= card["top_left"][1] and pawn[1] < card["top_left"][1] + 4:
                         movable = False
                 if movable:
                     movable_cards.append(card)
+    return movable_cards
 
-        teleported_card = movable_cards[0] # TODO : allow the players to select the card to teleport
-        
-        original_card = deepcopy(cards[teleported_card["id"] - 2]) # -2 because the cards start at ID 2
-        for _ in range(teleported_card["rotations"]):
-            one_quarter_right_rotation(original_card)
+def add_walls_to_game(walls, top_left):
+    for (i1, j1), (i2, j2) in walls:
+        gs.walls.add(((i1 + top_left[0], j1 + top_left[1]), (i2 + top_left[0], j2 + top_left[1])))
 
-        direction = current_board_element[2] # direction in which the elfe is teleporting a card
-        off_i, off_j = get_neighbor_top_left_corner_from_explore(direction)
+def add_escalators_to_game(escalators, top_left):
+    if escalators is not None:
+        gs.escalators.add(((escalators[0][0] + top_left[0], escalators[0][1] + top_left[1]), (escalators[1][0] + top_left[0], escalators[1][1] + top_left[1])))
 
-        if original_card["escalator"] is not None:
-            absolute_escalator = ((original_card["escalator"][0][0] + teleported_card["top_left"][0], original_card["escalator"][0][1] + teleported_card["top_left"][1]), (original_card["escalator"][1][0] + teleported_card["top_left"][0], original_card["escalator"][1][1] + teleported_card["top_left"][1]))
-
-            gs.escalators = list(gs.escalators)
-            gs.escalators.remove(absolute_escalator)
-            gs.escalators = set(gs.escalators)
-            
-        gs.walls = list(gs.walls)
-        for wall in original_card["walls"]:
-            absolute_wall = ((wall[0][0] + teleported_card["top_left"][0], wall[0][1] + teleported_card["top_left"][1]), (wall[1][0] + teleported_card["top_left"][0], wall[1][1] + teleported_card["top_left"][1]))
-
-            gs.walls.remove(absolute_wall)
-        gs.walls = set(gs.walls)
-
-        original_card = deepcopy(cards[teleported_card["id"] - 2])
-        align_card(original_card, direction)
-
-        board[i][j] = "."
-        for k in range(4):
-            for l in range(4):
-                absolute_x = i + k + off_i
-                absolute_y = j + l + off_j
-
-                board[teleported_card["top_left"][0] + k][teleported_card["top_left"][1] + l] = "*"
-                board[absolute_x][absolute_y] = original_card["board"][k][l]
-
-                remove_out_of_bounds_exploration_cells(absolute_x, absolute_y, i, j)
-                remove_colliders_exploration_cells(absolute_x, absolute_y)
-                remove_nearby_explorations_cells(i + off_i, j + off_j)
-        
-        for (i1, j1), (i2, j2) in original_card["walls"]:
-            gs.walls.add(((i1 + i + off_i, j1 + j + off_j), (i2 + i + off_i, j2 + j + off_j)))
-
-        if original_card["escalator"] is not None:
-            gs.escalators.add(((original_card["escalator"][0][0] + i + off_i, original_card["escalator"][0][1] + j + off_j), (original_card["escalator"][1][0] + i + off_i, original_card["escalator"][1][1] + j + off_j)))
-
-        for card in gs.on_board_cards:
-            if card["id"] == original_card["id"]:
-                card["rotations"] = original_card["rotations"]
-                card["top_left"] = [i + off_i, j + off_j]
-                break
+def update_on_board_cards(edited_card):
+    """
+    Update the game state on_board_cards variable to replace a card informations with others.
+    """
+    for card in gs.on_board_cards:
+        if card["id"] == edited_card["id"]:
+            card["rotations"] = edited_card["rotations"]
+            card["top_left"] = edited_card["top_left"]
+            break

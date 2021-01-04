@@ -26,6 +26,7 @@ pawns_outside = pawns_on_objects.copy() # define which pawn has successfully esc
 current_color = "purple"
 debug_mode = False
 exit_available = False
+telekinesis_times_used = 0
 
 start_time = time()
 timeout = 3 # timeout is in minutes
