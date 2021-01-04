@@ -3,98 +3,65 @@ This is the core of the program. It contains the main loop and the encapsulating
 """
 import json
 from os import path
-from time import time
+import src.game_state as gs
 from src.logic import apply_debug_mode, spawn_reinforcement_guards
 from src.upemtk import attente_touche_jusqua, cree_fenetre, ferme_fenetre
-from src.timer import invert_hourglass, adjust_time, get_timer
+from src.timer import adjust_time, get_timer
 from src.display import display_save_loading_menu, display_players_selection_menu, display_game, display_game_end, display_loading_save_error
 from src.keys import key_triggered
 from src.menu import handle_players_selection_menu_interaction, handle_save_loading_menu_interaction
-from src.cards import start_card, cards
 
 def main():
-	# DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images	
-	window_width = 1500
-	window_height = 800
-
-	game_width = 1200
-	game_height = 800
-
-	cree_fenetre(window_width, window_height)
-	zones_coords = display_save_loading_menu(window_width, window_height)
+	cree_fenetre(gs.window_width, gs.window_height)
+	zones_coords = display_save_loading_menu()
 	
 	save_loading = handle_save_loading_menu_interaction(zones_coords)
 	
 	while save_loading and not path.isfile("save.json"):
-		display_loading_save_error(window_width, window_height)
+		display_loading_save_error()
 		save_loading = handle_save_loading_menu_interaction(zones_coords)
 
-	zones_coords = display_players_selection_menu(window_width, window_height)
-	keys = handle_players_selection_menu_interaction(zones_coords, window_width, window_height)
+	zones_coords = display_players_selection_menu()
+	keys = handle_players_selection_menu_interaction(zones_coords)
 
 	if save_loading:
 		with open("save.json", "r") as savefile:
 			save = json.load(savefile)
-			pawns = save["pawns"]
-			pawns_on_objects = save["pawns_on_objects"]
-			pawns_outside = save["pawns_outside"]
-			current_color = save["current_color"]
-			debug_mode = save["debug_mode"]
-			exit_available = save["exit_available"]
-			start_time = adjust_time(save["start_time"], save["save_time"]) + 1
-			board = save["board"]
-			escalators = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["escalators"]))
-			walls = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["walls"]))
-			stock = save["stock"]
-			on_board_cards = save["on_board_cards"]
-	else:
-		stock = cards
-		escalators = start_card["escalators"]
-		walls = start_card["walls"]
-
-		board = [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] + list(map(lambda row: ["*"] * 13 + row + ["*"] * 13, start_card["board"])) + [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30]
-
-		pawns = { "purple": [9, 14], "orange": [10, 14], "yellow": [9, 15], "green": [10, 15] }
-		pawns_on_objects = {"purple": False, "orange": False, "yellow": False, "green": False}
-		pawns_outside = pawns_on_objects.copy()
-		current_color = "purple"
-		debug_mode = False
-		exit_available = False
-		on_board_cards = [{"id": 1, "top_left": (8, 13), "rotations": 0}]
-		start_time = time()
-	timeout = 3 # timeout is in minutes
-
-	lost = False
-	won = False
+			gs.pawns = save["pawns"]
+			gs.pawns_on_objects = save["pawns_on_objects"]
+			gs.pawns_outside = save["pawns_outside"]
+			gs.current_color = save["current_color"]
+			gs.debug_mode = save["debug_mode"]
+			gs.exit_available = save["exit_available"]
+			adjust_time(save["start_time"], save["save_time"], offset = 1)
+			gs.board = save["board"]
+			gs.escalators = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["escalators"]))
+			gs.walls = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["walls"]))
+			gs.stock = save["stock"]
+			gs.on_board_cards = save["on_board_cards"]
 
 	while True:
 		touche = attente_touche_jusqua(50)
 
-		if touche is not None or debug_mode:
-			key = apply_debug_mode(touche, keys, debug_mode)
+		if touche is not None or gs.debug_mode:
+			key = apply_debug_mode(touche, keys)
 
-			escalators, walls, current_color, hourglass_returned, debug_mode, (paused, returned_time) = key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, on_board_cards, board, game_width, game_height, window_width, window_height)
+			key_triggered(key, keys)
 
-			if paused:
-				start_time = returned_time
-
-			if not exit_available and not False in pawns_on_objects.values():
-				exit_available = True
-				spawn_reinforcement_guards(pawns, on_board_cards, board)
-
-			if hourglass_returned:
-				start_time = invert_hourglass(start_time, timeout)
+			if not gs.exit_available and not False in gs.pawns_on_objects.values():
+				gs.exit_available = True
+				spawn_reinforcement_guards()
 			
-		lost = get_timer(start_time, timeout) <= 0
-		won = False not in pawns_outside.values()
+		gs.lost = get_timer() <= 0
+		gs.won = False not in gs.pawns_outside.values()
 		
-		if lost or won:
+		if gs.lost or gs.won:
 			break
 		
-		display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height)
+		display_game()
 		
-	if won or lost:
-		display_game_end(window_width, window_height, won)
+	if gs.won or gs.lost:
+		display_game_end(gs.won)
 
 	ferme_fenetre()
 

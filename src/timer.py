@@ -1,23 +1,24 @@
 """
 This module handles all the time related things.
 """
+import src.game_state as gs
 from time import time
 
-def invert_hourglass(start_time, timeout):
+def invert_hourglass():
     """
     Return a new start time corresponding from which the time elapsed has been inverted according to the timout.
     """
     now = time()
-    return now - (timeout * 60 + start_time - now) - 1
+    return now - (gs.timeout * 60 + gs.start_time - now) - 1
 
-def get_timer(start_time, timeout):
+def get_timer():
     """
     Return True if the time has elapsed, and False otherwise.
     """
-    return timeout * 60 + start_time - time()
+    return gs.timeout * 60 + gs.start_time - time()
 
-def adjust_time(start_time, current_time):
+def adjust_time(previous_start_time, save_time, offset = 0):
     """
-    Return a new time corresponding to the current time minus the saved time to restore the timer to a previous state.
+    Restore the game state start_time variable to a previous state, to restore the time elapsed since this previous time. If you see an offset between the saved timer and restored one, you can add as many seconds as you want to the restored timer with the offset parameter. Defaults to 0.
     """
-    return start_time + (time() - current_time)
+    gs.start_time = previous_start_time + (time() - save_time) + offset

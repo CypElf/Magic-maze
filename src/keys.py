@@ -1,9 +1,10 @@
 """
 This module handles all the keys related things.
 """
+import src.game_state as gs
 from random import shuffle
 from time import time
-from src.timer import adjust_time
+from src.timer import adjust_time, invert_hourglass
 from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
 from src.logic import move, next_color, use_escalator, use_vortex, explore, use_telekinesis
@@ -60,43 +61,37 @@ def get_keys(players_count):
 			
 		return keys
 
-def key_triggered(key, keys, current_color, pawns, pawns_on_objects, pawns_outside, exit_available, start_time, timeout, debug_mode, walls, escalators, stock, on_board_cards, board, game_width, game_height, window_width, window_height):
+def key_triggered(key, keys):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
-	current_time = None
-	paused = False
-	hourglass_returned = False
-
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
-			hourglass_returned = move(current_color, pawns, pawns_on_objects, pawns_outside, exit_available, walls, on_board_cards, board, direction)
+			move(direction)
 			break
 
 	if key in keys["switch"]:
-		current_color = next_color(current_color, pawns)
+		gs.current_color = next_color()
 
 	if key == keys["explore"]:
-		explore(stock, pawns, on_board_cards, current_color, board, walls, escalators)
+		explore()
 
 	elif key == keys["vortex"]:
-		use_vortex(keys, current_color, pawns, exit_available, walls, escalators, start_time, timeout, debug_mode, game_width, game_height, window_width, window_height, board)
+		use_vortex(keys)
 
 	elif key == keys["escalator"]:
-		use_escalator(current_color, pawns, escalators)
+		use_escalator()
 
 	elif key == keys["telekinesis"]:
-		escalators, walls = use_telekinesis(current_color, pawns, board, on_board_cards, escalators, walls, 0)
+		gs.escalators, gs.walls = use_telekinesis(0)
 
 	elif key == keys["debug"]:
-		debug_mode = not debug_mode
+		gs.debug_mode = not gs.debug_mode
 	
 	elif key == keys["exit"]:
-		paused = True
 		current_time = time()
 
-		pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause(game_width, game_height)
-		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"], pawns, pawns_on_objects, pawns_outside, current_color, debug_mode, exit_available, start_time, board, walls, escalators, stock, on_board_cards)
+		pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause()
+		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"])
 
-		current_time = adjust_time(start_time, current_time)
-	return escalators, walls, current_color, hourglass_returned, debug_mode, (paused, current_time)
+		adjust_time(gs.start_time, current_time)

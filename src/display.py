@@ -1,10 +1,11 @@
 """
 This module contains display functionnalities, used to draw all the user interface to the window.
 """
+import src.game_state as gs
 from src.upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 from src.timer import get_timer
 
-def display_game_end(window_width, window_height, victory):
+def display_game_end(victory):
 	"""
 	Display a victory of defeat message, based on the victory parameter, in the middle of the screen.
 	"""
@@ -13,24 +14,24 @@ def display_game_end(window_width, window_height, victory):
 	else:
 		game_state = "perdu"
 	efface_tout()
-	texte(window_width / 2, window_height / 2, f"Vous avez {game_state} !", ancrage = "center")
+	texte(gs.window_width / 2, gs.window_height / 2, f"Vous avez {game_state} !", ancrage = "center")
 	mise_a_jour()
 	attente_clic()
 
-def display_loading_save_error(window_width, window_height):
-	texte(window_width / 2, window_height / 8 * 7, "Vous n'avez pas encore fait de sauvegarde.", ancrage = "center", taille = 16)
+def display_loading_save_error():
+	texte(gs.window_width / 2, gs.window_height / 8 * 7, "Vous n'avez pas encore fait de sauvegarde.", ancrage = "center", taille = 16)
 
-def display_save_loading_menu(window_width, window_height):
+def display_save_loading_menu():
 	"""
 	Display the menu that allow to choose between starting a new game or loading a previously saved game.
 	"""
 	efface_tout()
-	image(window_width / 2, window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
+	image(gs.window_width / 2, gs.window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
 	zones_coords = []
 
 	for i, txt in enumerate(("Nouvelle partie", "Charger la sauvegarde")):
-		x = window_width / 3 * (i + 1)
-		y = window_height / 3 * 2.2
+		x = gs.window_width / 3 * (i + 1)
+		y = gs.window_height / 3 * 2.2
 		text_width = longueur_texte(txt)
 		text_height = hauteur_texte()
 
@@ -40,12 +41,12 @@ def display_save_loading_menu(window_width, window_height):
 	mise_a_jour()
 	return zones_coords
 
-def display_players_selection_menu(window_width, window_height):
+def display_players_selection_menu():
 	"""
 	Display the menu that allow to choose the number of players that will play together.
 	"""
 	efface_tout()
-	image(window_width / 2, window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
+	image(gs.window_width / 2, gs.window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
 	zones_coords = []
 
 	for i in range(1, 4):
@@ -56,8 +57,8 @@ def display_players_selection_menu(window_width, window_height):
 		text_width = longueur_texte(text)
 		text_height = hauteur_texte()
 
-		x = window_width / 4 * i
-		y = window_height / 3 * 2.2
+		x = gs.window_width / 4 * i
+		y = gs.window_height / 3 * 2.2
 		texte(x, y, text, ancrage = "center")
 
 		zones_coords.append((x - text_width / 2 - 20, y - text_height / 2 - 20, x + text_width / 2 + 20, y + text_height / 2 + 20))
@@ -65,12 +66,15 @@ def display_players_selection_menu(window_width, window_height):
 	mise_a_jour()
 	return zones_coords
 
-def display_controls(window_width, window_height, player_count, keys):
+def display_controls(player_count, keys):
 	"""
 	Display the right game controls screen according to the players count.
 	"""
+	window_width = gs.window_width
+	window_height = gs.window_height
+
 	if player_count == 1:
-		display_solo_controls(window_width, window_height)
+		display_solo_controls()
 		click_to_start_y = window_height / 4 * 3
 		
 	else:
@@ -78,23 +82,23 @@ def display_controls(window_width, window_height, player_count, keys):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
 		if player_count == 2:
-			display_two_players_controls(window_width, window_height, keys)
+			display_two_players_controls(keys)
 		else:
-			display_three_players_controls(window_width, window_height, keys)
+			display_three_players_controls(keys)
 		
 		click_to_start_y = window_height / 6 * 5
 
 	texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour commencer.", ancrage = "center", taille = 14)
 	mise_a_jour()
 
-def display_solo_controls(window_width, window_height):
+def display_solo_controls():
 	"""
 	Display the solo mode controls
 	"""
-	texte(window_width / 2, window_height / 4, "Contrôles", ancrage = "center", taille = 26)
-	texte(window_width / 2, window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
+	texte(gs.window_width / 2, gs.window_height / 4, "Contrôles", ancrage = "center", taille = 26)
+	texte(gs.window_width / 2, gs.window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
 
-def display_two_players_controls(window_width, window_height, keys):
+def display_two_players_controls(keys):
 	"""
 	Display the 2 players mode controls
 	"""
@@ -102,15 +106,15 @@ def display_two_players_controls(window_width, window_height, keys):
 	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
 
 	for j in {1, 2}:
-		texte(window_width / 3 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+		texte(gs.window_width / 3 * j, gs.window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 	
 	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- e : {printables[inverted_keys['e']]}\n- q"
 	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- l : {printables[inverted_keys['l']]}\n- m"
 
 	for j, txt in enumerate([txt_player1, txt_player2]):
-		texte(window_width / 3 * (j + 1), window_height / 6 * 4, txt + " : switcher de pion", ancrage = "center", taille = 20)
+		texte(gs.window_width / 3 * (j + 1), gs.window_height / 6 * 4, txt + " : switcher de pion", ancrage = "center", taille = 20)
 
-def display_three_players_controls(window_width, window_height, keys):
+def display_three_players_controls(keys):
 	"""
 	Display the 3 players mode controls
 	"""
@@ -118,18 +122,21 @@ def display_three_players_controls(window_width, window_height, keys):
 	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
 
 	for j in {1, 2, 3}:
-		texte(window_width / 4 * j, window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+		texte(gs.window_width / 4 * j, gs.window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
 
 	for j, chars in enumerate([["a", "z", "q"], ["x", "c", "v"], ["o", "p", "m", "l"]]):
 		txt = f"- {chars[0]} : {printables[inverted_keys[chars[0]]]}\n- {chars[1]} : {printables[inverted_keys[chars[1]]]}\n- {chars[2]} : switcher de pion"
 		if j == 2:
 			txt += f"\n- {chars[3]} : {printables[inverted_keys[chars[3]]]}"
-		texte(window_width / 4 * (j + 1), window_height / 6 * 4, txt, ancrage = "center", taille = 20)
+		texte(gs.window_width / 4 * (j + 1), gs.window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
-def display_pause(game_width, game_height):
+def display_pause():
 	"""
 	Display the pause menu
 	"""
+	game_width = gs.game_width
+	game_height = gs.game_height
+
 	pause_rectangle_width = game_width / 5 * 4 - game_width / 5
 	pause_rectangle_height = game_height / 4 * 3 - game_height / 4
 	pause_rectangle_coords = (game_width / 5, game_height / 4, game_width / 5 + pause_rectangle_width, game_height / 4 + pause_rectangle_height)
@@ -154,28 +161,16 @@ def display_save_success(pause_rectangle_coords, width, height):
 	"""
 	texte(pause_rectangle_coords[0] + width / 2, pause_rectangle_coords[1] + height / 8 * 7, "La partie a bien été sauvegardée.", ancrage = "center", taille = 16)
 
-def display_game(board, pawns, current_color, exit_available, walls, escalators, start_time, timeout, game_width, game_height, window_width, window_height):
+def display_game():
 	"""
 	Display the board and the pawns on their positions.
 	
 	board is supposed to be a valid two dimensional list, with at least 2 rows and 2 columns.
 	purple, orange, yellow, green are all supposed to be a list of two elements that describe their position inside the board.
-
-	>>> display_game([], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, {((0, 1), (1, 1))}, 300000.0, 3, 900, 600, 1200, 600)
-	Traceback (most recent call last):
-		...
-	AssertionError: the specified board does not have enough rows
-
-	>>> display_game([[], []], {"purple": [0, 0], "orange": [0, 0], "yellow": [0, 0], "green": [0, 0]}, "purple", True, {((0, 0), (0, 1))}, {((0, 1), (1, 1))}, 300000.0, 3, 900, 600, 1200, 600)
-	Traceback (most recent call last):
-		...
-	AssertionError: the specified board does not have enough columns
-
-	>>> display_game([[".", "."], [".", "."]], {"purple": [0, 1], "orange": [1, 0], "yellow": [2,-2], "green": [1, 1]}, "purple", True, {((0, 0), (0, 1))}, {((0, 1), (1, 1))}, 300000.0, 3, 900, 600, 1200, 600)
-	Traceback (most recent call last):
-		...
-	AssertionError: yellow position is out of range
 	"""
+	board = gs.board
+	pawns = gs.pawns
+	walls = gs.walls
 
 	rows_count = len(board)
 	assert rows_count >= 2, "the specified board does not have enough rows"
@@ -196,36 +191,38 @@ def display_game(board, pawns, current_color, exit_available, walls, escalators,
 			x = j * cell_width
 			y = i * cell_height
 
-			display_cell(board, i, j, x, y, cell_width, cell_height, exit_available)
+			display_cell(i, j, x, y, cell_width, cell_height)
 
 			if i > 0 and ((i - 1, j), (i, j)) in walls or ((i, j), (i - 1, j)) in walls:
 				rectangle(x, y - 2, x + cell_width, y + 2, remplissage = "grey")
 			if j > 0 and ((i, j - 1), (i, j)) in walls or ((i, j), (i, j - 1)) in walls:
 				rectangle(x - 2, y, x + 2, y + cell_height, remplissage = "grey")
 
-	display_escalators(escalators, cell_width, cell_height)
-	display_players(pawns, cell_width, cell_height)
-	display_side_panel(pawns, window_width, window_height, game_width, current_color, start_time, timeout)
+	display_escalators(cell_width, cell_height)
+	display_players(cell_width, cell_height)
+	display_side_panel()
 	
 	mise_a_jour()
 
-def display_timer(window_width, window_height, start_time, timeout):
+def display_timer():
 	"""
 	Display the game timer at the top right of the window.
 	"""
-	texte(window_width - 12, window_height / 40, "temps restant : " + str(int((get_timer(start_time, timeout) + 1))), ancrage = "ne")
+	texte(gs.window_width - 12, gs.window_height / 40, "temps restant : " + str(int((get_timer() + 1))), ancrage = "ne")
 
-def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
+def display_cell(i, j, x, y, cell_width, cell_height):
 	"""
 	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
 	"""
+	board = gs.board
+
 	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 			color = "white"
 		elif board[i][j] == "*":
 			color = "grey"
 		elif board[i][j] == "e":
-			if exit_available:
+			if gs.exit_available:
 				color = "lightgreen"
 			else:
 				color = "white"
@@ -241,7 +238,7 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 
 	vortex = set()
 	if board[i][j][0] == "v":
-		if not exit_available:
+		if not gs.exit_available:
 			vortex = {("vp", "vortex/purple"), ("vo", "vortex/orange"), ("vy", "vortex/yellow"), ("vg", "vortex/green")}
 		else:
 			vortex = {(("vp", "vo", "vy", "vg"), "vortex/grey")}
@@ -253,7 +250,7 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 	else:
 		objects = {"purple", "orange", "yellow", "green"}
 
-		if not exit_available:
+		if not gs.exit_available:
 			for obj in objects:
 				if board[i][j] == obj[0]:
 					image(x, y, f"res/img/objects/{obj}.png", ancrage = "nw")
@@ -261,13 +258,13 @@ def display_cell(board, i, j, x, y, cell_width, cell_height, exit_available):
 		
 		rectangle(x, y, x + cell_width, y + cell_height)
 
-def display_escalators(escalators, cell_width, cell_height):
+def display_escalators(cell_width, cell_height):
 	"""
 	Display the escalators on the board.
 	"""
 	offset_x, offset_y, ladder = None, None, None
 
-	for (i1, j1), (i2, j2) in escalators:
+	for (i1, j1), (i2, j2) in gs.escalators:
 		# offset_x and offset_y are used to display the escalator in the right position
 		for diff1, diff2, off_x, off_y, lad in {(1, 1, 1, 0, 0), (2, 1, 1, -0.5, 1), (1, 2, 1.5, 0, 3), (-2, 1, 1, 1.5, 2), (2, -1, 0, -0.5, 2), (-1, -2, -0.5, 1, 3), (-2, -1, 0, 1.5, 1), (1, -2, -0.5, 0, 4), (-1, 2, 1.5, 1, 4)}:
 			if i1 - i2 == diff1 and j2 - j1 == diff2:
@@ -276,22 +273,26 @@ def display_escalators(escalators, cell_width, cell_height):
 
 		image((j1 + offset_x) * cell_width, (i1 + offset_y) * cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
 
-def display_players(pawns, cell_width, cell_height):
+def display_players(cell_width, cell_height):
 	"""
 	Display the players pawns and the guards on the board.
 	"""
-	for color in pawns.keys():
+	for color in gs.pawns.keys():
 		if color.startswith("fake"):
 			img = "guard"
 		else:
 			img = color
-		image(pawns[color][1] * cell_width, pawns[color][0] * cell_height, f"res/img/players/{img}.png", ancrage = "nw")
+		image(gs.pawns[color][1] * cell_width, gs.pawns[color][0] * cell_height, f"res/img/players/{img}.png", ancrage = "nw")
 
-def display_side_panel(pawns, window_width, window_height, game_width, current_color, start_time, timeout):
+def display_side_panel():
 	"""
 	Display the game side panel.
 	"""
-	display_timer(window_width, window_height, start_time, timeout)
+	pawns = gs.pawns
+	window_width = gs.window_width
+	window_height = gs.window_height
+
+	display_timer()
 	x_offset = 30
 
 	for i, color in enumerate(pawns):
@@ -299,15 +300,15 @@ def display_side_panel(pawns, window_width, window_height, game_width, current_c
 			img = color
 		else:
 			img = "guard"
-		image(window_width - (window_width - game_width) / 2 + x_offset, window_height / (len(pawns) + 1) * (i + 1), f"res/img/big_players/{img}.png", ancrage = "center")
+		image(window_width - (window_width - gs.game_width) / 2 + x_offset, window_height / (len(pawns) + 1) * (i + 1), f"res/img/big_players/{img}.png", ancrage = "center")
 
-	image(window_width - (window_width - game_width) / 2 - 1.5 * x_offset, window_height / (len(pawns) + 1) * (list(pawns.keys()).index(current_color) + 1), "res/img/misc/arrow.png", ancrage = "center")
+	image(window_width - (window_width - gs.game_width) / 2 - 1.5 * x_offset, window_height / (len(pawns) + 1) * (list(pawns.keys()).index(gs.current_color) + 1), "res/img/misc/arrow.png", ancrage = "center")
 
-def display_selected_vortex(i, j, game_width, game_height, board):
+def display_selected_vortex(i, j):
 	"""
 	Display a circle at the given position to show a selected case (vortex selection).
 	"""
-	x = j * game_width / len(board[0])
-	y = i * game_height / len(board)
+	x = j * gs.game_width / len(gs.board[0])
+	y = i * gs.game_height / len(gs.board)
 
 	image(x, y, "res/img/misc/circle.png", ancrage = "nw")
