@@ -41,12 +41,17 @@ def next_color():
         if gs.current_color == color:
             return next(colors)
 
-def apply_debug_mode(touche, keys):
+def apply_debug_mode(touche, keys, mode = "normal"):
     """
-    If the debug mode is enabled, returns a random color and a random key direction. Otherwise, returns the current color and key.
+    If the debug mode is enabled, return a random action key. Otherwise, return the original key. The optional mode parameter can take the values "normal", "vortex" or "telekinesis" (defaults to normal), and will influence the keys probabilities to be more efficient.
     """
     if gs.debug_mode and (touche is None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
-        return choices([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"])), keys["explore"], keys["telekinesis"]], weights = [10, 10, 10, 10, 3, 3, 6, 3, 1])[0]
+        if mode == "vortex":
+            return choices([keys["exit"], keys["vortex"], next(iter(keys["switch"]))], weights = [1, 3, 3])[0]
+        elif mode == "telekinesis":
+            return choices([keys["exit"], keys["telekinesis"], next(iter(keys["switch"]))], weights = [1, 3, 3])[0]
+        else: # normal case
+            return choices([next(iter(keys["up"])), next(iter(keys["left"])), next(iter(keys["down"])), next(iter(keys["right"])), keys["escalator"], keys["vortex"], next(iter(keys["switch"])), keys["explore"], keys["telekinesis"]], weights = [10, 10, 10, 10, 3, 2, 7, 3, 1])[0]
     elif touche is not None:
         return touche.lower()
     else:
@@ -54,7 +59,7 @@ def apply_debug_mode(touche, keys):
 
 def update_on_objects():
     """
-    Update the pawns_on_objects dictionary provided using the new pawns coordinates. If the pawn is at the same coordinates as its object, its value in this dictionnary will be True, otherwise it will be False.
+    Update the pawns_on_objects dictionary using the new pawns coordinates. If the pawn is at the same coordinates as its object, its value in this dictionnary will be True, otherwise it will be False.
     """
     color = gs.current_color
     if gs.board[gs.pawns[color][0]][gs.pawns[color][1]] == color[0:1]:
@@ -64,7 +69,7 @@ def update_on_objects():
 
 def update_on_exit():
     """
-    Update the pawns_outside dictionary provided using the new pawns coordinates. If the pawn is at the same position as the exit cell, its coordinates are set to -1 to represent the "outside the board" position.
+    Update the pawns_outside dictionary using the new pawns coordinates. If the pawn is at the same position as the exit cell, its coordinates are set to -1 to represent the "outside the board" position.
     """
     color = gs.current_color
     if gs.exit_available and gs.board[gs.pawns[color][0]][gs.pawns[color][1]] == "e" and not color.startswith("fake"):
@@ -73,13 +78,13 @@ def update_on_exit():
 
 def update_on_hourglass():
     """
-    If the given color pawn is on an hourglass cell, set the hourglass cell as used.
+    If the currently selected pawn is on an hourglass cell, set the hourglass cell as used and invert the timer.
     """
     color = gs.current_color
     on_hourglass = gs.board[gs.pawns[color][0]][gs.pawns[color][1]] == "h"
     if on_hourglass:
         gs.board[gs.pawns[color][0]][gs.pawns[color][1]] = "µ"
-    return on_hourglass
+        gs.start_time = invert_hourglass()
 
 def split_pawns():
     """
@@ -145,9 +150,7 @@ def move(direction):
                 update_on_objects()
                 update_on_exit()
                 if not color.startswith("fake"):
-                    on_hourglass = update_on_hourglass()
-                    if on_hourglass:
-                        gs.start_time = invert_hourglass()
+                    update_on_hourglass()
 
 def is_card_guarded(new_pawn_coords):
     color = gs.current_color
@@ -203,7 +206,7 @@ def use_vortex(keys):
 
             while True:
                 touche = attente_touche_jusqua(50)
-                touche = apply_debug_mode(touche, keys)
+                touche = apply_debug_mode(touche, keys, mode = "vortex")
                 display_game()
                 display_selected_vortex(currently_selected_vortex)
                 if touche in keys["switch"]:
@@ -470,7 +473,7 @@ def use_telekinesis(keys):
 
             while True:
                 touche = attente_touche_jusqua(50)
-                touche = apply_debug_mode(touche, keys)
+                touche = apply_debug_mode(touche, keys, mode = "telekinesis")
                 display_game()
                 display_selected_card(teleported_card["top_left"])
                 if touche in keys["switch"]:
