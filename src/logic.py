@@ -4,12 +4,13 @@ This module includes all the game logic.
 from random import choice, choices
 from time import time
 from json import dump
+from copy import deepcopy
 from itertools import cycle
 import src.game_state as gs
 from src.timer import invert_hourglass
 from src.display import display_selected_vortex, display_game
 from src.upemtk import attente_touche_jusqua
-from src.cards import original_read_only_cards
+from src.cards import cards
 
 def make_save():
     with open("save.json", "w") as savefile:
@@ -261,7 +262,11 @@ def one_quarter_right_rotation_escalators(escalator):
     return ((escalator[0][1], 4 - (escalator[0][0] + 1)), (escalator[1][1], 4 - (escalator[1][0] + 1)))
 
 def one_quarter_right_rotation_walls(walls):
-    return {((j1, 4 - (i1 + 1)), (j2, 4 - (i2 + 1))) for (i1, j1), (i2, j2) in walls}
+    return {one_quarter_right_rotation_wall(wall) for wall in walls}
+
+def one_quarter_right_rotation_wall(wall):
+    (i1, j1), (i2, j2) = wall
+    return  ((j1, 4 - (i1 + 1)), (j2, 4 - (i2 + 1)))
 
 def next_direction(direction):
     """
@@ -339,7 +344,7 @@ def remove_colliders_exploration_cells(absolute_x, absolute_y):
                 a = absolute_x + off1 + k
                 b = absolute_y + off2 + l
 
-                if board[a][b] != "*":
+                if a >= 0 and a < len(board) and b >= 0 and b < len(board[0]) and board[a][b] != "*":
                     board[absolute_x][absolute_y] = "."
                     found_something = True
                     break
@@ -469,18 +474,36 @@ def use_telekinesis(times_used):
                     dircopy = directions.copy()
                     dircopy.remove(opposite_direction(dir2))
 
-                    if has_neighbors(on_board_cards, board, card["top_left"][0], card["top_left"][1], {dir2}, ignoreone = True) and not has_neighbors(on_board_cards, board, card["top_left"][0] + off_i, card["top_left"][1] + off_j, set(dircopy)):
+                    if has_neighbors(card["top_left"][0], card["top_left"][1], {dir2}, ignoreone = True) and not has_neighbors(card["top_left"][0] + off_i, card["top_left"][1] + off_j, set(dircopy)):
                         movable = False
                 if movable:
                     movable_cards.append(card)
 
         teleported_card = movable_cards[0] # TODO : allow the players to select the card to teleport
         
-        original_card = original_read_only_cards[teleported_card["id"] - 2] # -2 because the cards start at ID 2
-        direction = current_board_element[2]
+        original_card = deepcopy(cards[teleported_card["id"] - 2]) # -2 because the cards start at ID 2
+        for _ in range(teleported_card["rotations"]):
+            one_quarter_right_rotation(original_card)
 
-
+        direction = current_board_element[2] # direction in which the elfe is teleporting a card
         off_i, off_j = get_neighbor_top_left_corner_from_explore(direction)
+
+        if original_card["escalator"] is not None:
+            absolute_escalator = ((original_card["escalator"][0][0] + teleported_card["top_left"][0], original_card["escalator"][0][1] + teleported_card["top_left"][1]), (original_card["escalator"][1][0] + teleported_card["top_left"][0], original_card["escalator"][1][1] + teleported_card["top_left"][1]))
+
+            gs.escalators = list(gs.escalators)
+            gs.escalators.remove(absolute_escalator)
+            gs.escalators = set(gs.escalators)
+            
+        gs.walls = list(gs.walls)
+        for wall in original_card["walls"]:
+            absolute_wall = ((wall[0][0] + teleported_card["top_left"][0], wall[0][1] + teleported_card["top_left"][1]), (wall[1][0] + teleported_card["top_left"][0], wall[1][1] + teleported_card["top_left"][1]))
+
+            gs.walls.remove(absolute_wall)
+        gs.walls = set(gs.walls)
+
+        original_card = deepcopy(cards[teleported_card["id"] - 2])
+        align_card(original_card, direction)
 
         board[i][j] = "."
         for k in range(4):
@@ -494,25 +517,15 @@ def use_telekinesis(times_used):
                 remove_out_of_bounds_exploration_cells(absolute_x, absolute_y, i, j)
                 remove_colliders_exploration_cells(absolute_x, absolute_y)
                 remove_nearby_explorations_cells(i + off_i, j + off_j)
+        
+        for (i1, j1), (i2, j2) in original_card["walls"]:
+            gs.walls.add(((i1 + i + off_i, j1 + j + off_j), (i2 + i + off_i, j2 + j + off_j)))
 
         if original_card["escalator"] is not None:
-            absolute_escalator = ((original_card["escalator"][0][0] + teleported_card["top_left"][0], original_card["escalator"][0][1] + teleported_card["top_left"][1]), (original_card["escalator"][1][0] + teleported_card["top_left"][0], original_card["escalator"][1][1] + teleported_card["top_left"][1]))
+            gs.escalators.add(((original_card["escalator"][0][0] + i + off_i, original_card["escalator"][0][1] + j + off_j), (original_card["escalator"][1][0] + i + off_i, original_card["escalator"][1][1] + j + off_j)))
 
-            for _ in range(teleported_card["rotations"]):
-                one_quarter_right_rotation_escalators(absolute_escalator)
-
-            gs.escalators = list(gs.escalators)
-            gs.escalators.remove(absolute_escalator)
-            gs.escalators = set(gs.escalators)
-            
-        for wall in original_card["walls"]:
-            absolute_wall = ((wall[0][0] + teleported_card["top_left"][0], wall[0][1] + teleported_card["top_left"][1]), (wall[1][0] + teleported_card["top_left"][0], wall[1][1] + teleported_card["top_left"][1]))
-
-            for _ in range(teleported_card["rotations"]):
-                one_quarter_right_rotation_walls(absolute_wall)
-
-            gs.walls = list(gs.walls)
-            gs.walls.remove(absolute_wall)
-            gs.walls = set(gs.walls)
-
-        # TODO : add back the escalators and walls at the teleported position
+        for card in gs.on_board_cards:
+            if card["id"] == original_card["id"]:
+                card["rotations"] = original_card["rotations"]
+                card["top_left"] = [i + off_i, j + off_j]
+                break

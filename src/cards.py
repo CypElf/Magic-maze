@@ -146,5 +146,3 @@ cards = [
         "escalator": None
     }
 ]
-
-original_read_only_cards = cards.copy()

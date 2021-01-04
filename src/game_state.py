@@ -1,5 +1,8 @@
 from src.cards import start_card, cards
+from copy import deepcopy
 from time import time
+
+# Default values
 
 # DO NOT CHANGE THE WIDTH AND HEIGHT, as the entire game is made to render the items to the screen using these values, especially the images	
 window_width = 1500
@@ -10,7 +13,7 @@ game_height = 800
 
 board = [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] + list(map(lambda row: ["*"] * 13 + row + ["*"] * 13, start_card["board"])) + [["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30, ["*"] * 30] # game start board, only the start card (ID 1) is present at the center
 
-stock = cards # remaining cards that can be picked to be displayed at the screen
+stock = deepcopy(cards) # remaining cards that can be picked to be displayed at the screen
 on_board_cards = [{"id": 1, "top_left": (8, 13), "rotations": 0}] # define which cards have been extracted from the stock and added to the game, and their top left cell coordinates
 
 escalators = start_card["escalators"] # present escalators in the game coordinates
