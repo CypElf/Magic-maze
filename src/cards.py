@@ -1,7 +1,8 @@
 """
 This module only contains the different game cards that can be added to the game with an exploration.
 """
-# See the MM_PrintPlay.pdf file in the "sujet" folder to see the real game cards
+# See the `MM_PrintPlay.pdf` file in the `sujet` folder to see the real game cards
+# The second and ninth are replaced by the ones of the maximum security extension (see `maximum_security_cards.png` in the `sujet` folder)
 # The ones defined below are a litteral conversion in this game's representation
 
 # p = purple object

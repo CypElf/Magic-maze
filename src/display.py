@@ -5,24 +5,7 @@ import src.game_state as gs
 from src.upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 from src.timer import get_timer
 
-def display_game_end(victory):
-	"""
-	Display a victory message in the middle of the screen if the victory parameter is set to True, otherwise if it is set to False, a defeat message is displayed.
-	"""
-	if victory:
-		game_state = "gagné"
-	else:
-		game_state = "perdu"
-	efface_tout()
-	texte(gs.window_width / 2, gs.window_height / 2, f"Vous avez {game_state} !", ancrage = "center")
-	mise_a_jour()
-	attente_clic()
-
-def display_loading_save_error():
-	"""
-	Display an error message that say there is no save available yet.
-	"""
-	texte(gs.window_width / 2, gs.window_height / 8 * 7, "Vous n'avez pas encore fait de sauvegarde.", ancrage = "center", taille = 16)
+# ------------------------------------------------- start menus
 
 def display_save_loading_menu():
 	"""
@@ -43,6 +26,12 @@ def display_save_loading_menu():
 		rectangle(zones_coords[i][0], zones_coords[i][1], zones_coords[i][2], zones_coords[i][3], epaisseur = 2)
 	mise_a_jour()
 	return zones_coords
+
+def display_loading_save_error():
+	"""
+	Display an error message that say there is no save available yet.
+	"""
+	texte(gs.window_width / 2, gs.window_height / 8 * 7, "Vous n'avez pas encore fait de sauvegarde.", ancrage = "center", taille = 16)
 
 def display_players_selection_menu():
 	"""
@@ -68,6 +57,8 @@ def display_players_selection_menu():
 		rectangle(zones_coords[i - 1][0], zones_coords[i - 1][1], zones_coords[i - 1][2], zones_coords[i - 1][3], epaisseur = 2)
 	mise_a_jour()
 	return zones_coords
+
+# ------------------------------------------------- controls
 
 def display_controls(player_count, keys):
 	"""
@@ -133,6 +124,8 @@ def display_three_players_controls(keys):
 			txt += f"\n- {chars[3]} : {printables[inverted_keys[chars[3]]]}"
 		texte(gs.window_width / 4 * (j + 1), gs.window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
+# ------------------------------------------------- pause menus
+
 def display_pause():
 	"""
 	Display the pause menu
@@ -163,6 +156,8 @@ def display_save_success(pause_rectangle_coords, width, height):
 	Display the success save message.
 	"""
 	texte(pause_rectangle_coords[0] + width / 2, pause_rectangle_coords[1] + height / 8 * 7, "La partie a bien été sauvegardée.", ancrage = "center", taille = 16)
+
+# ------------------------------------------------- game
 
 def display_game():
 	"""
@@ -207,12 +202,6 @@ def display_game():
 	
 	mise_a_jour()
 
-def display_timer():
-	"""
-	Display the game timer at the top right of the window.
-	"""
-	texte(gs.window_width - 12, gs.window_height / 40, "temps restant : " + str(int((get_timer() + 1))), ancrage = "ne")
-
 def display_cell(i, j, x, y):
 	"""
 	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
@@ -237,18 +226,18 @@ def display_cell(i, j, x, y):
 		if board[i][j][0] == "a":
 			for color in {"purple", "orange", "yellow", "green"}:
 				if color[0] == board[i][j][1]:
-					image(x, y, f"res/img/explore/{color}.png", ancrage = "nw")
+					image(x, y, f"./res/img/explore/{color}.png", ancrage = "nw")
 
 	vortex = set()
 	if board[i][j][0] == "v":
 		if not gs.exit_available:
-			vortex = {("vp", "vortex/purple"), ("vo", "vortex/orange"), ("vy", "vortex/yellow"), ("vg", "vortex/green")}
+			vortex = {("vp", "./vortex/purple"), ("vo", "./vortex/orange"), ("vy", "./vortex/yellow"), ("vg", "./vortex/green")}
 		else:
-			vortex = {(("vp", "vo", "vy", "vg"), "vortex/grey")}
+			vortex = {(("vp", "vo", "vy", "vg"), "./vortex/grey")}
 
-	for char, img in {("h", "misc/hourglass"), ("µ", "misc/used_hourglass"), ("e", "misc/exit")}.union(vortex):
+	for char, img in {("h", "./misc/hourglass"), ("µ", "./misc/used_hourglass"), ("e", "./misc/exit")}.union(vortex):
 		if board[i][j] in char:
-			image(x, y, f"res/img/{img}.png", ancrage = "nw")
+			image(x, y, f"./res/img/{img}.png", ancrage = "nw")
 
 	else:
 		objects = {"purple", "orange", "yellow", "green"}
@@ -256,7 +245,7 @@ def display_cell(i, j, x, y):
 		if not gs.exit_available:
 			for obj in objects:
 				if board[i][j] == obj[0]:
-					image(x, y, f"res/img/objects/{obj}.png", ancrage = "nw")
+					image(x, y, f"./res/img/objects/{obj}.png", ancrage = "nw")
 					break
 		
 		rectangle(x, y, x + gs.cell_width, y + gs.cell_height)
@@ -274,7 +263,7 @@ def display_escalators():
 				offset_x, offset_y, ladder = off_x, off_y, lad
 				break
 
-		image((j1 + offset_x) * gs.cell_width, (i1 + offset_y) * gs.cell_height, f"res/img/ladders/{ladder}.png", ancrage = "center")
+		image((j1 + offset_x) * gs.cell_width, (i1 + offset_y) * gs.cell_height, f"./res/img/ladders/{ladder}.png", ancrage = "center")
 
 def display_players():
 	"""
@@ -285,7 +274,7 @@ def display_players():
 			img = "guard"
 		else:
 			img = color
-		image(gs.pawns[color][1] * gs.cell_width, gs.pawns[color][0] * gs.cell_height, f"res/img/players/{img}.png", ancrage = "nw")
+		image(gs.pawns[color][1] * gs.cell_width, gs.pawns[color][0] * gs.cell_height, f"./res/img/players/{img}.png", ancrage = "nw")
 
 def display_side_panel():
 	"""
@@ -303,9 +292,17 @@ def display_side_panel():
 			img = color
 		else:
 			img = "guard"
-		image(window_width - (window_width - gs.game_width) / 2 + x_offset, window_height / (len(pawns) + 1) * (i + 1), f"res/img/big_players/{img}.png", ancrage = "center")
+		image(window_width - (window_width - gs.game_width) / 2 + x_offset, window_height / (len(pawns) + 1) * (i + 1), f"./res/img/big_players/{img}.png", ancrage = "center")
 
-	image(window_width - (window_width - gs.game_width) / 2 - 1.5 * x_offset, window_height / (len(pawns) + 1) * (list(pawns.keys()).index(gs.current_color) + 1), "res/img/misc/arrow.png", ancrage = "center")
+	image(window_width - (window_width - gs.game_width) / 2 - 1.5 * x_offset, window_height / (len(pawns) + 1) * (list(pawns.keys()).index(gs.current_color) + 1), "./res/img/misc/arrow.png", ancrage = "center")
+
+def display_timer():
+	"""
+	Display the game timer at the top right of the window.
+	"""
+	texte(gs.window_width - 12, gs.window_height / 40, "temps restant : " + str(int((get_timer() + 1))), ancrage = "ne")
+
+# ------------------------------------------------- selectors
 
 def display_selected_vortex(coords):
 	"""
@@ -314,10 +311,25 @@ def display_selected_vortex(coords):
 	x = coords[1] * gs.game_width / len(gs.board[0])
 	y = coords[0] * gs.game_height / len(gs.board)
 
-	image(x, y, "res/img/misc/circle.png", ancrage = "nw")
+	image(x, y, "./res/img/misc/circle.png", ancrage = "nw")
 
 def display_selected_card(top_left):
 	"""
 	Display a selector border to a card whose top left corner coordinates are passed as a parameter.
 	"""
-	image(top_left[1] * gs.cell_width, top_left[0] * gs.cell_height, "res/img/misc/border.png", ancrage = "nw")
+	image(top_left[1] * gs.cell_width, top_left[0] * gs.cell_height, "./res/img/misc/border.png", ancrage = "nw")
+
+# ------------------------------------------------- miscellaneous
+
+def display_game_end(victory):
+	"""
+	Display a victory message in the middle of the screen if the victory parameter is set to True, otherwise if it is set to False, a defeat message is displayed.
+	"""
+	if victory:
+		game_state = "gagné"
+	else:
+		game_state = "perdu"
+	efface_tout()
+	texte(gs.window_width / 2, gs.window_height / 2, f"Vous avez {game_state} !", ancrage = "center")
+	mise_a_jour()
+	attente_clic()

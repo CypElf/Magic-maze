@@ -1,7 +1,6 @@
 """
 This module handles the different menus interactions.
 """
-import src.game_state as gs
 import src.keys as k
 from src.upemtk import donne_evenement, type_evenement, clic_x, clic_y, ferme_fenetre, touche, mise_a_jour, attente_clic, efface_tout
 from src.display import display_controls, display_save_success

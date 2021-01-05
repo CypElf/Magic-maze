@@ -1,5 +1,6 @@
-from src.cards import start_card, cards
 from copy import deepcopy
+
+from src.cards import start_card, cards
 
 # Default values
 

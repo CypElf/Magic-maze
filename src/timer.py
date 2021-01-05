@@ -1,8 +1,9 @@
 """
 This module handles all the time related things.
 """
-import src.game_state as gs
 from time import time
+
+import src.game_state as gs
 
 def invert_hourglass():
     """

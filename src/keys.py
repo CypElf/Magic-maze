@@ -1,10 +1,11 @@
 """
 This module handles all the keys related things.
 """
-import src.game_state as gs
 from random import shuffle
 from time import time
-from src.timer import adjust_time, invert_hourglass
+
+import src.game_state as gs
+from src.timer import adjust_time
 from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
 from src.logic import move, next_color, use_escalator, use_vortex, explore, use_telekinesis
@@ -38,7 +39,7 @@ def get_keys(players_count):
 	
 		directions = ["up", "down", "left", "right"]
 		shuffle(directions)
-		for key, direction in zip({"a", "z", "o", "p"}, directions):
+		for key, direction in zip({"a", "z", "o", "p"}, directions): # these 4 keys are always associated with directions
 			keys[direction] = key
 		remaining_keys = ["e", "i", "l"]
 		shuffle(remaining_keys)
@@ -54,7 +55,7 @@ def get_keys(players_count):
 		}
 		directions = ["up", "down", "left", "right"]
 		shuffle(directions)
-		for key, direction in zip({"a", "c", "p"}, directions):
+		for key, direction in zip({"a", "c", "p"}, directions): # these 4 keys are always associated with directions
 			keys[direction] = key
 
 		remaining_keys = ["z", "x", "o", "l"]
