@@ -551,7 +551,6 @@ def remove_walls_from_game(walls, top_left):
     gs.walls = set(gs.walls)
 
 def get_movable_cards():
-    # TODO : fix
     movable_cards = []
 
     directions = ["up", "down", "left", "right"]
