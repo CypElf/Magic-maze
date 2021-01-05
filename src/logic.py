@@ -3,11 +3,11 @@ This module includes all the game logic.
 """
 from random import choice, choices
 from time import time
-from json import dump
+from json import dump, load
 from copy import deepcopy
 from itertools import cycle
 import src.game_state as gs
-from src.timer import invert_hourglass
+from src.timer import invert_hourglass, adjust_time
 from src.display import display_selected_vortex, display_game, display_selected_card
 from src.upemtk import attente_touche_jusqua
 from src.cards import cards
@@ -32,6 +32,23 @@ def make_save():
         }
         dump(state, savefile)
 
+def restore_save():
+    with open("save.json", "r") as savefile:
+        save = load(savefile)
+        gs.pawns = save["pawns"]
+        gs.pawns_on_objects = save["pawns_on_objects"]
+        gs.pawns_outside = save["pawns_outside"]
+        gs.current_color = save["current_color"]
+        gs.debug_mode = save["debug_mode"]
+        gs.exit_available = save["exit_available"]
+        adjust_time(save["start_time"], save["save_time"], offset = 1)
+        gs.board = save["board"]
+        gs.escalators = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["escalators"]))
+        gs.walls = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["walls"]))
+        gs.stock = save["stock"]
+        gs.on_board_cards = save["on_board_cards"]
+        gs.telekinesis_times_used = save["telekinesis_times_used"]
+
 def next_color():
     """
     Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
@@ -41,10 +58,11 @@ def next_color():
         if gs.current_color == color:
             return next(colors)
 
-def apply_debug_mode(touche, keys, mode = "normal"):
+def apply_debug_mode(touche, mode = "normal"):
     """
     If the debug mode is enabled, return a random action key. Otherwise, return the original key. The optional mode parameter can take the values "normal", "vortex" or "telekinesis" (defaults to normal), and will influence the keys probabilities to be more efficient.
     """
+    keys = gs.keys
     if gs.debug_mode and (touche is None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
         if mode == "vortex":
             return choices([keys["exit"], keys["vortex"], next(iter(keys["switch"]))], weights = [1, 3, 3])[0]
@@ -62,10 +80,11 @@ def update_on_objects():
     Update the pawns_on_objects dictionary using the new pawns coordinates. If the pawn is at the same coordinates as its object, its value in this dictionnary will be True, otherwise it will be False.
     """
     color = gs.current_color
-    if gs.board[gs.pawns[color][0]][gs.pawns[color][1]] == color[0:1]:
-        gs.pawns_on_objects[color] = True
-    else:
-        gs.pawns_on_objects[color] = False
+    if not color.startswith("fake"):
+        if gs.board[gs.pawns[color][0]][gs.pawns[color][1]] == color[0:1]:
+            gs.pawns_on_objects[color] = True
+        else:
+            gs.pawns_on_objects[color] = False
 
 def update_on_exit():
     """
@@ -206,7 +225,7 @@ def use_vortex(keys):
 
             while True:
                 touche = attente_touche_jusqua(50)
-                touche = apply_debug_mode(touche, keys, mode = "vortex")
+                touche = apply_debug_mode(touche, mode = "vortex")
                 display_game()
                 display_selected_vortex(currently_selected_vortex)
                 if touche in keys["switch"]:
@@ -327,7 +346,7 @@ def remove_nearby_explorations_cells(x, y):
     for i in range(4):
             for absolute_x, absolute_y in {(x + i, y - 1), (x + i, y + 4), (x - 1, y + i), (x + 4, y + i)}:
                 if absolute_y >= 0 and absolute_y < len(board[0]) and absolute_x >= 0 and absolute_x < len(board) and board[absolute_x][absolute_y][0] == "a":
-                    board[absolute_x][absolute_y] = "."
+                    board[absolute_x][absolute_y] = "debug"
 
 def remove_colliders_exploration_cells(absolute_x, absolute_y):
     """
@@ -346,7 +365,7 @@ def remove_colliders_exploration_cells(absolute_x, absolute_y):
                 b = absolute_y + off2 + l
 
                 if a >= 0 and a < len(board) and b >= 0 and b < len(board[0]) and board[a][b] != "*":
-                    board[absolute_x][absolute_y] = "."
+                    board[absolute_x][absolute_y] = "debug"
                     found_something = True
                     break
             if found_something:
@@ -357,17 +376,16 @@ def remove_out_of_bounds_exploration_cells(current_i, current_j):
     Remove the exploration cells that would add a new card beyond the board bounds.
     """
     board = gs.board
-    i, j = gs.pawns[gs.current_color][0], gs.pawns[gs.current_color][1]
     
     if board[current_i][current_j][0] == "a" and board[current_i][current_j][1] != "w":
 
-        bounds_up_collision = i == 0 and board[current_i][current_j][-1] == "u" and (current_i - 4 < 0 or current_j + 2 >= len(board[0]))
-        bounds_down_collision = i == 3 and board[current_i][current_j][-1] == "d" and (current_i + 4 >= len(board) or current_j - 2 < 0)
-        bounds_left_collision = j == 0 and board[current_i][current_j][-1] == "l" and (current_i - 2 < 0 or current_j - 4 < 0)
-        bounds_right_collision = j == 3 and board[current_i][current_j][-1] == "r" and (current_i + 2 >= len(board) or current_j + 4 >= len(board[0]))
+        bounds_up_collision = board[current_i][current_j][-1] == "u" and (current_i - 4 < 0 or current_j + 2 >= len(board[0]))
+        bounds_down_collision = board[current_i][current_j][-1] == "d" and (current_i + 4 >= len(board) or current_j - 2 < 0)
+        bounds_left_collision = board[current_i][current_j][-1] == "l" and (current_i - 2 < 0 or current_j - 4 < 0)
+        bounds_right_collision = board[current_i][current_j][-1] == "r" and (current_i + 2 >= len(board) or current_j + 4 >= len(board[0]))
 
         if bounds_up_collision or bounds_down_collision or bounds_left_collision or bounds_right_collision:
-            board[current_i][current_j] = "."
+            board[current_i][current_j] = "debug"
 
 def remove_all_exploration_cells():
     board = gs.board
@@ -473,7 +491,7 @@ def use_telekinesis(keys):
 
             while True:
                 touche = attente_touche_jusqua(50)
-                touche = apply_debug_mode(touche, keys, mode = "telekinesis")
+                touche = apply_debug_mode(touche, mode = "telekinesis")
                 display_game()
                 display_selected_card(teleported_card["top_left"])
                 if touche in keys["switch"]:

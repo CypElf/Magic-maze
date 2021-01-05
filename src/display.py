@@ -7,7 +7,7 @@ from src.timer import get_timer
 
 def display_game_end(victory):
 	"""
-	Display a victory of defeat message, based on the victory parameter, in the middle of the screen.
+	Display a victory message in the middle of the screen if the victory parameter is set to True, otherwise if it is set to False, a defeat message is displayed.
 	"""
 	if victory:
 		game_state = "gagné"
@@ -19,11 +19,14 @@ def display_game_end(victory):
 	attente_clic()
 
 def display_loading_save_error():
+	"""
+	Display an error message that say there is no save available yet.
+	"""
 	texte(gs.window_width / 2, gs.window_height / 8 * 7, "Vous n'avez pas encore fait de sauvegarde.", ancrage = "center", taille = 16)
 
 def display_save_loading_menu():
 	"""
-	Display the menu that allow to choose between starting a new game or loading a previously saved game.
+	Display the menu that allow to choose between starting a new game or loading a previously saved game. Return a list of coordinates as a tuple of 4 elements, corresponding to the coordinates of the clickable areas displayed.
 	"""
 	efface_tout()
 	image(gs.window_width / 2, gs.window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
@@ -43,7 +46,7 @@ def display_save_loading_menu():
 
 def display_players_selection_menu():
 	"""
-	Display the menu that allow to choose the number of players that will play together.
+	Display the menu that allow to choose the number of players that will play together. Return a list of coordinates as a tuple of 4 elements, corresponding to the coordinates of the clickable areas displayed.
 	"""
 	efface_tout()
 	image(gs.window_width / 2, gs.window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
@@ -216,6 +219,9 @@ def display_cell(i, j, x, y):
 	"""
 	board = gs.board
 
+	if board[i][j] == "debug":
+		rectangle(x, y, x + gs.cell_width, y + gs.cell_height, remplissage = "purple")
+
 	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 			color = "white"
@@ -266,7 +272,7 @@ def display_escalators():
 
 	for (i1, j1), (i2, j2) in gs.escalators:
 		# offset_x and offset_y are used to display the escalator in the right position
-		for diff1, diff2, off_x, off_y, lad in {(1, 1, 1, 0, 0), (2, 1, 1, -0.5, 1), (1, 2, 1.5, 0, 3), (-2, 1, 1, 1.5, 2), (2, -1, 0, -0.5, 2), (-1, -2, -0.5, 1, 3), (-2, -1, 0, 1.5, 1), (1, -2, -0.5, 0, 4), (-1, 2, 1.5, 1, 4)}:
+		for diff1, diff2, off_x, off_y, lad in {(2, 1, 1, -0.5, 1), (1, 2, 1.5, 0, 3), (-2, 1, 1, 1.5, 2), (2, -1, 0, -0.5, 2), (-1, -2, -0.5, 1, 3), (-2, -1, 0, 1.5, 1), (1, -2, -0.5, 0, 4), (-1, 2, 1.5, 1, 4), (1, 1, 1, 0, 0), (1, -1, 0, 0, 5), (-1, -1, 0, 1, 0), (-1, 1, 1, 1, 5)}:
 			if i1 - i2 == diff1 and j2 - j1 == diff2:
 				offset_x, offset_y, ladder = off_x, off_y, lad
 				break

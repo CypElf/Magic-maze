@@ -63,10 +63,11 @@ def get_keys(players_count):
 			
 		return keys
 
-def key_triggered(key, keys):
+def key_triggered(key):
 	"""
 	Execute the appropriate action in the game according to the triggered key.
 	"""
+	keys = gs.keys
 	for direction in {"up", "down", "left", "right"}:
 		if key in keys[direction]:
 			move(direction)

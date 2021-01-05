@@ -39,7 +39,7 @@ def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width,
 
 def handle_save_loading_menu_interaction(zones_coords):
     """
-    Handles the first game menu where you can choose between starting a new game on loading a save previously done.
+    Handles the first game menu where you can choose between starting a new game on loading a save previously done. Return True if the user want to load a save, otherwise False.
     """
     while True:
         click_x, click_y, _ = attente_clic()
@@ -49,7 +49,7 @@ def handle_save_loading_menu_interaction(zones_coords):
 
 def handle_players_selection_menu_interaction(zones_coords):
     """
-    Handles the main menu interactions, such as loading a save or choosing the players count.
+    Handles the main menu interactions, such as loading a save or choosing the players count. Once done, the user must have chosen the number of players he wants, so this function return the according keys dictionary that describes which key is associated to which action.
     """
     keys = dict()
 
