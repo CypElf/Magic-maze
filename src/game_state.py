@@ -1,6 +1,5 @@
 from src.cards import start_card, cards
 from copy import deepcopy
-from time import time
 
 # Default values
 
@@ -31,7 +30,6 @@ debug_mode = False
 exit_available = False
 telekinesis_times_used = 0
 
-start_time = time()
 timeout = 3 # timeout is in minutes
 
 lost = False

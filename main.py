@@ -3,6 +3,7 @@ This is the core of the program. It contains the main loop and the encapsulating
 """
 import json
 from os import path
+from time import time
 import src.game_state as gs
 from src.logic import apply_debug_mode, spawn_reinforcement_guards
 from src.upemtk import attente_touche_jusqua, cree_fenetre, ferme_fenetre
@@ -40,6 +41,8 @@ def main():
 			gs.stock = save["stock"]
 			gs.on_board_cards = save["on_board_cards"]
 			gs.telekinesis_times_used = save["telekinesis_times_used"]
+	else:
+		gs.start_time = time()
 
 	while True:
 		touche = attente_touche_jusqua(50)
