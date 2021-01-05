@@ -219,9 +219,6 @@ def display_cell(i, j, x, y):
 	"""
 	board = gs.board
 
-	if board[i][j] == "debug":
-		rectangle(x, y, x + gs.cell_width, y + gs.cell_height, remplissage = "purple")
-
 	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 			color = "white"

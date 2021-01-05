@@ -346,7 +346,7 @@ def remove_nearby_explorations_cells(x, y):
     for i in range(4):
             for absolute_x, absolute_y in {(x + i, y - 1), (x + i, y + 4), (x - 1, y + i), (x + 4, y + i)}:
                 if absolute_y >= 0 and absolute_y < len(board[0]) and absolute_x >= 0 and absolute_x < len(board) and board[absolute_x][absolute_y][0] == "a":
-                    board[absolute_x][absolute_y] = "debug"
+                    board[absolute_x][absolute_y] = "."
 
 def remove_colliders_exploration_cells(absolute_x, absolute_y):
     """
@@ -365,7 +365,7 @@ def remove_colliders_exploration_cells(absolute_x, absolute_y):
                 b = absolute_y + off2 + l
 
                 if a >= 0 and a < len(board) and b >= 0 and b < len(board[0]) and board[a][b] != "*":
-                    board[absolute_x][absolute_y] = "debug"
+                    board[absolute_x][absolute_y] = "."
                     found_something = True
                     break
             if found_something:
@@ -385,7 +385,7 @@ def remove_out_of_bounds_exploration_cells(current_i, current_j):
         bounds_right_collision = board[current_i][current_j][-1] == "r" and (current_i + 2 >= len(board) or current_j + 4 >= len(board[0]))
 
         if bounds_up_collision or bounds_down_collision or bounds_left_collision or bounds_right_collision:
-            board[current_i][current_j] = "debug"
+            board[current_i][current_j] = "."
 
 def remove_all_exploration_cells():
     board = gs.board
@@ -551,6 +551,7 @@ def remove_walls_from_game(walls, top_left):
     gs.walls = set(gs.walls)
 
 def get_movable_cards():
+    # TODO : fix
     movable_cards = []
 
     directions = ["up", "down", "left", "right"]
