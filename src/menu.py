@@ -2,13 +2,14 @@
 This module handles the different menus interactions.
 """
 from time import time
+from os import path
 
 import src.game_state as gs
 import src.keys as k
 from src.timer import adjust_time, get_timer
-from src.upemtk import donne_evenement, type_evenement, clic_x, clic_y, ferme_fenetre, touche, mise_a_jour, attente_clic, efface_tout
-from src.display import display_controls, display_save_success, display_pause, display_game
+from src.display import display_controls, display_save_success, display_pause, display_game, display_save_loading_menu, display_players_selection_menu, display_loading_save_error
 from src.logic import make_save
+from src.upemtk import donne_evenement, type_evenement, clic_x, clic_y, ferme_fenetre, touche, mise_a_jour, attente_clic, efface_tout
 
 def pause_game(pause_key):
     """
@@ -52,22 +53,34 @@ def pause_game(pause_key):
         mise_a_jour()
     adjust_time(gs.start_time, current_time)
 
-def handle_save_loading_menu_interaction(zones_coords):
+def save_loading_menu():
     """
     Handles the first game menu where you can choose between starting a new game on loading a save previously done. Return True if the user want to load a save, otherwise False.
     """
-    while True:
+    zones_coords = display_save_loading_menu()
+
+    wants_to_load_save = False
+    chosen = False
+    while not chosen:
         click_x, click_y, _ = attente_clic()
         for i, (x1, y1, x2, y2) in enumerate(zones_coords):
             if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
-                return i == 1 # True = want to load a save, False = new game
+                chosen = True
+                if i == 1: # click on the load save area
+                    wants_to_load_save = True
 
-def handle_players_selection_menu_interaction(zones_coords):
+                    while wants_to_load_save and not path.isfile("save.json"):
+                        display_loading_save_error()
+                        wants_to_load_save = save_loading_menu()
+    return wants_to_load_save
+
+def players_selection_menu():
     """
     Handles the main menu interactions, such as loading a save or choosing the players count. Once done, the user must have chosen the number of players he wants, so this function return the according keys dictionary that describes which key is associated to which action and the selected players count.
     """
     keys = dict()
 
+    zones_coords = display_players_selection_menu()
     while True:
         click_x, click_y, _ = attente_clic()
         for i, (x1, y1, x2, y2) in enumerate(zones_coords):

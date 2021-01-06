@@ -11,8 +11,8 @@ from itertools import cycle
 import src.game_state as gs
 from src.timer import invert_hourglass, adjust_time
 from src.display import display_selected_vortex, display_game, display_selected_card
-from src.upemtk import attente_touche_jusqua
 from src.cards import cards
+from src.upemtk import attente_touche_jusqua
 
 # ------------------------------------------------- update game state
 

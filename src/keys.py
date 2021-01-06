@@ -2,11 +2,8 @@
 This module handles all the keys related things.
 """
 from random import shuffle
-from time import time
 
 import src.game_state as gs
-from src.timer import adjust_time
-from src.display import display_pause
 from src.menu import pause_game
 from src.logic import move, next_color, use_escalator, use_vortex, explore, use_telekinesis, get_playing_player
 

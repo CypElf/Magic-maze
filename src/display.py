@@ -2,8 +2,8 @@
 This module contains display functionnalities, used to draw all the user interface to the window.
 """
 import src.game_state as gs
-from src.upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 from src.timer import get_timer
+from src.upemtk import rectangle, texte, image, mise_a_jour, attente_clic, hauteur_texte, longueur_texte, efface_tout
 
 # ------------------------------------------------- start menus
 
