@@ -64,66 +64,72 @@ def display_controls():
 	"""
 	Display the right game controls screen according to the players count.
 	"""
+	pc = gs.players_count
 	window_width = gs.window_width
 	window_height = gs.window_height
 
 	efface_tout()
-	if gs.players_count == 1:
-		display_solo_controls()
-		click_to_start_y = window_height / 4 * 3
-		
+
+	printables = get_printables_actions()
+
+	texte(window_width / 2, window_height / 8, "CONTROLES", ancrage = "center", taille = 28)
+
+	common_controls = []
+	for char in {"g", "b", "escape"}:
+		common_controls.append(f"- {char} : {printables[get_action(char)]}")
+	
+	texte(window_width / 2, window_height / 8 * 2.5, "\n".join(common_controls), ancrage = "center", taille = 20)
+
+	if pc == 1:
+		player_keys = [("e", "v", "x", "n")]
+	elif pc == 2:
+		player_keys = [("a", "z", "e", "q"), ("o", "p", "i", "l", "m")]
 	else:
-		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- g : utiliser la télékinésie de l'elfe\n- b : (dés)activer le mode debug\n- échap : mettre en pause", 20)]):
-			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
+		player_keys = [("a", "z", "q"), ("x", "c", "v"), ("o", "p", "m", "l")]
 
-		if gs.players_count == 2:
-			display_two_players_controls(gs.keys)
-		else:
-			display_three_players_controls(gs.keys)
-		
-		click_to_start_y = window_height / 6 * 5
+	for j in range(1, pc + 1):
+		texte(gs.window_width / (pc + 1) * j, gs.window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
+	
+	players_actions = []
 
-	texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour continuer.", ancrage = "center", taille = 14)
+	for chars in player_keys:
+		players_actions.append([])
+		for char in chars:
+			players_actions[-1].append(f"- {char} : {printables[get_action(char)]}")
+
+	for j, actions in enumerate(players_actions):
+		txt = "\n".join(actions)
+		texte(gs.window_width / (pc + 1) * (j + 1), gs.window_height / 6 * 4, txt, ancrage = "center", taille = 20)
+
+	texte(window_width / 2, window_height / 6 * 5.5, "Cliquez n'importe où dans la fenêtre pour continuer.", ancrage = "center", taille = 14)
 	mise_a_jour()
 
-def display_solo_controls():
+def get_action(key):
 	"""
-	Display the solo mode controls
+	Return the action that the key is poiting to in the keys.
 	"""
-	texte(gs.window_width / 2, gs.window_height / 4, "Contrôles", ancrage = "center", taille = 26)
-	texte(gs.window_width / 2, gs.window_height / 4 * 2, "- ZQSD ou ↑←↓→ : se déplacer\n- e : prendre un escalator\n- v : prendre un vortex\n- x : explorer\n- g : utiliser la télékinésie de l'elfe\n- n : switcher de pion\n- b : (dés)activer le mode debug\n- échap : mettre en pause", ancrage = "center", taille = 20)
+	for k, v in gs.keys.items():
+		if type(v) is str and key == v or type(v) is set and key in v:
+			return k
 
-def display_two_players_controls(keys):
+def get_printables_actions():
 	"""
-	Display the 2 players mode controls
+	Return a dictionnary whose keys are actions and values are text describing the action that can be displayed to the user.
 	"""
-	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex"), ("explore", "explorer")}}
-	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
-
-	for j in {1, 2}:
-		texte(gs.window_width / 3 * j, gs.window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
-	
-	txt_player1 = f"- a : {printables[inverted_keys['a']]}\n- z : {printables[inverted_keys['z']]}\n- e : {printables[inverted_keys['e']]}\n- q"
-	txt_player2 = f"- o : {printables[inverted_keys['o']]}\n- p : {printables[inverted_keys['p']]}\n- i : {printables[inverted_keys['i']]}\n- l : {printables[inverted_keys['l']]}\n- m"
-
-	for j, txt in enumerate([txt_player1, txt_player2]):
-		texte(gs.window_width / 3 * (j + 1), gs.window_height / 6 * 4, txt + " : switcher de pion", ancrage = "center", taille = 20)
-
-def display_three_players_controls(keys):
-	"""
-	Display the 3 players mode controls
-	"""
-	printables = {action: printable_action for action, printable_action in {("up", "aller en haut"), ("down", "aller en bas"), ("left", "aller à gauche"), ("right", "aller à droite"), ("escalator", "prendre un escalator"), ("vortex", "prendre un vortex"), ("explore", "explorer")}}
-	inverted_keys = {v: k for k, v in keys.items() if type(v) is not set}
-
-	for j in {1, 2, 3}:
-		texte(gs.window_width / 4 * j, gs.window_height / 6 * 3, f"Joueur {j}", ancrage = "center", taille = 26)
-
-	for j, chars in enumerate([["a", "z", "q"], ["x", "c", "v"], ["o", "p", "m", "l"]]):
-		txt = f"- {chars[0]} : {printables[inverted_keys[chars[0]]]}\n- {chars[1]} : {printables[inverted_keys[chars[1]]]}\n- {chars[2]} : switcher de pion"
-		if j == 2:
-			txt += f"\n- {chars[3]} : {printables[inverted_keys[chars[3]]]}"
-		texte(gs.window_width / 4 * (j + 1), gs.window_height / 6 * 4, txt, ancrage = "center", taille = 20)
+	return {
+		"move": "se déplacer", # not a real action, but used when playing in solo to display movement controls in one line instead of a separated line for each direction
+		"up": "aller en haut",
+		"down": "aller en bas",
+		"left": "aller à gauche",
+		"right": "aller à droite",
+		"escalator": "prendre un escalator",
+		"vortex": "prendre un vortex",
+		"explore": "explorer",
+		"telekinesis": "utiliser la télékinésie de l'elfe",
+		"switch": "switcher de personnage",
+		"debug": "(dés)activer le mode debug",
+		"exit": "mettre en pause"
+	}
 
 # ------------------------------------------------- pause menu
 
