@@ -83,7 +83,7 @@ def display_controls():
 		
 		click_to_start_y = window_height / 6 * 5
 
-	texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour commencer.", ancrage = "center", taille = 14)
+	texte(window_width / 2, click_to_start_y, "Cliquez n'importe où dans la fenêtre pour continuer.", ancrage = "center", taille = 14)
 	mise_a_jour()
 
 def display_solo_controls():
@@ -290,6 +290,7 @@ def display_side_panel(timer = None):
 
 	display_timer(timer)
 	timer_height = 80 + hauteur_texte()
+	telekinesis_stock_height = timer_height
 
 	for i, color in enumerate(pawns):
 		if color.startswith("fake"):
@@ -297,7 +298,7 @@ def display_side_panel(timer = None):
 		else:
 			img = color
 
-		y = timer_height + (i + 0.25) * ((gs.window_height - timer_height) / len(pawns))
+		y = timer_height + (i + 0.5) * (((gs.window_height - telekinesis_stock_height) - timer_height) / len(pawns))
 		divs = gs.players_count + 2
 
 		image(gs.game_width + ((gs.window_width - gs.game_width) / divs * (divs - 1)), y, f"./res/img/big_players/{img}.png", ancrage = "center")
@@ -306,14 +307,23 @@ def display_side_panel(timer = None):
 			if gs.selected_colors[j] == color:
 				image(gs.game_width + ((gs.window_width - gs.game_width) / divs * (j + 1)), y, f"./res/img/side_panel_selectors/selector{j + 1}.png", ancrage = "center")
 
+		display_telekinesis_stock()
+
 def display_timer(timer = None):
 	"""
-	Display the game timer at the top right of the window. If a timer parameter is specified, display it instead of the current one.
+	Display the game timer at the top right of the window. If a timer parameter is specified, display it instead of the game one.
 	"""
 	if timer is None:
 		timer = get_timer() + 1
 
-	texte(gs.game_width + ((gs.window_width - gs.game_width) / 2), 40, "temps restant : " + str(int(timer)), ancrage = "center")
+	texte(gs.game_width + ((gs.window_width - gs.game_width) / 2), 40, "Temps restant : " + str(int(timer)), ancrage = "center")
+
+def display_telekinesis_stock():
+	"""
+	Display the number of times the telekinesis power can still be used at the bottom right of the window.
+	"""
+	texte(gs.game_width + ((gs.window_width - gs.game_width) / 2), gs.window_height - 40, f"Télékinésie : {2 - gs.telekinesis_times_used} / 2", ancrage = "center")
+
 # ------------------------------------------------- selectors
 
 def display_selected_vortex(coords):
@@ -337,11 +347,14 @@ def display_game_end(victory):
 	"""
 	Display a victory message in the middle of the screen if the victory parameter is set to True, otherwise if it is set to False, a defeat message is displayed.
 	"""
+	efface_tout()
 	if victory:
+		image(0, 0, "./res/img/misc/success_background.png", ancrage = "nw")
+		color = "green"
 		game_state = "gagné"
 	else:
+		color = "red"
 		game_state = "perdu"
-	efface_tout()
-	texte(gs.window_width / 2, gs.window_height / 2, f"Vous avez {game_state} !", ancrage = "center")
+	texte(gs.window_width / 2, gs.window_height / 2, f"Vous avez {game_state} !", ancrage = "center", taille = 34, couleur = color)
 	mise_a_jour()
 	attente_clic()
