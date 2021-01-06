@@ -81,10 +81,9 @@ def players_selection_menu():
     """
     Display and handle the players count selection screen.
     """
-    keys = dict()
-
+    clicked = False
     zones_coords = display_players_selection_menu()
-    while True:
+    while not clicked:
         click_x, click_y, _ = attente_clic()
         for i, (x1, y1, x2, y2) in enumerate(zones_coords):
             if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
@@ -95,3 +94,4 @@ def players_selection_menu():
 
                 display_controls()
                 attente_clic()
+                clicked = True

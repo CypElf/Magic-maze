@@ -215,7 +215,7 @@ def display_cell(coords):
 	board = gs.board
 
 	i, j = coords
-	x, y = i * gs.cell_height, j * gs.cell_width
+	x, y = j * gs.cell_width, i * gs.cell_height
 
 	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
