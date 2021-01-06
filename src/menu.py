@@ -48,7 +48,7 @@ def handle_save_loading_menu_interaction(zones_coords):
 
 def handle_players_selection_menu_interaction(zones_coords):
     """
-    Handles the main menu interactions, such as loading a save or choosing the players count. Once done, the user must have chosen the number of players he wants, so this function return the according keys dictionary that describes which key is associated to which action.
+    Handles the main menu interactions, such as loading a save or choosing the players count. Once done, the user must have chosen the number of players he wants, so this function return the according keys dictionary that describes which key is associated to which action and the selected players count.
     """
     keys = dict()
 
@@ -63,4 +63,4 @@ def handle_players_selection_menu_interaction(zones_coords):
 
                 display_controls(players_count, keys)
                 attente_clic()
-                return keys
+                return keys, players_count

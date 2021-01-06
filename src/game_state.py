@@ -27,6 +27,7 @@ pawns_on_objects = {"purple": False, "orange": False, "yellow": False, "green": 
 pawns_outside = pawns_on_objects.copy() # define which pawn has successfully escaped from the game or not
 
 current_color = "purple"
+selected_colors = ["purple", "purple", "purple"]
 debug_mode = False
 exit_available = False
 telekinesis_times_used = 0

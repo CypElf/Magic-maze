@@ -3,8 +3,10 @@ This is the program entry point. It contains the encapsulating code.
 """
 from os import path
 from time import time
+from itertools import chain
+
 import src.game_state as gs
-from src.logic import apply_debug_mode, spawn_reinforcement_guards, restore_save
+from src.logic import apply_debug_mode, spawn_reinforcement_guards, restore_save, get_playing_player
 from src.upemtk import attente_touche_jusqua, cree_fenetre, ferme_fenetre
 from src.timer import get_timer
 from src.display import display_save_loading_menu, display_players_selection_menu, display_game, display_game_end, display_loading_save_error
@@ -21,7 +23,7 @@ def main():
 		save_loading = handle_save_loading_menu_interaction(zones_coords)
 
 	zones_coords = display_players_selection_menu()
-	gs.keys = handle_players_selection_menu_interaction(zones_coords)
+	gs.keys, gs.players_count = handle_players_selection_menu_interaction(zones_coords)
 
 	if save_loading:
 		restore_save()
@@ -31,10 +33,11 @@ def main():
 
 	# main loop
 	while True:
-		touche = attente_touche_jusqua(50)
+		key = attente_touche_jusqua(50)
 
-		if touche is not None or gs.debug_mode:
-			key = apply_debug_mode(touche)
+		if key is not None or gs.debug_mode:
+			key = apply_debug_mode(key)
+			gs.current_color = gs.selected_colors[get_playing_player(gs.players_count, key) - 1]
 			key_triggered(key)
 
 			if not gs.exit_available and not False in gs.pawns_on_objects.values():

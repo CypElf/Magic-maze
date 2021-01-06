@@ -8,7 +8,7 @@ import src.game_state as gs
 from src.timer import adjust_time
 from src.display import display_pause
 from src.menu import handle_pause_menu_interaction
-from src.logic import move, next_color, use_escalator, use_vortex, explore, use_telekinesis
+from src.logic import move, next_color, use_escalator, use_vortex, explore, use_telekinesis, get_playing_player
 
 def get_keys(players_count):
 	"""
@@ -75,7 +75,7 @@ def key_triggered(key):
 			break
 
 	if key in keys["switch"]:
-		gs.current_color = next_color()
+		next_color(get_playing_player(gs.players_count, key))
 
 	if key == keys["explore"]:
 		explore()

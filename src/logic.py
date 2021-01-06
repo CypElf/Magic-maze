@@ -568,6 +568,27 @@ def restore_save():
 
 # ------------------------------------------------- miscellaneous
 
+def get_playing_player(players_count, key):
+    if players_count == 3:
+        one = {"a", "z", "q"}
+        two = {"o", "p", "m", "l"}
+        three = {"x", "c", "v"}
+        if key in one:
+            return 1
+        elif key in two:
+            return 2
+        elif key in three:
+            return 3
+    
+    elif players_count == 2:
+        one = {"a", "z", "q", "e"}
+        two = {"p", "o", "i", "m", "l"}
+        if key in one:
+            return 1
+        elif key in two:
+            return 2
+    return 1
+
 def split_pawns():
     """
     Remove the pawn corresponding to the given color from the dictionary, and returns a tuple with the coordinates of the removed pawn and the pawns dictionary without the removed one.
@@ -583,14 +604,16 @@ def opposite_direction(direction):
     """
     return {"up": "down", "left": "right", "down": "up", "right": "left"}[direction]
 
-def next_color():
+def next_color(player):
     """
     Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
     """
     colors = cycle(gs.pawns.keys())
     for color in colors:
         if gs.current_color == color:
-            return next(colors)
+            gs.selected_colors[player - 1] = next(colors)
+            gs.current_color = gs.selected_colors[player - 1]
+            return
 
 def apply_debug_mode(touche, mode = "normal"):
     """
