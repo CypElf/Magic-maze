@@ -9,7 +9,7 @@ from src.upemtk import rectangle, texte, image, mise_a_jour, attente_clic, haute
 
 def display_save_loading_menu():
 	"""
-	Display the menu that allow to choose between starting a new game or loading a previously saved game. Return a list of coordinates as a tuple of 4 elements, corresponding to the coordinates of the clickable areas displayed.
+	Display the menu that allow to choose between starting a new game or loading a previously saved game. Return a list of coordinates as tuples that represent the clickable areas of the menu.
 	"""
 	efface_tout()
 	image(gs.window_width / 2, gs.window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
@@ -35,7 +35,7 @@ def display_loading_save_error():
 
 def display_players_selection_menu():
 	"""
-	Display the menu that allow to choose the number of players that will play together. Return a list of coordinates as a tuple of 4 elements, corresponding to the coordinates of the clickable areas displayed.
+	Display the menu that allow to choose the number of players that will play together. Return a list of coordinates as tuples that represent the clickable areas of the menu.
 	"""
 	efface_tout()
 	image(gs.window_width / 2, gs.window_height / 3, "./res/img/misc/magic-maze.png", ancrage = "center")
@@ -114,7 +114,7 @@ def get_action(key):
 
 def get_printables_actions():
 	"""
-	Return a dictionnary whose keys are actions and values are text describing the action that can be displayed to the user.
+	Return a dictionary whose keys are actions and values are text describing the action that can be displayed to the user.
 	"""
 	return {
 		"move": "se déplacer", # not a real action, but used when playing in solo to display movement controls in one line instead of a separated line for each direction
@@ -135,7 +135,7 @@ def get_printables_actions():
 
 def display_pause():
 	"""
-	Display the pause menu
+	Display the pause menu. Return a list of coordinates as tuples that represent the clickable areas of the menu.
 	"""
 	game_width = gs.game_width
 	game_height = gs.game_height
@@ -161,11 +161,11 @@ def display_pause():
 		texte(x, y, txt, ancrage = "center")
 		zones_coords.add((x - option_rectangle_width / 2, y - option_rectangle_height / 2, x + option_rectangle_width / 2, y + option_rectangle_height / 2, txt))
 
-	return pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords
+	return pause_rectangle_coords, zones_coords
 
 def display_save_success(pause_rectangle_coords, width, height):
 	"""
-	Display the success save message.
+	Display a successful save message.
 	"""
 	texte(pause_rectangle_coords[0] + width / 2, pause_rectangle_coords[1] + height / 8 * 7, "La partie a bien été sauvegardée.", ancrage = "center", taille = 16)
 
@@ -173,10 +173,7 @@ def display_save_success(pause_rectangle_coords, width, height):
 
 def display_game(timer = None):
 	"""
-	Display the board and the pawns on their positions.
-	
-	board is supposed to be a valid two dimensional list, with at least 2 rows and 2 columns.
-	purple, orange, yellow, green are all supposed to be a list of two elements that describe their position inside the board.
+	Display the whole game to the screen.
 	"""
 	board = gs.board
 	pawns = gs.pawns
@@ -198,15 +195,12 @@ def display_game(timer = None):
 
 	for i in range(rows_count):
 		for j in range(columns_count):
-			x = j * cell_width
-			y = i * cell_height
-
-			display_cell(i, j, x, y)
+			display_cell((i, j))
 
 			if i > 0 and ((i - 1, j), (i, j)) in walls or ((i, j), (i - 1, j)) in walls:
-				rectangle(x, y - 2, x + cell_width, y + 2, remplissage = "grey")
+				rectangle(j * cell_width, i * cell_height - 2, j * cell_width + cell_width, i * cell_height + 2, remplissage = "grey")
 			if j > 0 and ((i, j - 1), (i, j)) in walls or ((i, j), (i, j - 1)) in walls:
-				rectangle(x - 2, y, x + 2, y + cell_height, remplissage = "grey")
+				rectangle(j * cell_width - 2, i * cell_height, j * cell_width + 2, i * cell_height + cell_height, remplissage = "grey")
 
 	display_escalators()
 	display_players()
@@ -214,11 +208,14 @@ def display_game(timer = None):
 	
 	mise_a_jour()
 
-def display_cell(i, j, x, y):
+def display_cell(coords):
 	"""
-	Displays the board[i][j] cell to the screen. x and y are the coordinates of the top left of the cell on the screen.
+	Display the cell at the given coordinates to the screen.
 	"""
 	board = gs.board
+
+	i, j = coords
+	x, y = i * gs.cell_height, j * gs.cell_width
 
 	if board[i][j] == "." or board[i][j] == "*" or board[i][j] == "e" or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
 		if board[i][j] == "." or board[i][j] == "h" or board[i][j] == "µ" or board[i][j][0] == "a":
@@ -290,7 +287,7 @@ def display_players():
 
 def display_side_panel(timer = None):
 	"""
-	Display the game side panel.
+	Display the game side panel next to the board.
 	"""
 	pawns = gs.pawns
 
@@ -317,7 +314,7 @@ def display_side_panel(timer = None):
 
 def display_timer(timer = None):
 	"""
-	Display the game timer at the top right of the window. If a timer parameter is specified, display it instead of the game one.
+	Display the game timer at the top of the side panel. If a timer parameter is specified, display it instead of the game one.
 	"""
 	if timer is None:
 		timer = get_timer() + 1
@@ -326,7 +323,7 @@ def display_timer(timer = None):
 
 def display_telekinesis_stock():
 	"""
-	Display the number of times the telekinesis power can still be used at the bottom right of the window.
+	Display the number of times the telekinesis power can still be used at the bottom of the side panel.
 	"""
 	texte(gs.game_width + ((gs.window_width - gs.game_width) / 2), gs.window_height - 40, f"Télékinésie : {2 - gs.telekinesis_times_used} / 2", ancrage = "center")
 
@@ -334,7 +331,7 @@ def display_telekinesis_stock():
 
 def display_selected_vortex(coords):
 	"""
-	Display a circle at the given position to show a selected case (vortex selection).
+	Display a circle at the given coordinates to show a selected cell.
 	"""
 	x = coords[1] * gs.game_width / len(gs.board[0])
 	y = coords[0] * gs.game_height / len(gs.board)
@@ -351,7 +348,7 @@ def display_selected_card(top_left):
 
 def display_game_end(victory):
 	"""
-	Display a victory message in the middle of the screen if the victory parameter is set to True, otherwise if it is set to False, a defeat message is displayed.
+	Display a victory message in the middle of the screen if the victory parameter is set to True. Otherwise, display a defeat message.
 	"""
 	efface_tout()
 	if victory:

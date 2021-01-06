@@ -6,18 +6,21 @@ from os import path
 
 import src.game_state as gs
 import src.keys as k
-from src.timer import adjust_time, get_timer
+from src.timer import adjust_timer, get_timer
 from src.display import display_controls, display_save_success, display_pause, display_game, display_save_loading_menu, display_players_selection_menu, display_loading_save_error
 from src.logic import make_save
 from src.upemtk import donne_evenement, type_evenement, clic_x, clic_y, ferme_fenetre, touche, mise_a_jour, attente_clic, efface_tout
 
 def pause_game(pause_key):
     """
-    Handles the pause menu interactions, such as clicking on save or quit.
+    Pause the game, show a pause menu and handle its options.
     """
     current_time = time()
     current_timer = get_timer()
-    pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause()
+
+    pause_rectangle_coords, zones_coords = display_pause()
+    pause_rectangle_width = pause_rectangle_coords[2] - pause_rectangle_coords[0]
+    pause_rectangle_height = pause_rectangle_coords[3] - pause_rectangle_coords[1]
 
     unpaused = False
     while not unpaused:
@@ -51,11 +54,11 @@ def pause_game(pause_key):
                 unpaused = True
         
         mise_a_jour()
-    adjust_time(gs.start_time, current_time)
+    adjust_timer(gs.start_time, current_time)
 
 def save_loading_menu():
     """
-    Handles the first game menu where you can choose between starting a new game on loading a save previously done. Return True if the user want to load a save, otherwise False.
+    Display and handle the start menu where you can choose between starting a new game or loading a save previously done. Return True if the user want to load a save. Otherwise, return False.
     """
     zones_coords = display_save_loading_menu()
 
@@ -76,7 +79,7 @@ def save_loading_menu():
 
 def players_selection_menu():
     """
-    Handles the main menu interactions, such as loading a save or choosing the players count. Once done, the user must have chosen the number of players he wants, so this function return the according keys dictionary that describes which key is associated to which action and the selected players count.
+    Display and handle the players count selection screen.
     """
     keys = dict()
 
@@ -92,4 +95,3 @@ def players_selection_menu():
 
                 display_controls()
                 attente_clic()
-                return keys

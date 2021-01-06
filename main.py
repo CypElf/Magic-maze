@@ -12,6 +12,9 @@ from src.menu import players_selection_menu, save_loading_menu
 from src.upemtk import attente_touche_jusqua, cree_fenetre, ferme_fenetre
 
 def main():
+	"""
+	Game entry point.
+	"""
 	cree_fenetre(gs.window_width, gs.window_height)
 	
 	wants_to_load_save = save_loading_menu()

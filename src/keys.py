@@ -84,7 +84,7 @@ def key_triggered(key):
 		use_escalator()
 
 	elif key == keys["telekinesis"]:
-		use_telekinesis(keys)
+		use_telekinesis()
 
 	elif key == keys["debug"]:
 		gs.debug_mode = not gs.debug_mode

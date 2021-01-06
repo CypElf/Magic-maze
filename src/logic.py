@@ -9,7 +9,7 @@ from copy import deepcopy
 from itertools import cycle
 
 import src.game_state as gs
-from src.timer import invert_hourglass, adjust_time
+from src.timer import invert_timer, adjust_timer
 from src.display import display_selected_vortex, display_game, display_selected_card
 from src.cards import cards
 from src.upemtk import attente_touche_jusqua
@@ -18,7 +18,7 @@ from src.upemtk import attente_touche_jusqua
 
 def update_on_objects():
     """
-    Update the pawns_on_objects dictionary using the new pawns coordinates. If the pawn is at the same coordinates as its object, its value in this dictionnary will be True, otherwise it will be False.
+    Update the pawns_on_objects dictionary using the current pawns coordinates. If the pawn is at the same coordinates as its object, its value in this dictionary will be True, otherwise it will be False.
     """
     color = gs.current_color
     if not color.startswith("fake"):
@@ -29,7 +29,7 @@ def update_on_objects():
 
 def update_on_exit():
     """
-    Update the pawns_outside dictionary using the new pawns coordinates. If the pawn is at the same position as the exit cell, its coordinates are set to -1 to represent the "outside the board" position.
+    Update the pawns_outside dictionary using the current pawns coordinates. If the pawn is at the same position as the exit cell, its coordinates are set to -1 to represent the "outside the board" position.
     """
     color = gs.current_color
     if gs.exit_available and gs.board[gs.pawns[color][0]][gs.pawns[color][1]] == "e" and not color.startswith("fake"):
@@ -44,11 +44,11 @@ def update_on_hourglass():
     on_hourglass = gs.board[gs.pawns[color][0]][gs.pawns[color][1]] == "h"
     if on_hourglass:
         gs.board[gs.pawns[color][0]][gs.pawns[color][1]] = "µ"
-        gs.start_time = invert_hourglass()
+        gs.start_time = invert_timer()
 
 def update_on_board_cards(edited_card):
     """
-    Update the game state on_board_cards variable to replace a card informations with others.
+    Update the on_board_cards by editing the card passed as parameter if already on the board.
     """
     for card in gs.on_board_cards:
         if card["id"] == edited_card["id"]:
@@ -58,12 +58,15 @@ def update_on_board_cards(edited_card):
 
 # ------------------------------------------------- cards utilities
 
-def is_card_guarded(new_pawn_coords):
+def is_card_guarded(coords):
+    """
+    Return True if the card to which the coordinates passed as a parameter belong is kept by a guard, False otherwise.
+    """
     color = gs.current_color
     on_board_cards = gs.on_board_cards
     pawns = gs.pawns
     current_card_id = get_current_card(pawns[color], on_board_cards)
-    new_card_id = get_current_card(new_pawn_coords, on_board_cards)
+    new_card_id = get_current_card(coords, on_board_cards)
 
     guarded_cards = list(map(lambda current_color: get_current_card(pawns[current_color], on_board_cards), filter(lambda current_color: (color.startswith("fake") or current_color.startswith("fake")) and current_color != color, pawns.keys())))
     
@@ -82,7 +85,7 @@ def get_random_card():
 
 def get_current_card(pawn, on_board_cards):
     """
-    Return the card ID of the card where the current pawn is positionned.
+    Return the ID of the card where the current pawn is positionned.
     """
     i, j = pawn
     for card in on_board_cards:
@@ -105,7 +108,7 @@ def next_direction(direction):
 
 def align_card(new_card, direction):
     """
-    Rotate the new card board for its white arrow to be in the same direction as the given one.
+    Rotate the new card board in order to make its white arrow to be in the same direction as the given one.
     """
     aligned = False
     i = 0
@@ -119,26 +122,26 @@ def align_card(new_card, direction):
             one_quarter_right_rotation(new_card)
     new_card["rotations"] = i
 
-def reverse_horizontally(M):
+def reverse_horizontally(card):
     """
-    Reverse a matrix horizontally.
-    >>> M = [[(20, 30, 50), (50, 80, 90)], [(20, 30, 50), (50, 80, 90)]]
-    >>> reverse_horizontally(M)
-    >>> M
+    Reverse a card horizontally.
+    >>> card = [[(20, 30, 50), (50, 80, 90)], [(20, 30, 50), (50, 80, 90)]]
+    >>> reverse_horizontally(card)
+    >>> card
     [[(50, 80, 90), (20, 30, 50)], [(50, 80, 90), (20, 30, 50)]]
     """
-    nb_lignes = len(M)
-    nb_colonnes = len(M[0])
+    nb_lignes = len(card)
+    nb_colonnes = len(card[0])
     for i in range(nb_lignes):
         for j in range(nb_colonnes // 2):
-            M[i][j], M[i][nb_colonnes - (j + 1)] = M[i][nb_colonnes - (j + 1)],  M[i][j]
+            card[i][j], card[i][nb_colonnes - (j + 1)] = card[i][nb_colonnes - (j + 1)],  card[i][j]
 
 def one_quarter_right_rotation(card):
     """
     Rotate a card by 1/4 to the right, including its escalators and walls.
-    >>> M = [[(20, 30, 50), (50, 80, 90)], [(20, 80, 50), (60, 80, 90)]]
-    >>> rotation_un_quart(M)
-    >>> M
+    >>> card = [[(20, 30, 50), (50, 80, 90)], [(20, 80, 50), (60, 80, 90)]]
+    >>> rotation_un_quart(card)
+    >>> card
     [[(20, 80, 50), (20, 30, 50)], [(60, 80, 90), (50, 80, 90)]]
     """
     board = card["board"]
@@ -154,12 +157,21 @@ def one_quarter_right_rotation(card):
         card["escalator"] = one_quarter_right_rotation_escalators(card["escalator"])
 
 def one_quarter_right_rotation_escalators(escalator):
+    """
+    Return the escalator coordinates rotated by 1/4. This assumes the escalator is defined for a 4×4 board.
+    """
     return ((escalator[0][1], 4 - (escalator[0][0] + 1)), (escalator[1][1], 4 - (escalator[1][0] + 1)))
 
 def one_quarter_right_rotation_walls(walls):
+    """
+    Return the walls coordinates rotated by 1/4. This assumes the walls are defined for a 4×4 board.
+    """
     return {one_quarter_right_rotation_wall(wall) for wall in walls}
 
 def one_quarter_right_rotation_wall(wall):
+    """
+    Return the wall coordinates rotated by 1/4. This assumes the wall is defined for a 4×4 board.
+    """
     (i1, j1), (i2, j2) = wall
     return  ((j1, 4 - (i1 + 1)), (j2, 4 - (i2 + 1)))
 
@@ -167,7 +179,7 @@ def one_quarter_right_rotation_wall(wall):
 
 def move(direction):
     """
-    Move the pawn corresponding to the given color in the given direction in the board, and update the game state though pawns_on_objects and pawns_outside.
+    Move the currently selected pawn in the given direction in the board.
     """
     color = gs.current_color
     pawns = gs.pawns
@@ -210,6 +222,9 @@ def use_escalator():
 # ------------------------------------------------- vortex
 
 def use_vortex(keys):
+    """
+    Allow a pawn to choose a vortex of his color to teleport to. This is only allowed if the exit is not available yet.
+    """
     if not gs.exit_available:
         color = gs.current_color
         board = gs.board
@@ -242,7 +257,7 @@ def use_vortex(keys):
 
 def explore():
     """
-    Pick a new card in the stock, add it to the board and remove it from the stock. Exploration cells that would cause a card to be added later out of bounds of in another card are automatically removed.
+    Add a new card to the board.
     """
     color = gs.current_color
     pawns = gs.pawns
@@ -261,7 +276,7 @@ def explore():
         top_left_i, top_left_j = i + offset_i, j + offset_j
 
         add_walls_to_game(new_card["walls"], [top_left_i, top_left_j])
-        add_escalators_to_game(new_card["escalator"], [top_left_i, top_left_j])
+        add_escalator_to_game(new_card["escalator"], [top_left_i, top_left_j])
 
         gs.on_board_cards.append({"id": new_card["id"], "top_left": (top_left_i, top_left_j), "rotations": new_card["rotations"]})
 
@@ -280,18 +295,24 @@ def explore():
         remove_all_exploration_cells()
 
 def add_walls_to_game(walls, top_left):
+    """
+    Add walls to the board. The walls coordinates must be relative to the top left of a 4×4 card, whose coordinates on the board are passed as a parameter.
+    """
     for (i1, j1), (i2, j2) in walls:
         gs.walls.add(((i1 + top_left[0], j1 + top_left[1]), (i2 + top_left[0], j2 + top_left[1])))
 
-def add_escalators_to_game(escalators, top_left):
-    if escalators is not None:
-        gs.escalators.add(((escalators[0][0] + top_left[0], escalators[0][1] + top_left[1]), (escalators[1][0] + top_left[0], escalators[1][1] + top_left[1])))
+def add_escalator_to_game(escalator, top_left):
+    """
+    Add an escalator to the board. The escalator coordinates must be relative to the top left of a 4×4 card, whose coordinates on the board are passed as a parameter.
+    """
+    if escalator is not None:
+        gs.escalators.add(((escalator[0][0] + top_left[0], escalator[0][1] + top_left[1]), (escalator[1][0] + top_left[0], escalator[1][1] + top_left[1])))
 
 # ------------------------------------------------- telekinesis
 
-def use_telekinesis(keys):
+def use_telekinesis():
     """
-    Use the elfe telekinesis power to teleport a card from a location to another.
+    Use the elfe telekinesis power to teleport a card from a location to another. 
     """
     color = gs.current_color
     board = gs.board
@@ -312,11 +333,11 @@ def use_telekinesis(keys):
                 touche = apply_debug_mode(touche, mode = "telekinesis")
                 display_game()
                 display_selected_card(teleported_card["top_left"])
-                if touche in keys["switch"]:
+                if touche in gs.keys["switch"]:
                     teleported_card = next(movable_cards)
-                elif touche == keys["telekinesis"]:
+                elif touche == gs.keys["telekinesis"]:
                     break
-                elif touche == keys["exit"]:
+                elif touche == gs.keys["exit"]:
                     return
 
             original_card = deepcopy(cards[teleported_card["id"] - 2]) # -2 because the cards start at ID 2
@@ -326,10 +347,22 @@ def use_telekinesis(keys):
             direction = current_board_element[2] # direction in which the elfe is teleporting a card
             off_i, off_j = get_neighbor_top_left_corner_from_explore(direction)
 
-            remove_escalators_from_game(original_card["escalator"], teleported_card["top_left"])
-            remove_walls_from_game(original_card["walls"], teleported_card["top_left"])
 
-            original_card = deepcopy(cards[teleported_card["id"] - 2])
+            if original_card["escalator"] is not None: # remove escalator from previous card location
+                absolute_escalator = ((original_card["escalator"][0][0] + teleported_card["top_left"][0], original_card["escalator"][0][1] + teleported_card["top_left"][1]), (original_card["escalator"][1][0] + teleported_card["top_left"][0], original_card["escalator"][1][1] + teleported_card["top_left"][1]))
+
+                gs.escalators = list(gs.escalators)
+                gs.escalators.remove(absolute_escalator)
+                gs.escalators = set(gs.escalators)
+
+            gs.walls = list(gs.walls)
+            for wall in original_card["walls"]: # remove walls from previous card location
+                absolute_wall = ((wall[0][0] + teleported_card["top_left"][0], wall[0][1] + teleported_card["top_left"][1]), (wall[1][0] + teleported_card["top_left"][0], wall[1][1] + teleported_card["top_left"][1]))
+
+                gs.walls.remove(absolute_wall)
+            gs.walls = set(gs.walls)
+
+            original_card = deepcopy(cards[teleported_card["id"] - 2]) # -2 because the cards start at ID 2
             align_card(original_card, direction)
             original_card["top_left"] = [pawn_i + off_i, pawn_j + off_j]
 
@@ -345,12 +378,18 @@ def use_telekinesis(keys):
             remove_unusable_exploration_cells(direction)
             
             add_walls_to_game(original_card["walls"], original_card["top_left"])
-            add_escalators_to_game(original_card["escalator"], original_card["top_left"])
+            add_escalator_to_game(original_card["escalator"], original_card["top_left"])
             update_on_board_cards(original_card)
 
             gs.telekinesis_times_used += 1
 
 def get_movable_cards():
+    """
+    Return the cards that can be teleported by telekinesis. The rules are :
+    - cards with pawns on them can't be teleported
+    - if teleporting the card leaves a card without at least one neighbor, this card can't be teleported.
+    - the start card can't be teleported.
+    """
     movable_cards = []
 
     directions = ["up", "down", "left", "right"]
@@ -362,7 +401,7 @@ def get_movable_cards():
                 dircopy = directions.copy()
                 dircopy.remove(opposite_direction(dir2))
 
-                if has_neighbors(card["top_left"][0], card["top_left"][1], {dir2}, ignoreone = True) and not has_neighbors(card["top_left"][0] + off_i, card["top_left"][1] + off_j, set(dircopy)):
+                if has_neighbors([card["top_left"][0], card["top_left"][1]], {dir2}, ignoreone = True) and not has_neighbors([card["top_left"][0] + off_i, card["top_left"][1] + off_j], set(dircopy)):
                     movable = False
             if movable:
                 for pawn in gs.pawns.values():
@@ -370,32 +409,18 @@ def get_movable_cards():
                         movable = False
                 if movable:
                     movable_cards.append(card)
-    return movable_cards
-
-def remove_escalators_from_game(escalator, top_left):
-    if escalator is not None:
-        absolute_escalator = ((escalator[0][0] + top_left[0], escalator[0][1] + top_left[1]), (escalator[1][0] + top_left[0], escalator[1][1] + top_left[1]))
-
-        gs.escalators = list(gs.escalators)
-        gs.escalators.remove(absolute_escalator)
-        gs.escalators = set(gs.escalators)
-
-def remove_walls_from_game(walls, top_left):
-    gs.walls = list(gs.walls)
-    for wall in walls:
-        absolute_wall = ((wall[0][0] + top_left[0], wall[0][1] + top_left[1]), (wall[1][0] + top_left[0], wall[1][1] + top_left[1]))
-
-        gs.walls.remove(absolute_wall)
-    gs.walls = set(gs.walls)
+    return movable_cards    
 
 # ------------------------------------------------- neighbors related utilities
 
-def has_neighbors(i, j, directions = {"up", "down", "left", "right"}, ignoreone = False):
+def has_neighbors(coords, directions = {"up", "down", "left", "right"}, ignoreone = False):
     """
-    Return True if a card is located nearby the given one. (i, j) are the coordinates of the top left corner of the card you want to check the neighbors. The direction parameter is optional and allow to check for a neighbor only in the given. This parameter must be a set containing the directions to check between "up", "left", "down" and "right" (as strings). Defaults to all of them. If ignoreone is set to True, ignore the neightbor of ID 1. Defaults to False.
+    Return True if a card is located nearby the given one. (i, j) are the coordinates of the top left corner of the card you want to check the neighbors. The direction parameter is optional and allow to check for a neighbor only in the given. This parameter must be a set containing the directions to check between "up", "left", "down" and "right" (as strings). Defaults to all of them. If ignoreone is set to True, ignore the neightbor of ID 1 (the start card). Defaults to False.
     """
     board = gs.board
     on_board_cards = gs.on_board_cards
+
+    i, j = coords
 
     for direction in directions:
         neighbor_i, neighbor_j = get_neightbor_top_left_corner_from_top_left(direction)
@@ -414,13 +439,13 @@ def has_neighbors(i, j, directions = {"up", "down", "left", "right"}, ignoreone 
 
 def get_neighbor_top_left_corner_from_explore(direction):
     """
-    Return the relative offsets where the top left corner of the neighbor card could be situated, from an exploration cell. Direction must be one of "up", "down", "left", or "right".
+    Return the relative offsets where the top left corner of the neighbor card would be situated, from an exploration cell. Direction must be one of "up", "down", "left", or "right".
     """
     return {"l": (-2, -4), "d": (1, -2), "u": (-4, -1), "r": (-1, 1)}[direction[0]]
 
 def get_neightbor_top_left_corner_from_top_left(direction):
     """
-    Return the relative offsets where the top left corner of the neighbor card could be situated, from the top left of a card. Direction must be one of "up", "down", "left", or "right".
+    Return the relative offsets where the top left corner of the neighbor card would be situated, from the top left of a card. Direction must be one of "up", "down", "left", or "right".
     """
     return {"l": (-1, -4), "u": (-4, 1), "d": (4, -1), "r": (1, 4)}[direction[0]]
 
@@ -428,7 +453,7 @@ def get_neightbor_top_left_corner_from_top_left(direction):
 
 def map_collision(offsets):
     """
-    Returns True if the pawn, after moving with the given offsets, will be out of the board, on a non available cell, or have to pass through walls, and False otherwise.
+    Return True if the pawn, after moving with the given offsets, will be out of the board, on a non available cell, or have to pass through walls. Otherwise, return False.
     """
     current_pawn, _ = split_pawns()
     empty_cell = False
@@ -444,7 +469,7 @@ def map_collision(offsets):
 
 def pawn_collision(offsets):
     """
-    Returns True if the pawn, after moving with the given offsets, will be on the same cell as another pawn, and False otherwise.
+    Return True if the pawn, after moving with the given offsets, will be on the same cell as another pawn. Otherwise, return False.
     """
     current_pawn, others_pawns = split_pawns()
     for p in others_pawns.values():
@@ -453,6 +478,9 @@ def pawn_collision(offsets):
     return False
 
 def remove_unusable_exploration_cells(direction):
+    """
+    Remove the explorations cells that would collide with another card or the board bounds.
+    """
     remove_out_of_bounds_exploration_cells_after_exploring(direction)
     remove_colliders_exploration_cells_after_exploring(direction)
     remove_nearby_explorations_cells_after_exploring(direction)
@@ -521,6 +549,9 @@ def remove_out_of_bounds_exploration_cells_after_exploring(direction):
                     board[i][j] = "."
 
 def remove_all_exploration_cells():
+    """
+    Remove all the exploration cells from the board.
+    """
     board = gs.board
     for i in range(len(board)):
             for j in range(len(board[0])):
@@ -530,6 +561,9 @@ def remove_all_exploration_cells():
 # ------------------------------------------------- save
 
 def make_save():
+    """
+    Dump the game state into a save.json file.
+    """
     with open("save.json", "w") as savefile:
         state = {
             "pawns": gs.pawns,
@@ -551,6 +585,9 @@ def make_save():
         dump(state, savefile)
 
 def restore_save():
+    """
+    Restore a save.json file into the game state.
+    """
     with open("save.json", "r") as savefile:
         save = load(savefile)
         gs.pawns = save["pawns"]
@@ -559,7 +596,7 @@ def restore_save():
         gs.current_color = save["current_color"]
         gs.debug_mode = save["debug_mode"]
         gs.exit_available = save["exit_available"]
-        adjust_time(save["start_time"], save["save_time"], offset = 1)
+        adjust_timer(save["start_time"], save["save_time"], offset = 1)
         gs.board = save["board"]
         gs.escalators = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["escalators"]))
         gs.walls = set(map(lambda x: tuple(map(lambda y: tuple(y), x)), save["walls"]))
@@ -571,6 +608,9 @@ def restore_save():
 # ------------------------------------------------- miscellaneous
 
 def get_playing_player(players_count, key):
+    """
+    Return the player ID corresponding to the used key.
+    """
     if players_count == 3:
         one = {"a", "z", "q"}
         two = {"o", "p", "m", "l"}
@@ -593,7 +633,7 @@ def get_playing_player(players_count, key):
 
 def split_pawns():
     """
-    Remove the pawn corresponding to the given color from the dictionary, and returns a tuple with the coordinates of the removed pawn and the pawns dictionary without the removed one.
+    Remove the pawn corresponding to the given color from the dictionary, and return a tuple with the coordinates of the removed pawn and the pawns dictionary without the removed one.
     """
     current_pawn = gs.pawns[gs.current_color]
     others = gs.pawns.copy()
@@ -602,13 +642,13 @@ def split_pawns():
 
 def opposite_direction(direction):
     """
-    Return the opposite direction of the given one. The direction must be "up", "down", "left" or "right".
+    Return the opposite direction of the given one. The direction must be one of "up", "down", "left" or "right".
     """
     return {"up": "down", "left": "right", "down": "up", "right": "left"}[direction]
 
 def next_color(player):
     """
-    Return the next color from the given one, in the order "purple", "orange", "yellow", "green".
+    Return the color that comes after the current selected one for the given player.
     """
     colors = cycle(gs.pawns.keys())
     for color in colors:
@@ -619,7 +659,7 @@ def next_color(player):
 
 def apply_debug_mode(touche, mode = "normal"):
     """
-    If the debug mode is enabled, return a random action key. Otherwise, return the original key. The optional mode parameter can take the values "normal", "vortex" or "telekinesis" (defaults to normal), and will influence the keys probabilities to be more efficient.
+    If the debug mode is enabled, return a random action key. Otherwise, return the original key. The optional mode parameter can take the values "normal", "vortex" or "telekinesis", and will influence the keys probabilities to be more efficient. Defaults to normal.
     """
     keys = gs.keys
     if gs.debug_mode and (touche is None or touche.lower() != keys["debug"] and touche.lower() != keys["exit"]):
