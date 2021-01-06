@@ -60,14 +60,15 @@ def display_players_selection_menu():
 
 # ------------------------------------------------- controls
 
-def display_controls(player_count, keys):
+def display_controls():
 	"""
 	Display the right game controls screen according to the players count.
 	"""
 	window_width = gs.window_width
 	window_height = gs.window_height
 
-	if player_count == 1:
+	efface_tout()
+	if gs.players_count == 1:
 		display_solo_controls()
 		click_to_start_y = window_height / 4 * 3
 		
@@ -75,10 +76,10 @@ def display_controls(player_count, keys):
 		for j, (txt, font_size) in enumerate([("Contrôles", 26), ("- g : utiliser la télékinésie de l'elfe\n- b : (dés)activer le mode debug\n- échap : mettre en pause", 20)]):
 			texte(window_width / 2, window_height / 6 * (j + 1), txt, ancrage = "center", taille = font_size)
 
-		if player_count == 2:
-			display_two_players_controls(keys)
+		if gs.players_count == 2:
+			display_two_players_controls(gs.keys)
 		else:
-			display_three_players_controls(keys)
+			display_three_players_controls(gs.keys)
 		
 		click_to_start_y = window_height / 6 * 5
 
@@ -124,7 +125,7 @@ def display_three_players_controls(keys):
 			txt += f"\n- {chars[3]} : {printables[inverted_keys[chars[3]]]}"
 		texte(gs.window_width / 4 * (j + 1), gs.window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
-# ------------------------------------------------- pause menus
+# ------------------------------------------------- pause menu
 
 def display_pause():
 	"""
@@ -133,21 +134,26 @@ def display_pause():
 	game_width = gs.game_width
 	game_height = gs.game_height
 
-	pause_rectangle_width = game_width / 5 * 4 - game_width / 5
-	pause_rectangle_height = game_height / 4 * 3 - game_height / 4
-	pause_rectangle_coords = (game_width / 5, game_height / 4, game_width / 5 + pause_rectangle_width, game_height / 4 + pause_rectangle_height)
+	pause_rectangle_width = 720
+	pause_rectangle_height = 500
+
+	pause_rectangle_coords = (game_width / 2) - (pause_rectangle_width / 2), (game_height / 2) - (pause_rectangle_height / 2), (game_width / 2) + (pause_rectangle_width / 2), (game_height / 2) + (pause_rectangle_height / 2)
 
 	rectangle(pause_rectangle_coords[0], pause_rectangle_coords[1], pause_rectangle_coords[2], pause_rectangle_coords[3], remplissage = "white", epaisseur = 2)
-	texte(pause_rectangle_coords[0] + pause_rectangle_width / 2, pause_rectangle_coords[1] + pause_rectangle_height / 4, "PAUSE", ancrage = "center", taille = 36)
+	texte(pause_rectangle_coords[0] + pause_rectangle_width / 2, pause_rectangle_coords[1] + pause_rectangle_height / 5, "PAUSE", ancrage = "center", taille = 36)
 
 	zones_coords = set()
 
-	for i, txt in {(1, "sauvegarder"), (2.5, "quitter")}:
-		x = pause_rectangle_coords[0] + pause_rectangle_width / 3.5 * i
-		y = pause_rectangle_coords[1] + pause_rectangle_height / 4 * 2.5
-		rectangle(x - 100, y - 40, x + 100, y + 40)
+	option_rectangle_width = 200
+	option_rectangle_height = 80
+
+	for offset_x, offset_y, txt in {(1, 2, "sauvegarder"), (2.5, 2, "contrôles"), (3.5 / 2, 2.8, "quitter")}:
+		x = pause_rectangle_coords[0] + pause_rectangle_width / 3.5 * offset_x
+		y = pause_rectangle_coords[1] + pause_rectangle_height / 4 * offset_y			
+
+		rectangle(x - option_rectangle_width / 2, y - option_rectangle_height / 2, x + option_rectangle_width / 2, y + option_rectangle_height / 2)
 		texte(x, y, txt, ancrage = "center")
-		zones_coords.add((x - 100, y - 40, x + 100, y + 40, txt))
+		zones_coords.add((x - option_rectangle_width / 2, y - option_rectangle_height / 2, x + option_rectangle_width / 2, y + option_rectangle_height / 2, txt))
 
 	return pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords
 
@@ -159,7 +165,7 @@ def display_save_success(pause_rectangle_coords, width, height):
 
 # ------------------------------------------------- game
 
-def display_game():
+def display_game(timer = None):
 	"""
 	Display the board and the pawns on their positions.
 	
@@ -198,7 +204,7 @@ def display_game():
 
 	display_escalators()
 	display_players()
-	display_side_panel()
+	display_side_panel(timer)
 	
 	mise_a_jour()
 
@@ -276,13 +282,13 @@ def display_players():
 			img = color
 		image(gs.pawns[color][1] * gs.cell_width, gs.pawns[color][0] * gs.cell_height, f"./res/img/players/{img}.png", ancrage = "nw")
 
-def display_side_panel():
+def display_side_panel(timer = None):
 	"""
 	Display the game side panel.
 	"""
 	pawns = gs.pawns
 
-	display_timer()
+	display_timer(timer)
 	timer_height = 80 + hauteur_texte()
 
 	for i, color in enumerate(pawns):
@@ -300,12 +306,14 @@ def display_side_panel():
 			if gs.selected_colors[j] == color:
 				image(gs.game_width + ((gs.window_width - gs.game_width) / divs * (j + 1)), y, f"./res/img/side_panel_selectors/selector{j + 1}.png", ancrage = "center")
 
-def display_timer():
+def display_timer(timer = None):
 	"""
-	Display the game timer at the top right of the window.
+	Display the game timer at the top right of the window. If a timer parameter is specified, display it instead of the current one.
 	"""
-	texte(gs.game_width + ((gs.window_width - gs.game_width) / 2), 40, "temps restant : " + str(int((get_timer() + 1))), ancrage = "center")
+	if timer is None:
+		timer = get_timer() + 1
 
+	texte(gs.game_width + ((gs.window_width - gs.game_width) / 2), 40, "temps restant : " + str(int(timer)), ancrage = "center")
 # ------------------------------------------------- selectors
 
 def display_selected_vortex(coords):

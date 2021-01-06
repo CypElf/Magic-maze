@@ -7,14 +7,14 @@ from time import time
 import src.game_state as gs
 from src.timer import adjust_time
 from src.display import display_pause
-from src.menu import handle_pause_menu_interaction
+from src.menu import pause_game
 from src.logic import move, next_color, use_escalator, use_vortex, explore, use_telekinesis, get_playing_player
 
-def get_keys(players_count):
+def get_keys():
 	"""
 	Return the right keys according to the players count.
 	"""
-	if players_count == 1:
+	if gs.players_count == 1:
 		return {
 			"up": {"up", "z"},
 			"left": {"left", "q"},
@@ -29,7 +29,7 @@ def get_keys(players_count):
 			"telekinesis": "g"
 		}
 
-	elif players_count == 2:
+	elif gs.players_count == 2:
 		keys = {
 			"switch": {"q", "m"},
 			"debug": "b",
@@ -93,9 +93,4 @@ def key_triggered(key):
 		gs.debug_mode = not gs.debug_mode
 	
 	elif key == keys["exit"]:
-		current_time = time()
-
-		pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause()
-		handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, keys["exit"])
-
-		adjust_time(gs.start_time, current_time)
+		pause_game(keys["exit"])

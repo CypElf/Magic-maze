@@ -1,15 +1,23 @@
 """
 This module handles the different menus interactions.
 """
+from time import time
+
+import src.game_state as gs
 import src.keys as k
+from src.timer import adjust_time, get_timer
 from src.upemtk import donne_evenement, type_evenement, clic_x, clic_y, ferme_fenetre, touche, mise_a_jour, attente_clic, efface_tout
-from src.display import display_controls, display_save_success
+from src.display import display_controls, display_save_success, display_pause, display_game
 from src.logic import make_save
 
-def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords, pause_key):
+def pause_game(pause_key):
     """
     Handles the pause menu interactions, such as clicking on save or quit.
     """
+    current_time = time()
+    current_timer = get_timer()
+    pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height, zones_coords = display_pause()
+
     unpaused = False
     while not unpaused:
 
@@ -25,6 +33,12 @@ def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width,
                     if txt == "quitter":
                         ferme_fenetre()
                         exit(0)
+                    elif txt == "contrôles":
+                        display_controls()
+                        attente_clic()
+                        efface_tout()
+                        display_game(timer = current_timer + 1)
+                        display_pause()
                     else:
                         make_save()
                         display_save_success(pause_rectangle_coords, pause_rectangle_width, pause_rectangle_height)
@@ -34,7 +48,9 @@ def handle_pause_menu_interaction(pause_rectangle_coords, pause_rectangle_width,
         elif type_ev == "Touche":
             if touche(event).lower() == pause_key:
                 unpaused = True
+        
         mise_a_jour()
+    adjust_time(gs.start_time, current_time)
 
 def handle_save_loading_menu_interaction(zones_coords):
     """
@@ -58,9 +74,9 @@ def handle_players_selection_menu_interaction(zones_coords):
             if click_x >= x1 and click_x <= x2 and click_y >= y1 and click_y <= y2:
                 efface_tout()
 
-                players_count = i + 1
-                keys = k.get_keys(players_count)
+                gs.players_count = i + 1
+                gs.keys = k.get_keys()
 
-                display_controls(players_count, keys)
+                display_controls()
                 attente_clic()
-                return keys, players_count
+                return keys

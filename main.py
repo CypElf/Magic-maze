@@ -22,7 +22,7 @@ def main():
 		save_loading = handle_save_loading_menu_interaction(zones_coords)
 
 	zones_coords = display_players_selection_menu()
-	gs.keys, gs.players_count = handle_players_selection_menu_interaction(zones_coords)
+	handle_players_selection_menu_interaction(zones_coords)
 
 	if save_loading:
 		restore_save()
