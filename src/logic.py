@@ -545,7 +545,8 @@ def make_save():
             "escalators": list(gs.escalators),
             "stock": gs.stock,
             "on_board_cards": gs.on_board_cards,
-            "telekinesis_times_used": gs.telekinesis_times_used
+            "telekinesis_times_used": gs.telekinesis_times_used,
+            "selected_colors": gs.selected_colors
         }
         dump(state, savefile)
 
@@ -565,6 +566,7 @@ def restore_save():
         gs.stock = save["stock"]
         gs.on_board_cards = save["on_board_cards"]
         gs.telekinesis_times_used = save["telekinesis_times_used"]
+        gs.selected_colors = save["selected_colors"]
 
 # ------------------------------------------------- miscellaneous
 

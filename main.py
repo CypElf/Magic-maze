@@ -3,7 +3,6 @@ This is the program entry point. It contains the encapsulating code.
 """
 from os import path
 from time import time
-from itertools import chain
 
 import src.game_state as gs
 from src.logic import apply_debug_mode, spawn_reinforcement_guards, restore_save, get_playing_player

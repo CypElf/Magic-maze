@@ -292,12 +292,13 @@ def display_side_panel():
 			img = color
 
 		y = timer_height + (i + 0.25) * ((gs.window_height - timer_height) / len(pawns))
+		divs = gs.players_count + 2
 
-		image(gs.game_width + ((gs.window_width - gs.game_width) / 5 * 4), y, f"./res/img/big_players/{img}.png", ancrage = "center")
+		image(gs.game_width + ((gs.window_width - gs.game_width) / divs * (divs - 1)), y, f"./res/img/big_players/{img}.png", ancrage = "center")
 
 		for j in range(gs.players_count):
 			if gs.selected_colors[j] == color:
-				image(gs.game_width + ((gs.window_width - gs.game_width) / 5 * (j + 1)), y, f"./res/img/side_panel_selectors/selector{j + 1}.png", ancrage = "center")
+				image(gs.game_width + ((gs.window_width - gs.game_width) / divs * (j + 1)), y, f"./res/img/side_panel_selectors/selector{j + 1}.png", ancrage = "center")
 
 def display_timer():
 	"""
