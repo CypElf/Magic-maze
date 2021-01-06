@@ -281,26 +281,29 @@ def display_side_panel():
 	Display the game side panel.
 	"""
 	pawns = gs.pawns
-	window_width = gs.window_width
-	window_height = gs.window_height
 
 	display_timer()
-	x_offset = 30
+	timer_height = 80 + hauteur_texte()
 
 	for i, color in enumerate(pawns):
-		if not color.startswith("fake"):
-			img = color
-		else:
+		if color.startswith("fake"):
 			img = "guard"
-		image(window_width - (window_width - gs.game_width) / 2 + x_offset, window_height / (len(pawns) + 1) * (i + 1), f"./res/img/big_players/{img}.png", ancrage = "center")
+		else:
+			img = color
 
-	image(window_width - (window_width - gs.game_width) / 2 - 1.5 * x_offset, window_height / (len(pawns) + 1) * (list(pawns.keys()).index(gs.current_color) + 1), "./res/img/misc/arrow.png", ancrage = "center")
+		y = timer_height + (i + 0.25) * ((gs.window_height - timer_height) / len(pawns))
+
+		image(gs.game_width + ((gs.window_width - gs.game_width) / 5 * 4), y, f"./res/img/big_players/{img}.png", ancrage = "center")
+
+		for j in range(gs.players_count):
+			if gs.selected_colors[j] == color:
+				image(gs.game_width + ((gs.window_width - gs.game_width) / 5 * (j + 1)), y, f"./res/img/side_panel_selectors/selector{j + 1}.png", ancrage = "center")
 
 def display_timer():
 	"""
 	Display the game timer at the top right of the window.
 	"""
-	texte(gs.window_width - 12, gs.window_height / 40, "temps restant : " + str(int((get_timer() + 1))), ancrage = "ne")
+	texte(gs.game_width + ((gs.window_width - gs.game_width) / 2), 40, "temps restant : " + str(int((get_timer() + 1))), ancrage = "center")
 
 # ------------------------------------------------- selectors
 
