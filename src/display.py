@@ -101,6 +101,7 @@ def display_controls():
 		txt = "\n".join(actions)
 		texte(gs.window_width / (pc + 1) * (j + 1), gs.window_height / 6 * 4, txt, ancrage = "center", taille = 20)
 
+	texte(window_width / 2, window_height / 6 * 5.2, "A noter que le switch est utilisé pour changer de pion sélectionné, de vortex sélectionné ou de tuile à téléporter.", ancrage = "center", taille = 18)
 	texte(window_width / 2, window_height / 6 * 5.5, "Cliquez n'importe où dans la fenêtre pour continuer.", ancrage = "center", taille = 14)
 	mise_a_jour()
 
@@ -126,7 +127,7 @@ def get_printables_actions():
 		"vortex": "prendre un vortex",
 		"explore": "explorer",
 		"telekinesis": "utiliser la télékinésie de l'elfe",
-		"switch": "switcher de personnage / de vortex / de tuile",
+		"switch": "switcher",
 		"debug": "(dés)activer le mode debug",
 		"exit": "mettre en pause"
 	}

@@ -67,6 +67,15 @@ Fonctionnalités implémentées :
 
 ## Phase 3
 
+### Implémentations
+
+Fonctionnalités implémentées :
+- la séparation du plateau en tuiles et l'ajout de l'action correspondante d'exploration
+- l'ajout d'un garde bloquant sa tuile
+- l'ajout de gardes de renforts, comme le garde déjà présent de base, apparaissant au moment où les objets sont volés et la sortie devient disponible
+- l'ajout du pouvoir de téléportation de l'elfe lui permettant de déplacer deux fois dans la partie une tuile d'un endroit à l'autre, sans séparer le plateau en deux et à condition qu'aucun pion ne se trouve sur la carte déplacée
+- la possibilité pour les joueurs, en mode multijoueur, de sélectionner un point de façon séparée des autres joueurs (jusqu'ici, le pion sélectionné était commun à tous les joueurs, et switcher de pion le faisait donc pour tout le monde)
+
 ### Choix techniques
 
 Un problème rencontré à la phase 2 (celui des fonctions avec beaucoup trop de paramètres) a été résolu. Une première solution à laquelle nous avons pensé aurait été de faire du jeu un objet et de lui définir comme attributs les différentes variables correspondant à son état, permettant ainsi d'y accéder depuis les différentes fonctions qui seraient alors pour certaines devenues des méthodes.
