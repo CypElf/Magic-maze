@@ -126,7 +126,7 @@ def get_printables_actions():
 		"vortex": "prendre un vortex",
 		"explore": "explorer",
 		"telekinesis": "utiliser la télékinésie de l'elfe",
-		"switch": "switcher de personnage",
+		"switch": "switcher de personnage / de vortex / de tuile",
 		"debug": "(dés)activer le mode debug",
 		"exit": "mettre en pause"
 	}
