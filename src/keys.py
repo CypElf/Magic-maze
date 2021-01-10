@@ -1,6 +1,7 @@
 """
 This module handles all the keys related things.
 """
+from copy import deepcopy
 from random import shuffle
 
 import src.game_state as gs
@@ -12,7 +13,7 @@ def get_keys():
 	Return the right keys according to the players count.
 	"""
 	if gs.players_count == 1:
-		return {
+		keys = {
 			"up": {"up", "z"},
 			"left": {"left", "q"},
 			"down": {"down", "s"},
@@ -42,7 +43,6 @@ def get_keys():
 		shuffle(remaining_keys)
 		keys["escalator"], keys["vortex"], keys["explore"] = remaining_keys[0], remaining_keys[1], remaining_keys[2]
 
-		return keys
 	else:
 		keys = {
 			"switch": {"q", "m", "v"},
@@ -59,7 +59,7 @@ def get_keys():
 		shuffle(remaining_keys)
 		keys["escalator"], keys["vortex"], keys[directions[3]], keys["explore"] = remaining_keys[0], remaining_keys[1], remaining_keys[2], remaining_keys[3]
 			
-		return keys
+	gs.keys = keys
 
 def key_triggered(key):
 	"""

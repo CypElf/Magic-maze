@@ -72,9 +72,10 @@ def save_loading_menu():
                 if i == 1: # click on the load save area
                     wants_to_load_save = True
 
-                    while wants_to_load_save and not path.isfile("save.json"):
+                    if wants_to_load_save and not path.isfile("save.json"):
                         display_loading_save_error()
-                        wants_to_load_save = save_loading_menu()
+                        wants_to_load_save = False
+                        chosen = False
     return wants_to_load_save
 
 def players_selection_menu():
@@ -90,7 +91,7 @@ def players_selection_menu():
                 efface_tout()
 
                 gs.players_count = i + 1
-                gs.keys = k.get_keys()
+                k.get_keys()
 
                 display_controls()
                 attente_clic()

@@ -7,7 +7,7 @@ import src.game_state as gs
 
 def invert_timer():
     """
-    Invert the timer as a hourglass would, according to the timeout.
+    Invert the timer as an hourglass would, according to the timeout.
     """
     now = time()
     return now - (gs.timeout * 60 + gs.start_time - now) - 1
